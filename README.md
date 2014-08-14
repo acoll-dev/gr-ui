@@ -42,6 +42,5 @@ Ex.: `<gr-input gr-name="my-input" gr-type="text" gr-label="My Input Text" gr-ic
 - &: Deve ficar a frente do caracter a ser utilizado como referencia, o mesmo assumirá a "mask type" mais próxima encontrado a direita, ao digitar, ele auto incrementa o caracter referencia na sua própria posição.
 - [[X||*]]: Deve ficar a frente do caracter a ser utilizado como referencia, o mesmo assumirá a "mask type" mais próxima encontrado a direita, ele auto incrementa o caracter referencia na sua própria posição, caso haja divisor, ele será implementado cada vez que o delimitador for atingido, caso não haja um divisor, o delimitador limitará a implementação da mascára.
 
-        Legenda:
-            - X: Reperensa o delimitador, deve conter um numérico inteiro maior que 1
-            - *: Representa o divisor, deve conter qualquer caractér (exceto "]]"), em qualquer quantidade, caso seja necessário utilizar o caracter "\" é necessário definir duplicado, como "\\"
+        - X: Reperensa o delimitador, deve conter um numérico inteiro maior que 1
+        - *: Representa o divisor, deve conter qualquer caractér (exceto "]]"), em qualquer quantidade, caso seja necessário utilizar o caracter "\" é necessário definir duplicado, como "\\"
