@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="">
+    <title>Griffo Form Validation - Example</title>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="stylesheet/main.css" />
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body ng-app="griffo">
+    <div class="container" ng-controller="grCtrl">
+        <h2 class="page-header">Griffo Form Validation</h2>
+        <gr-form gr-name="form">
+            <gr-input gr-name="name" gr-label="Text" gr-icon="fa fa-fw fa-user" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4"></gr-input>
+            <gr-input gr-type="checkbox" gr-name="checkbox" gr-label="Checkbox" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4" gr-checked></gr-input>
+            <gr-input gr-type="select" gr-name="select" gr-label="Select" gr-icon="fa fa-fw fa-tag" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+                <gr-input-inner gr-label="Option 1" gr-value="1"></gr-input-inner>
+                <gr-input-inner gr-label="Option 2" gr-value="2" gr-selected></gr-input-inner>
+                <gr-input-inner gr-label="Option 3" gr-value="3"></gr-input-inner>
+            </gr-input>
+            <gr-input gr-type="textarea" gr-name="textarea" gr-label="Textarea" gr-icon="fa fa-fw fa-envelope" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4"></gr-input>
+            <gr-input gr-type="file" gr-name="file" gr-label="File" gr-icon="fa fa-fw fa-file" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4" gr-multiple></gr-input>
+            <gr-input gr-type="radio" gr-name="radio" gr-label="Radio" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+                <gr-input-inner gr-label="Radio 1" gr-value="1"></gr-input-inner>
+                <gr-input-inner gr-label="Radio 2" gr-value="2" gr-checked></gr-input-inner>
+                <gr-input-inner gr-label="Radio 3" gr-value="3"></gr-input-inner>
+            </gr-input>
+            <div class="col-xs-12">
+                <hr/>
+                <button type="submit" class="btn btn-primary">{{'Send' | translate }}</button>
+                <button type="reset" class="btn btn-info">{{'Reset' | translate}}</button>
+            </div>
+        </gr-form>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.22/angular.min.js"></script>
+    <script src="dependence/angular-translate/angular-translate.min.js"></script>
+    <script src="dependence/angular-translate/angular-translate-loader-static-files.js"></script>
+    <script src="../gr-validation.js"></script>
+    <script src="../gr-validation-config.js"></script>
+    <script src="../gr-validation-fields.js"></script>
+    <script src="../gr-validation-rules.js"></script>
+    <script src="../gr-validation-mask-patterns.js"></script>
+    <script src="javascript/application.js"></script>
+</body>
+
+</html>

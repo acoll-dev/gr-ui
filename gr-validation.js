@@ -1,59 +1,68 @@
 angular.module('grValidation', ['grValidation.provider', 'grValidation.directive']);
 angular.module('grValidation.provider', [])
     .provider('$grValidation', function () {
-        var $injector,
-            $scope,
-            $filter,
-            $http,
-            $compile,
-            $timeout,
-            $grValidationFields,
-            $grValidationRules,
-            $grValidationMaskPatterns,
-            $grValidationConfig,
-            $window,
-            setup,
-            validator,
-            getExternalConfig,
-            tools,
-            checkValid,
+        var checkValid,
             formChange,
             formId = 1,
+            getExternalConfig,
             inputId = 1,
-            _this = this;
+            instance = {
+                compile: {},
+                injector: {},
+                filter: {},
+                http: {},
+                scope: {},
+                timeout: {},
+                window: {}
+            },
+            setup,
+            tools,
+            validator,
+            _this = this,
+            $grValidation = {
+                config : {},
+                fields: {},
+                masks: {},
+                rules: {}
+            };
+
         validator = {
-            'form': {},
-            'field': {},
-            'message': {},
-            'template': {},
-            'mask': {},
-            'rules': {
-                0: {
-                    name: 'required',
-                    type: 'boolean',
-                    rule: function (value, delimiter) {
-                        return (value !== '' && value !== null && value !== undefined && value !== 'undefined');
-                    }
-                }
+            'config': {
+                'form': {}
             },
             'default': {
                 method: 'onSubmit',
                 labelType: 'placeholder',
                 validate: true
             },
+            'form': {},
+            'field': {},
+            'mask': {},
+            'message': {},
+            'rules': {
+                0: {
+                    name: 'required',
+                    type: 'boolean',
+                    rule: function (value, delimiter, fields, field) {
+                        return (value !== '' && value !== null && value !== undefined && value !== 'undefined' && value !== 'on' && value);
+                    }
+                }
+            },
+            'template': {},
             '$config': {
                 'url': '',
-                'form': {},
                 'set': function(forms){
                     angular.forEach(forms, function(f, i){
-                        validator.$config.form[i] = f;
+                        validator.config.form[i] = f;
                     });
                 }
             },
-            '$message': {
-                url: '',
-                set: function (messages) {
-                    validator.message = messages;
+            '$destroy': function (form) {
+                if(validator.form[form]){
+                    delete validator.form[form];
+                    return;
+                }else{
+                    return;
                 }
             },
             '$field':{
@@ -67,26 +76,25 @@ angular.module('grValidation.provider', [])
                     }
                 }
             },
-            '$template': {
-                path: '',
-                extension: '',
-                set: function () {
-                    angular.forEach(validator.field, function (field, id) {
-                        validator.template[id] = validator.$template.path + '/' + field.template + validator.$template.extension;
-                    });
-                    validator.template['form'] = validator.$template.path + '/form' + validator.$template.extension;
-                    validator.template['alert'] = validator.$template.path + '/alert' + validator.$template.extension;
-                },
-                get: function (tpl, field) {
-                    if(!field){
-                        if (!tpl) {
-                            return validator.template;
-                        } else {
-                            return validator.template[tpl];
+            '$get': function (form) {
+                if (form && String(typeof form) === 'string') {
+                    var form = validator.form[form];
+                    if (form) {
+                        return {
+                            id: form.id,
+                            name: form.name,
+                            translate: form.translate,
+                            reset: form.$reset,
+                            $add: form.$add,
+                            $change: form.$change,
+                            $message: {
+                                get: form.$message.get,
+                                show: form.$message.show
+                            }
                         }
-                    }else{
-                        return validator.template[validator.field[tpl].template];
                     }
+                } else {
+                    return;
                 }
             },
             '$mask': {
@@ -96,6 +104,432 @@ angular.module('grValidation.provider', [])
                     angular.forEach(masks, function (m, id) {
                         validator.mask[id] = m;
                     });
+                }
+            },
+            '$message': {
+                url: '',
+                set: function (messages) {
+                    validator.message = messages;
+                }
+            },
+            '$new': function (form) {
+                if(!validator.form[form.name]){
+                    form = {
+                        'dependence': [],
+                        'element': form.element,
+                        'error': {},
+                        'field': {},
+                        'id': formId,
+                        'labelType': (form.labelType !== '' && form.labelType !== undefined) ? form.labelType : validator.default['labelType'],
+                        'method': (form.method !== '' && form.method !== undefined) ? form.method : validator.default['method'],
+                        'model': form.model,
+                        'name': form.name,
+                        'scope': form.scope,
+                        'translate': true,
+                        'validated': false,
+                        'validate': (form.validate !== '' && form.validate !== undefined) ? (form.validate !== 'false' && form.validate !== false) : validator.default['validate'],
+                        'valid': false,
+                        '$add': function (field) {
+                            if(!form.field[field.name]){
+                                if (validator.form[field.form]) {
+                                    field = {
+                                        'changed': false,
+                                        'default': {
+                                            'value': field.value,
+                                            'checked': field.checked,
+                                            'multiple': field.multiple
+                                        },
+                                        'element': field.element,
+                                        'error': '',
+                                        'error_messages': tools.rules.parse(form, field.name, field.validate),
+                                        'form': field.form,
+                                        'icon': field.icon,
+                                        'id': inputId,
+                                        'innerElements': field.innerElements,
+                                        'input': angular.element(field.element).find(validator.field[field.type].type),
+                                        'label': tools.translate(form, field.label),
+                                        'mask': field.mask,
+                                        'model': [],
+                                        'name': field.name,
+                                        'rules': tools.rules.split(field.validate),
+                                        'requiredBy': [],
+                                        'scope': field.scope,
+                                        'type': field.type,
+                                        'state': '',
+                                        'validate': field.validate ? true : false,
+                                        'valid': true,
+                                        'value': '',
+                                        '$attr':{
+                                            set: function(){
+                                                validator.field[field.type].set.attrs(form, field);
+                                            }
+                                        },
+                                        '$change': function (change) {
+                                            if(change){
+                                                if(field.model.length === 0){
+                                                    field.model = change.model;
+                                                }
+                                                field.value = (change.value !== undefined && change.value !== '') ? (change.submiting ? field.value : change.value) : ((field.default.value !== undefined && field.default.value !== '') ? field.default.value : '');
+                                                field.model.$setViewValue(field.value);
+                                            }
+                                            var value = field.value,
+                                                model = field.model;
+                                            if (form.validate) {
+                                                if (form.method === 'onSubmit' && !form.validated) {
+                                                    instance.timeout(function () {
+                                                        instance.window.trigger('resize');
+                                                    });
+                                                    return;
+                                                } else if (form.method === 'onChange' && !field.changed && !form.validated) {
+                                                    instance.timeout(function () {
+                                                        instance.window.trigger('resize');
+                                                    });
+                                                    field.changed = true;
+                                                    return;
+                                                } else {
+                                                    field.$check(value, model);
+                                                }
+                                            };
+                                            instance.timeout(function () {
+                                                instance.window.trigger('resize');
+                                            });
+                                        },
+                                        '$check': function (value, model) {
+                                            var error = 0;
+                                            if(field.validate){
+                                                angular.forEach(validator.rules, function (r) {
+                                                    if (field.rules[r.name] && error === 0) {
+                                                        if (!r.rule(value, field.rules[r.name], form.field, field)) {
+                                                            form.$error.set({
+                                                                id: field.id,
+                                                                message: field.error_messages[r.name]
+                                                            });
+                                                            error++;
+                                                        } else {
+                                                            form.$error.unset(field.id);
+                                                        }
+                                                        form.$message.change('danger', 'form');
+                                                        form.$change();
+                                                    }
+                                                });
+                                                if (error === 0) {
+                                                    field.$state.set('success');
+                                                    field.valid = true;
+                                                    model.$setValidity(field.name, true);
+                                                } else {
+                                                    field.$state.set('error');
+                                                    field.valid = false;
+                                                    model.$setValidity(field.name, false);
+                                                }
+                                            }else{
+                                                form.$change();
+                                                field.valid = true;
+                                                model.$setValidity(field.name, true);
+                                            }
+                                        },
+                                        '$config' : function () {
+                                            field.$scope.set();
+                                            field.$attr.set();
+                                            field.$mask.set();
+                                            if(field.rules.hasOwnProperty('equalTo')){
+                                                validator.form[field.form].field[field.rules.equalTo].requiredBy.push(field.name);
+                                            }
+                                            validator.form[field.form].field[field.name] = field;
+                                            inputId++;
+                                        },
+                                        '$mask': {
+                                            object: {},
+                                            type: '',
+                                            set: function(){
+                                                if(field.mask){
+                                                    if(validator.mask[field.mask]){
+                                                        field.$mask.type = 'string';
+                                                        field.mask = validator.mask[field.mask];
+                                                    }else{
+                                                        field.$mask.type = 'string';
+                                                        field.mask = '';
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        '$modelName': function(name) {
+                                            var path = /[a-zA-Z0-9]+/g,
+                                                noPath = /[^a-zA-Z0-9]+/g,
+                                                temp = [],
+                                                hasInvalid = false;
+                                            if(noPath.test(name)){
+                                                    angular.forEach(name.split(''), function(chr, i){
+                                                        if(chr.match(path)){
+                                                            if(hasInvalid){
+                                                                chr = chr.toUpperCase();
+                                                                hasInvalid = false;
+                                                            }
+                                                            temp.push(chr);
+                                                        }else{
+                                                            hasInvalid = true;
+                                                        }
+                                                    });
+                                                    return temp.join('');
+                                            }else{
+                                                return name;
+                                            }
+                                        },
+                                        '$reset': function () {
+                                            field.$state.set('');
+                                            field.model.$setViewValue(field.default.value);
+                                            validator.field[field.type].reset(form, field);
+                                            field.$change({
+                                                value: '',
+                                                model: field.model
+                                            });
+                                        },
+                                        '$scope':{
+                                            set: function(){
+                                                validator.field[field.type].set.scope(form, field);
+                                            }
+                                        },
+                                        '$state': {
+                                            set: function(state){
+                                                field.state = state;
+                                                field.scope.state = state;
+                                            }
+                                        }
+                                    };
+                                    field.$config();
+                                } else {
+                                    instance.timeout(function () {
+                                        validator.$add(field);
+                                    });
+                                }
+                            }else{
+                                console.error("Not allowed to use two input fields with the same gr-name on the same form, '" + field.name + "' is already been used in '" + form.name + "' form.");
+                                field.element.remove();
+                            }
+                        },
+                        '$change': function (change) {
+                            if(change){
+                                form.field[change.field].$change(change);
+                                if(form.field[change.field].requiredBy.length > 0){
+                                    angular.forEach(form.field[change.field].requiredBy, function(f){
+                                        form.field[f].$change();
+                                    });
+                                }
+                            }else{
+                                instance.scope.$broadcast('form' + form.name + 'change');
+                            }
+                        },
+                        '$check': function () {
+                            //if (form.model.$valid === undefined) {
+                            if (form.valid === undefined) {
+                                return false;
+                            } else {
+                                //return form.model.$valid === true;
+                                return form.valid === true;
+                            }
+                        },
+                        '$config': function(){
+                            form.model.$id = String(form.id);
+                            form.model.$name = form.name;
+                            if (validator.config.form.hasOwnProperty(form.name)) {
+                                var config = validator.config.form[form.name];
+                                if (config.hasOwnProperty('submit')) {
+                                    form.$submit.set(config.submit);
+                                }
+                                if(config.hasOwnProperty('data-source')){
+                                    var source = config['data-source'];
+                                    if(typeof source === 'string'){
+                                        instance.http.get(source).then(
+                                            function (data) {
+                                                form.data = data.response;
+                                            },
+                                            function (e) {
+                                                console.error(e);
+                                            });
+                                    }else if(typeof source === 'object'){
+                                        console.debug('object');
+                                        console.debug(source);
+                                    }
+                                }
+                                if (config.hasOwnProperty('translate')) {
+                                    if (String(typeof config.translate) === 'boolean') {
+                                        form.translate = config.translate;
+                                    }
+                                }
+                                if (config.hasOwnProperty('dependencies')) {
+                                    if(String(typeof config.dependencies) === 'string'){
+                                        form.dependence = config.dependencies;
+                                    }else{
+                                        angular.forEach(config.dependencies, function(dep){
+                                            form.dependence.push(dep);
+                                        });
+                                    }
+                                }
+                            }else{
+                                console.error('The "' + form.name + '" was not found in the configuration file, so it is not possible to send or receive data.');
+                            };
+                            form.element.bind({
+                                'submit': function (e) {
+                                    e.preventDefault();
+                                    form.$validate();
+                                },
+                                'reset': function (e) {
+                                    e.preventDefault();
+                                    form.$reset();
+                                }
+                            }).attr('novalidate', true);
+                            validator.form[form.name] = form;
+                            formId++;
+                        },
+                        '$error': {
+                            set: function (error) {
+                                form.error[error.id] = error.message;
+                                form.valid = false;
+                            },
+                            unset: function (id) {
+                                delete form.error[id];
+                                var errorLength = 0;
+                                angular.forEach(form.error, function(){
+                                    errorLength++;
+                                });
+                                if(errorLength === 0){
+                                    form.valid = true;
+                                }else{
+                                    form.valid = false;
+                                }
+                            }
+                        },
+                        '$dependece': {
+                            set: function (dep) {
+                                if (String(typeof dep) === 'object') {
+                                    angular.forEach(dep, function (d) {
+                                        validator.dependence.push(d);
+                                    });
+                                }
+                            }
+                        },
+                        '$message': {
+                            type: '',
+                            trigger: '',
+                            text: {},
+                            get: function () {
+                                var message = {};
+                                if(String(typeof form.$message.text) == 'object'){
+                                    angular.forEach(form.$message.text, function(msg, id){
+                                        message[id] = msg;
+                                    });
+                                }else{
+                                    message = form.$message.text;
+                                }
+                                return {
+                                    type: form.$message.type,
+                                    trigger: form.$message.trigger,
+                                    text: message
+                                };
+                            },
+                            change: function (type, trigger, text) {
+                                form.$message.type = type;
+                                form.$message.trigger = trigger;
+                                if (text && trigger !== 'form') {
+                                    form.$message.text = text;
+                                } else {
+                                    form.$message.text = form.error;
+                                }
+                                form.$change();
+                                instance.timeout(function () {
+                                    instance.window.trigger('resize');
+                                });
+                            },
+                            show: function (type, text) {
+                                form.$message.change(type, 'show', tools.translate(form,text));
+                            }
+                        },
+                        '$status': {
+                            set: function (validate) {
+                                if (String(typeof validate) === 'boolean') {
+                                    form.validate = validate;
+                                }
+                            }
+                        },
+                        '$scope': function(){
+                            form.scope['form'] = {
+                                reset: form.$reset,
+                                submit: form.$validate
+                            }
+                        },
+                        '$submit': {
+                            fn: '',
+                            set: function (fn) {
+                                form.$submit.fn = fn;
+                            },
+                            exec: function (data) {
+                                var submit = form.$submit.fn;
+                                if (String(typeof submit) === 'function') {
+                                    submit(data);
+                                } else {
+                                    var injector,
+                                        i = [],
+                                        count = 0,
+                                        fn;
+                                    angular.forEach(submit, function (o) {
+                                        if (String(typeof o) === 'string') {
+                                            injector = angular.injector(form.dependence);
+                                            i.push(injector.get(o));
+                                            count++;
+                                        } else if (String(typeof o) === 'function' && String(typeof fn) !== 'function') {
+                                            fn = o;
+                                        }
+                                    });
+                                    i.push(data);
+                                    i.push(validator.$get(form.name));
+                                    fn.apply(null, i);
+                                }
+                            }
+                        },
+                        '$reset': function() {
+                            form.validated = false;
+                            form.valid = true;
+                            angular.forEach(form.field, function(field){
+                                field.$reset();
+                            });
+                            form.$message.type = '';
+                            form.$message.trigger = '';
+                            form.$message.text = {};
+                            instance.scope.$broadcast('form' + form.name + 'change');
+                        },
+                        '$validate': function () {
+                            if (form.validate) {
+                                form.validated = true;
+                                angular.forEach(form.field, function (field) {
+                                    instance.scope.$broadcast(field.form + field.name + 'submit');
+                                });
+                                if (form.$check()) {
+                                    var data = {};
+                                    angular.forEach(form.field, function(field){
+                                        data[field.name] = field.value;
+                                    });
+                                    console.debug(data);
+                                    form.$submit.exec(data);//form.element.serializeArray());
+                                    return;
+                                } else {
+                                    var input;
+                                    angular.forEach(form.field, function (field) {
+                                        if (!field.valid && !input) {
+                                            input = field.input;
+                                        }
+                                    });
+                                    input.focus();
+                                    return;
+                                }
+                            } else {
+                                form.$submit.exec(form.element.serializeArray());
+                            }
+                        }
+                    };
+                    form.$scope();
+                    form.$config();
+                }else{
+                    console.error("Not allowed to use two forms with a same name, '" + form.name + "' is already being used in another form.");
+                    form.element.remove();
                 }
             },
             '$rule': {
@@ -130,432 +564,40 @@ angular.module('grValidation.provider', [])
                     });
                 }
             },
-            '$new': function (form) {
-                if(!validator.form[form.name]){
-                    form = {
-                        'id': formId,
-                        'name': form.name,
-                        'element': form.element,
-                        'scope': form.scope,
-                        'model': form.model,
-                        'method': (form.method !== '' && form.method !== undefined) ? form.method : validator.default['method'],
-                        'labelType': (form.labelType !== '' && form.labelType !== undefined) ? form.labelType : validator.default['labelType'],
-                        'valid': true,
-                        'validated': false,
-                        'validate': (form.validate !== '' && form.validate !== undefined) ? (form.validate !== 'false' && form.validate !== false) : validator.default['validate'],
-                        'error': {},
-                        'field': {},
-                        'dependence': [],
-                        'translate': true,
-                        '$add': function (field) {
-                            if(!form.field[field.name]){
-                                if (validator.form[field.form]) {
-                                    field = {
-                                        'id': inputId,
-                                        'name': field.name,
-                                        'form': field.form,
-                                        'element': field.element,
-                                        'input': angular.element(field.element).find(validator.field[field.type].type),
-                                        'scope': field.scope,
-                                        'model': [],
-                                        'type': field.type,
-                                        'mask': field.mask,
-                                        'startValue': field.startValue,
-                                        'state': '',
-                                        'value': '',
-                                        'valid': true,
-                                        'validate': field.validate ? true : false,
-                                        'changed': false,
-                                        'label': tools.translate(form, field.label),
-                                        'icon': field.icon,
-                                        'rules': tools.rules.split(field.validate),
-                                        'requiredBy': [],
-                                        'error': '',
-                                        'error_messages': tools.rules.parse(form, field.name, field.validate),
-                                        '$mask': {
-                                            object: {},
-                                            type: '',
-                                            set: function(){
-                                                if(field.mask){
-                                                    if(validator.mask[field.mask]){
-                                                        field.$mask.type = 'string';
-                                                        field.mask = validator.mask[field.mask];
-                                                    }else{
-                                                        field.$mask.type = 'string';
-                                                        field.mask = '';
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        '$scope':{
-                                            set: function(){
-                                                validator.field[field.type].set.scope(form, field);
-                                            }
-                                        },
-                                        '$attr':{
-                                            set: function(){
-                                                $compile(
-                                                    field.input.attr(validator.field[field.type].set.attrs(form, field))
-                                                )(field.scope);
-                                            }
-                                        },
-                                        '$modelName': function(name) {
-                                            var path = /[a-zA-Z0-9]+/g,
-                                                noPath = /[^a-zA-Z0-9]+/g,
-                                                temp = [],
-                                                hasInvalid = false;
-                                            if(noPath.test(name)){
-                                                    angular.forEach(name.split(''), function(chr, i){
-                                                        if(chr.match(path)){
-                                                            if(hasInvalid){
-                                                                chr = chr.toUpperCase();
-                                                                hasInvalid = false;
-                                                            }
-                                                            temp.push(chr);
-                                                        }else{
-                                                            hasInvalid = true;
-                                                        }
-                                                    });
-                                                    return temp.join('');
-                                            }else{
-                                                return name;
-                                            }
-                                        },
-                                        '$change': function (change) {
-                                            if(change){
-                                                change.value = (change.value !== undefined) ? change.value : '';
-                                                field.value = change.value;
-                                                field.model = change.model;
-                                            }
-                                            var value = field.value,
-                                                model = field.model;
-                                            if (form.validate) {
-                                                if (form.method === 'onSubmit' && !form.validated) {
-                                                    $timeout(function () {
-                                                        $window.trigger('resize');
-                                                    });
-                                                    return;
-                                                } else if (form.method === 'onChange' && !field.changed && !form.validated) {
-                                                    $timeout(function () {
-                                                        $window.trigger('resize');
-                                                    });
-                                                    field.changed = true;
-                                                    return;
-                                                } else {
-                                                    field.$check(value, model);
-                                                }
-                                            };
-                                            $timeout(function () {
-                                                $window.trigger('resize');
-                                            });
-                                        },
-                                        '$check': function (value, model) {
-                                            var error = 0;
-                                            angular.forEach(validator.rules, function (r) {
-                                                if (field.rules[r.name] && error === 0) {
-                                                    if (!r.rule(value, field.rules[r.name], form.field)) {
-                                                        form.$error.set({
-                                                            id: field.id,
-                                                            message: field.error_messages[r.name]
-                                                        });
-                                                        error++;
-                                                    } else {
-                                                        form.$error.unset(field.id);
-                                                    }
-                                                    form.$message.change('danger', 'form');
-                                                    form.$change();
-                                                }
-                                            });
-                                            if (error === 0) {
-                                                field.$state.set('success');
-                                                field.valid = true;
-                                                model.$setValidity(field.name, true);
-                                            } else {
-                                                field.$state.set('error');
-                                                field.valid = false;
-                                                model.$setValidity(field.name, false);
-                                            }
-                                        },
-                                        '$state': {
-                                            set: function(state){
-                                                field.state = state;
-                                                field.scope.state = state;
-                                            }
-                                        }
-                                    };
-                                    field.$mask.set();
-                                    field.$attr.set();
-                                    field.$scope.set();
-                                    if(field.rules.hasOwnProperty('equalTo')){
-                                        validator.form[field.form].field[field.rules.equalTo].requiredBy.push(field.name);
-                                    }
-                                    validator.form[field.form].field[field.name] = field;
-                                    inputId++;
-                                } else {
-                                    $timeout(function () {
-                                        validator.$add(field);
-                                    });
-                                }
-                            }else{
-                                console.error("Not allowed to use two input fields with the same gr-name on the same form, '" + field.name + "' is already been used in '" + form.name + "' form.");
-                                field.element.remove();
-                            }
-                        },
-                        '$config': function(){
-                            form.model.$id = String(form.id);
-                            form.model.$name = form.name;
-                            if (validator.$config.form.hasOwnProperty(form.name)) {
-                                var config = validator.$config.form[form.name];
-                                if (config.hasOwnProperty('submit')) {
-                                    form.$submit.set(config.submit);
-                                }
-                                if (config.hasOwnProperty('translate')) {
-                                    if (String(typeof config.translate) === 'boolean') {
-                                        form.translate = config.translate;
-                                    }
-                                }
-                                if (config.hasOwnProperty('dependencies')) {
-                                    if(String(typeof config.dependencies) === 'string'){
-                                        form.dependence = config.dependencies;
-                                    }else{
-                                        angular.forEach(config.dependencies, function(dep){
-                                            form.dependence.push(dep);
-                                        });
-                                    }
-                                }
-                            };
-                        },
-                        '$dependece': {
-                            set: function (dep) {
-                                if (String(typeof dep) === 'object') {
-                                    angular.forEach(dep, function (d) {
-                                        validator.dependence.push(d);
-                                    });
-                                }
-                            }
-                        },
-                        '$status': {
-                            set: function (validate) {
-                                if (String(typeof validate) === 'boolean') {
-                                    form.validate = validate;
-                                }
-                            }
-                        },
-                        '$message': {
-                            type: '',
-                            trigger: '',
-                            text: {},
-                            get: function () {
-                                if(String(typeof form.$message.text) == 'object'){
-                                    var message = {};
-                                    angular.forEach(form.$message.text, function(msg, id){
-                                        message[id] = msg;
-                                    });
-                                }else{
-                                    message = form.$message.text;
-                                }
-                                return {
-                                    type: form.$message.type,
-                                    trigger: form.$message.trigger,
-                                    text: message
-                                };
-                            },
-                            change: function (type, trigger, text) {
-                                form.$message.type = type;
-                                form.$message.trigger = trigger;
-                                if (text && trigger !== 'form') {
-                                    form.$message.text = text;
-                                } else {
-                                    form.$message.text = form.error;
-                                }
-                                form.$change();
-                                $timeout(function () {
-                                    $window.trigger('resize');
-                                });
-                            },
-                            show: function (type, text) {
-                                form.$message.change(type, 'show', tools.translate(form,text));
-                            }
-                        },
-                        '$error': {
-                            set: function (error) {
-                                form.error[error.id] = error.message;
-                            },
-                            unset: function (id) {
-                                delete form.error[id];
-                            }
-                        },
-                        '$submit': {
-                            fn: '',
-                            set: function (fn) {
-                                form.$submit.fn = fn;
-                            },
-                            exec: function (data) {
-                                var submit = form.$submit.fn;
-                                if (String(typeof submit) === 'function') {
-                                    submit(formData);
-                                } else {
-                                    var injector,
-                                        i = [],
-                                        count = 0,
-                                        fn;
-                                    angular.forEach(submit, function (o) {
-                                        if (String(typeof o) === 'string') {
-                                            injector = angular.injector(form.dependence);
-                                            i.push(injector.get(o));
-                                            count++;
-                                        } else if (String(typeof o) === 'function' && String(typeof fn) !== 'function') {
-                                            fn = o;
-                                        }
-                                    });
-                                    i.push(data);
-                                    i.push(validator.$get(form.name));
-                                    fn.apply(null, i);
-                                }
-                            }
-                        },
-                        '$change': function (change) {
-                            if(change){
-                                form.field[change.field].$change(change);
-                                if(form.field[change.field].requiredBy.length > 0){
-                                    angular.forEach(form.field[change.field].requiredBy, function(f){
-                                        form.field[f].$change();
-                                    });
-                                }
-                            }else{
-                                $scope.$broadcast('form' + form.name + 'change');
-                            }
-                        },
-                        '$check': function () {
-                            if (form.model.$valid === undefined) {
-                                return false;
-                            } else {
-                                return form.model.$valid === true;
-                            }
-                        },
-                        '$validate': function () {
-                            if (form.validate) {
-                                form.validated = true;
-                                angular.forEach(form.field, function (field) {
-                                    $scope.$broadcast(field.form + field.name + 'submit');
-                                });
-                                if (form.$check()) {
-                                    form.$submit.exec(form.element.serializeArray());
-                                    return;
-                                } else {
-                                    var input;
-                                    angular.forEach(form.field, function (field) {
-                                        if (!field.valid && !input) {
-                                            input = field.input;
-                                        }
-                                    });
-                                    input.focus();
-                                    return;
-                                }
-                            } else {
-                                form.$submit.exec(form.element.serializeArray());
-                            }
-                        },
-                        '$reset': function() {
-                            form.validated = false;
-                            form.valid = true;
-                            angular.forEach(form.field, function(field){
-                                field.$state.set('');
-                                field.model.$setViewValue('');
-                                field.input.val('');
-                                field.$change({
-                                    value: '',
-                                    model: field.model
-                                });
-                            });
-                            form.$message.type = '';
-                            form.$message.trigger = '';
-                            form.$message.text = {};
-                            $scope.$broadcast('form' + form.name + 'change');
+            '$template': {
+                path: '',
+                extension: '',
+                set: function () {
+                    angular.forEach(validator.field, function (field, id) {
+                        validator.template[id] = validator.$template.path + '/' + field.template + validator.$template.extension;
+                    });
+                    validator.template['form'] = validator.$template.path + '/form' + validator.$template.extension;
+                    validator.template['alert'] = validator.$template.path + '/alert' + validator.$template.extension;
+                },
+                get: function (tpl, field) {
+                    if(!field){
+                        if (!tpl) {
+                            return validator.template;
+                        } else {
+                            return validator.template[tpl];
                         }
-                    };
-                    form.$config();
-                    form.element.bind('submit', function (e) {
-                        e.preventDefault();
-                        form.$validate();
-                    }).attr('novalidate', true);
-                    validator.form[form.name] = form;
-                    formId++;
-                }else{
-                    console.error("Not allowed to use two forms with a same name, '" + form.name + "' is already being used in another form.");
-                    form.element.remove();
-                }
-            },
-            '$get': function (form) {
-                if (form && String(typeof form) === 'string') {
-                    var form = validator.form[form];
-                    if (form) {
-                        return {
-                            id: form.id,
-                            name: form.name,
-                            translate: form.translate,
-                            reset: form.$reset,
-                            $add: form.$add,
-                            $change: form.$change,
-                            $message: {
-                                get: form.$message.get,
-                                show: form.$message.show
-                            }
-                        }
+                    }else{
+                        return validator.template[validator.field[tpl].template];
                     }
-                } else {
-                    return;
-                }
-            },
-            '$destroy': function (form) {
-                if(validator.form[form]){
-                    delete validator.form[form];
-                    return;
-                }else{
-                    return;
                 }
             }
-        };
-        getExternalConfig = function () {
-            $http.get(validator.$message.url).then(function (messages) {
-                var msg = {};
-                angular.forEach(messages.data, function (m, id) {
-                    msg[id] = {};
-                    angular.forEach(m, function (_m, _id) {
-                        msg[id][_id] = _m;
-                        if (validator.translate) {
-                            $translate(_m).then(function (t) {
-                                msg[id][_id] = t;
-                            }, function (t) {
-                                msg[id][_id] = t;
-                            });
-                        }
-                    });
-                });
-                validator.$message.set(msg);
-            }, function (e) {
-                console.error(e);
-            });
-            $http.get(validator.$mask.url).then(function (masks) {
-                validator.$mask.set(masks.data);
-            });
-            validator.$mask.config = $grValidationMaskPatterns;
-            validator.$rule.set($grValidationRules);
-            validator.$config.set($grValidationConfig);
-            validator.$field.set($grValidationFields);
-            validator.$template.set();
         };
         tools = {
             translate: function(form, text){
                 if(form.translate){
-                    return $filter('translate')(text);
+                    return instance.filter('translate')(text);
                 }else{
                     return text;
                 }
             },
             mask: {
                 replace: function(value){
-                    var pattern = /[\/\\\.\_\-\(\)\:\%\?\!\+\=\@\&\ª\º\¹\²\³\R\$\£\¢\ ]/g;
+                    var pattern = /[\/\\\.\_\-\(\)\:\%\?\!\+\=\@\&\Âª\Âº\Â¹\Â²\Â³\R\$\Â£\Â¢\ ]/g;
                     while(value.match(pattern)){
                         value = value.replace(pattern,'');
                     }
@@ -586,41 +628,43 @@ angular.module('grValidation.provider', [])
             },
             rules: {
                 split: function (rules) {
-                    rules = (rules !== '' && rules !== undefined) ? rules : 'required:false';
+                    rules = (rules !== '' && rules !== undefined && rules) ? rules : 'required:false';
                     rules = rules.split(',');
                     var _rules = {};
-                    angular.forEach(rules, function (r) {
-                        r = r.split(':');
-                        var id = r[0].trim(),
-                            value = r[1].trim(),
-                            hasRule = false;
-                        	while (value.indexOf("'") != -1) {
-                                value = value.replace("'", "").trim();
+                    if(rules){
+                        angular.forEach(rules, function (r) {
+                            r = r.split(':');
+                            var id = r[0].trim(),
+                                value = r[1].trim(),
+                                hasRule = false;
+                                while (value.indexOf("'") != -1) {
+                                    value = value.replace("'", "").trim();
+                                }
+                            angular.forEach(validator.rules, function(_r){
+                                if(id === _r.name){
+                                    var type = _r.type;
+                                    if(type === 'integer'){
+                                        value = parseInt(value) || '';
+                                    }else if(type === 'float'){
+                                        value = parseFloat(value) || '';
+                                    }else if(type === 'boolean'){
+                                        value = String(value) === 'true';
+                                    }else if(type === 'string'){
+                                        value = String(value) || '';
+                                    }
+                                    if(type === 'integer' || type === 'float'){
+                                        type = 'number';
+                                    }
+                                    if(typeof value === type){
+                                        hasRule = true;
+                                    }
+                                };
+                            });
+                            if(hasRule){
+                                _rules[id] = value;
                             }
-                        angular.forEach(validator.rules, function(_r){
-                            if(id === _r.name){
-                                var type = _r.type;
-                                if(type === 'integer'){
-                                    value = parseInt(value) || '';
-                                }else if(type === 'float'){
-                                    value = parseFloat(value) || '';
-                                }else if(type === 'boolean'){
-                                    value = String(value) === 'true';
-                                }else if(type === 'string'){
-                                    value = String(value) || '';
-                                }
-                                if(type === 'integer' || type === 'float'){
-                                    type = 'number';
-                                }
-                                if(typeof value === type){
-                                    hasRule = true;
-                                }
-                            };
                         });
-                        if(hasRule){
-                            _rules[id] = value;
-                        }
-                    });
+                    }
                     return _rules;
                 },
                 parse: function (form, name, rules) {
@@ -675,18 +719,46 @@ angular.module('grValidation.provider', [])
         };
         this.showMessage = validator.$message.show;
         setup = function (injector) {
-            $injector = injector;
-            $scope = $injector.get('$rootScope');
-            $filter = $injector.get('$filter');
-            $http = $injector.get('$http');
-            $compile = $injector.get('$compile');
-            $timeout = $injector.get('$timeout');
-            $grValidationFields = $injector.get('$grValidation.fields');
-            $grValidationRules = $injector.get('$grValidation.rules');
-            $grValidationMaskPatterns = $injector.get('$grValidation.mask.patterns');
-            $grValidationConfig = $injector.get('$grValidation.config');
-            $window = angular.element($injector.get('$window'));
-            getExternalConfig();
+            instance.injector = injector;
+            instance.scope = instance.injector.get('$rootScope');
+            instance.filter = instance.injector.get('$filter');
+            instance.http = instance.injector.get('$http');
+            instance.compile = instance.injector.get('$compile');
+            instance.timeout = instance.injector.get('$timeout');
+            instance.window = angular.element(instance.injector.get('$window'));
+            $grValidation.fields = instance.injector.get('$grValidation.fields');
+            $grValidation.rules = instance.injector.get('$grValidation.rules');
+            $grValidation.masks = instance.injector.get('$grValidation.mask.patterns');
+            $grValidation.config = instance.injector.get('$grValidation.config');
+            instance.http.get(validator.$message.url).then(
+                function (messages) {
+                    var msg = {};
+                    angular.forEach(messages.data, function (m, id) {
+                        msg[id] = {};
+                        angular.forEach(m, function (_m, _id) {
+                            msg[id][_id] = _m;
+                            if (validator.translate) {
+                                $translate(_m).then(function (t) {
+                                    msg[id][_id] = t;
+                                }, function (t) {
+                                    msg[id][_id] = t;
+                                });
+                            }
+                        });
+                    });
+                    validator.$message.set(msg);
+                },
+                function (e) {
+                    console.error(e);
+                });
+            instance.http.get(validator.$mask.url).then(function (masks) {
+                validator.$mask.set(masks.data);
+            });
+            validator.$mask.config = $grValidation.masks;
+            validator.$rule.set($grValidation.rules);
+            validator.$config.set($grValidation.config);
+            validator.$field.set($grValidation.fields);
+            validator.$template.set();
         };
         this.$get = ['$injector',
             function (injector) {
@@ -770,40 +842,66 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                 }
             };
         }])
-    .directive('grInput', ['$grValidation',
-        function (VALIDATOR) {
+    .directive('grInput', ['$grValidation', '$compile',
+        function (VALIDATOR, $compile) {
             return {
                 restrict: 'E',
                 replace: true,
                 scope: true,
                 require: '?^form',
+                transclude: true,
                 templateUrl: function($element, $attrs){
                     if(!$attrs.grType){
                         $attrs.grType = 'text';
                     };
                     return VALIDATOR.template($attrs.grType, true);
                 },
-                compile: function(tElement, tAttrs, transclude){
+                compile: function(iElement, iAttrs, transclude){
+                    var form,
+                        innerElements;
                     return {
-                        pre: function(scope, element, attrs, ctrl){
+                        post: function(scope, element, attrs, ctrl){
                             if (!ctrl) {
                                 return;
                             } else if (!ctrl.$name || !ctrl.$id) {
                                 return;
                             }
-                            var form = VALIDATOR.get(ctrl.$name);
+                            form = VALIDATOR.get(ctrl.$name);
+                            innerElements = element.find('gr-input-inner');
+                            if(innerElements.length > 0){
+                                var temp = [];
+                                angular.forEach(innerElements, function(el, id){
+                                    var attrs = {};
+                                    angular.forEach(el.attributes, function(attr){
+                                        var name = attr.nodeName,
+                                            value = attr.value;
+                                        if(name === 'class' && value === 'ng-scope'){
+                                            return;
+                                        }
+                                        attrs[name] = value;
+                                    });
+                                    temp.push(attrs);
+                                });
+                                innerElements = temp;
+                            }else{
+                                innerElements = [];
+                            }
                             form.$add({
                                 form: ctrl.$name,
                                 name: attrs.grName,
                                 element: element,
+                                innerElements: innerElements,
                                 scope: scope,
                                 type: (attrs.grType !== '' && attrs.grType !== undefined) ? attrs.grType : 'text',
                                 mask: attrs.grMask,
                                 label: attrs.grLabel,
                                 icon: (attrs.grIcon !== '' && attrs.grIcon !== undefined) ? attrs.grIcon : false,
                                 validate: (attrs.grValidate !== '' && attrs.grValidate !== undefined) ? attrs.grValidate : false,
-                                startValue: attrs.grValue
+                                value: attrs.grValue,
+                                checked: attrs.hasOwnProperty('grChecked') ? true: false,
+                                multiple: attrs.hasOwnProperty('grMultiple') ? true: false
                             });
+                            element.find('gr-input-inner').parent().remove();
                         }
                     }
                 }
@@ -831,20 +929,23 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                             field.$setValidity(field.$name, false);
                             field.$formatters = [];
                             field.$parsers = [];
-                            var _form = VALIDATOR.get(form.$name),
-                                change = function (v) {
-                                _form.$change({
-                                    field: field.$name,
-                                    model: field,
-                                    value: v
+                            if(attrs.grValidator === true || attrs.grValidator === 'true') {
+                                var _form = VALIDATOR.get(form.$name),
+                                    change = function (v, submiting) {
+                                        _form.$change({
+                                            field: field.$name,
+                                            model: field,
+                                            value: v,
+                                            submiting: submiting | false
+                                        });
+                                    };
+                                scope.$watch('model', function (v) {
+                                    change(v);
                                 });
-                            };
-                            scope.$watch('model', function (v) {
-                                change(v);
-                            });
-                            scope.$on(form.$name + field.$name + 'submit', function () {
-                                change(element.val());
-                            });
+                                scope.$on(form.$name + field.$name + 'submit', function () {
+                                    change(element.val(), true);
+                                });
+                            }
                         }
                     }
                 }
@@ -978,7 +1079,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                         controller.$formatters.push(formatter);
                         controller.$parsers.push(parser);
                         ////////////////////////////////////////////
-                        //Verifica se a mascara possui mais de um modelo, se não ele retorna apenas a string, ou um array com as mascaras
+                        //Verifica se a mascara possui mais de um modelo, se nÃ£o ele retorna apenas a string, ou um array com as mascaras
                         function splitMask(maskAttr) {
                             var splitedMask;
                             if(typeof maskAttr === 'string'){
