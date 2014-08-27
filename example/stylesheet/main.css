@@ -116,55 +116,73 @@ body {
             list-style: none; }
             body .gr-form .gr-content .view-file-name ul.view-file-list li:after {
               clear: both; }
-      body .gr-form .gr-content .has-feedback .form-control-icon {
-        position: relative;
-        display: none; }
-        body .gr-form .gr-content .has-feedback .form-control-icon .form-control-feedback {
+      body .gr-form .gr-content .has-feedback {
+        position: relative; }
+        body .gr-form .gr-content .has-feedback .form-control-feedback {
+          display: none;
+          width: 20px;
+          height: 100%;
+          line-height: 100%;
+          font-size: 14px;
+          z-index: 999; }
+          body .gr-form .gr-content .has-feedback .form-control-feedback:before {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            margin-top: -7px; }
+        body .gr-form .gr-content .has-feedback .form-control-icon {
           position: relative;
-          margin-right: 2.5px;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          left: 0;
-          border-left: solid 1px transparent; }
-          body .gr-form .gr-content .has-feedback .form-control-icon .form-control-feedback:before {
-            left: 50% !important;
-            margin-left: -5px; }
-      body .gr-form .gr-content .has-feedback.has-error .input-group .form-control-icon,
-      body .gr-form .gr-content .has-feedback.has-error .input-group .input-group-addon {
-        display: table-cell;
-        background: #f5d8d8;
-        border-color: #fbd2d2; }
-      body .gr-form .gr-content .has-feedback.has-error .input-group .form-control {
-        background: #fde9e9;
-        border-color: #fbd2d2;
-        border-left-color: #fac8c8; }
-      body .gr-form .gr-content .has-feedback.has-error .checkbox {
-        display: table-cell;
-        background: #fde9e9;
-        border-color: #fbd2d2; }
-      body .gr-form .gr-content .has-feedback.has-error .gr-form-list {
-        display: table-cell;
-        background: #fde9e9;
-        border-color: #fbd2d2; }
-        body .gr-form .gr-content .has-feedback.has-error .gr-form-list .gr-form-list-item {
+          display: none; }
+          body .gr-form .gr-content .has-feedback .form-control-icon .form-control-feedback {
+            position: relative;
+            margin-right: 2.5px;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            border-left: solid 1px transparent; }
+            body .gr-form .gr-content .has-feedback .form-control-icon .form-control-feedback:before {
+              left: 50% !important;
+              margin-left: -5px; }
+        body .gr-form .gr-content .has-feedback.has-error .form-control-feedback-error {
+          display: block; }
+        body .gr-form .gr-content .has-feedback.has-error .input-group .form-control-icon,
+        body .gr-form .gr-content .has-feedback.has-error .input-group .input-group-addon {
+          display: table-cell;
+          background: #f5d8d8;
           border-color: #fbd2d2; }
-      body .gr-form .gr-content .has-feedback.has-success .input-group .form-control-icon,
-      body .gr-form .gr-content .has-feedback.has-success .input-group .input-group-addon {
-        display: table-cell;
-        background: #dfe8db;
-        border-color: #cde9c0; }
-      body .gr-form .gr-content .has-feedback.has-success .input-group .form-control {
-        background: #ebf6e6;
-        border-color: #cde9c0;
-        border-left-color: #c7e6b9; }
-      body .gr-form .gr-content .has-feedback.has-success .checkbox {
-        display: table-cell;
-        background: #ebf6e6;
-        border-color: #dcefd3; }
-      body .gr-form .gr-content .has-feedback.has-success .gr-form-list {
-        display: table-cell;
-        background: #ebf6e6;
-        border-color: #dcefd3; }
-        body .gr-form .gr-content .has-feedback.has-success .gr-form-list .gr-form-list-item {
+        body .gr-form .gr-content .has-feedback.has-error .input-group .form-control {
+          background: #fde9e9;
+          border-color: #fbd2d2;
+          border-left-color: #fac8c8; }
+        body .gr-form .gr-content .has-feedback.has-error .checkbox {
+          display: table-cell;
+          background: #fde9e9;
+          border-color: #fbd2d2; }
+        body .gr-form .gr-content .has-feedback.has-error .gr-form-list {
+          display: table-cell;
+          background: #fde9e9;
+          border-color: #fbd2d2; }
+          body .gr-form .gr-content .has-feedback.has-error .gr-form-list .gr-form-list-item {
+            border-color: #fbd2d2; }
+        body .gr-form .gr-content .has-feedback.has-success .form-control-feedback-success {
+          display: block; }
+        body .gr-form .gr-content .has-feedback.has-success .input-group .form-control-icon,
+        body .gr-form .gr-content .has-feedback.has-success .input-group .input-group-addon {
+          display: table-cell;
+          background: #dfe8db;
+          border-color: #cde9c0; }
+        body .gr-form .gr-content .has-feedback.has-success .input-group .form-control {
+          background: #ebf6e6;
+          border-color: #cde9c0;
+          border-left-color: #c7e6b9; }
+        body .gr-form .gr-content .has-feedback.has-success .checkbox {
+          display: table-cell;
+          background: #ebf6e6;
           border-color: #dcefd3; }
+        body .gr-form .gr-content .has-feedback.has-success .gr-form-list {
+          display: table-cell;
+          background: #ebf6e6;
+          border-color: #dcefd3; }
+          body .gr-form .gr-content .has-feedback.has-success .gr-form-list .gr-form-list-item {
+            border-color: #dcefd3; }

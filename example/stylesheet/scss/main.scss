@@ -148,6 +148,21 @@ body{
                 }
             }
             .has-feedback{
+                position: relative;
+                .form-control-feedback{
+                    display: none;
+                    width: 20px;
+                    height: 100%;
+                    line-height: 100%;
+                    font-size: 14px;
+                    z-index: 999;
+                    &:before{
+                        position: absolute;
+                        left: 0;
+                        top: 50%;
+                        margin-top: (14px/2) * -1;
+                    }
+                }
                 .form-control-icon{
                     position: relative;
                     display: none;
@@ -166,6 +181,9 @@ body{
                     }
                 }
                 &.has-error{
+                    .form-control-feedback-error{
+                        display: block;
+                    }
                     .input-group{
                         .form-control-icon,
                         .input-group-addon{
@@ -194,6 +212,9 @@ body{
                     }
                 }
                 &.has-success{
+                    .form-control-feedback-success{
+                        display: block;
+                    }
                     .input-group{
                         .form-control-icon,
                         .input-group-addon{

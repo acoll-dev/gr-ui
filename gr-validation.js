@@ -115,6 +115,7 @@ angular.module('grValidation.provider', [])
             '$new': function (form) {
                 if(!validator.form[form.name]){
                     form = {
+                        'data': {},
                         'dependence': [],
                         'element': form.element,
                         'error': {},
@@ -159,11 +160,6 @@ angular.module('grValidation.provider', [])
                                         'validate': field.validate ? true : false,
                                         'valid': true,
                                         'value': '',
-                                        '$attr':{
-                                            set: function(){
-                                                validator.field[field.type].set.attrs(form, field);
-                                            }
-                                        },
                                         '$change': function (change) {
                                             if(change){
                                                 if(field.model.length === 0){
@@ -228,14 +224,21 @@ angular.module('grValidation.provider', [])
                                             }
                                         },
                                         '$config' : function () {
-                                            field.$scope.set();
-                                            field.$attr.set();
                                             field.$mask.set();
                                             if(field.rules.hasOwnProperty('equalTo')){
                                                 validator.form[field.form].field[field.rules.equalTo].requiredBy.push(field.name);
                                             }
                                             validator.form[field.form].field[field.name] = field;
                                             inputId++;
+                                        },
+                                        '$data': {
+                                            set: function(){
+                                                if(typeof form.data[field.name] !== 'undefined') {
+                                                    validator.field[field.type].set.data(form.data[field.name], field);
+                                                }
+                                                validator.field[field.type].set.attrs(form, field);
+                                                validator.field[field.type].set.scope(form, field);
+                                            }
                                         },
                                         '$mask': {
                                             object: {},
@@ -283,11 +286,6 @@ angular.module('grValidation.provider', [])
                                                 model: field.model
                                             });
                                         },
-                                        '$scope':{
-                                            set: function(){
-                                                validator.field[field.type].set.scope(form, field);
-                                            }
-                                        },
                                         '$state': {
                                             set: function(state){
                                                 field.state = state;
@@ -295,11 +293,14 @@ angular.module('grValidation.provider', [])
                                             }
                                         }
                                     };
-                                    field.$config();
                                 } else {
                                     instance.timeout(function () {
                                         validator.$add(field);
                                     });
+                                }
+                                field.$config();
+                                if(!form.$data.hasData){
+                                    field.$data.set();
                                 }
                             }else{
                                 console.error("Not allowed to use two input fields with the same gr-name on the same form, '" + field.name + "' is already been used in '" + form.name + "' form.");
@@ -328,6 +329,7 @@ angular.module('grValidation.provider', [])
                             }
                         },
                         '$config': function(){
+                            form.$scope();
                             form.model.$id = String(form.id);
                             form.model.$name = form.name;
                             if (validator.config.form.hasOwnProperty(form.name)) {
@@ -337,17 +339,20 @@ angular.module('grValidation.provider', [])
                                 }
                                 if(config.hasOwnProperty('data-source')){
                                     var source = config['data-source'];
+                                    form.$data.hasData = true;
                                     if(typeof source === 'string'){
                                         instance.http.get(source).then(
                                             function (data) {
-                                                form.data = data.response;
+                                                form.data = data.data.response;
+                                                angular.forEach(form.field, function(field){
+                                                    field.$data.set();
+                                                });
                                             },
                                             function (e) {
                                                 console.error(e);
                                             });
                                     }else if(typeof source === 'object'){
-                                        console.debug('object');
-                                        console.debug(source);
+                                        form.data = source;
                                     }
                                 }
                                 if (config.hasOwnProperty('translate')) {
@@ -379,6 +384,12 @@ angular.module('grValidation.provider', [])
                             }).attr('novalidate', true);
                             validator.form[form.name] = form;
                             formId++;
+                        },
+                        '$data': {
+                            'hasData': false,
+                            'set': function(data){
+                                validator.data = data;
+                            }
                         },
                         '$error': {
                             set: function (error) {
@@ -525,7 +536,6 @@ angular.module('grValidation.provider', [])
                             }
                         }
                     };
-                    form.$scope();
                     form.$config();
                 }else{
                     console.error("Not allowed to use two forms with a same name, '" + form.name + "' is already being used in another form.");
@@ -878,7 +888,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                         if(name === 'class' && value === 'ng-scope'){
                                             return;
                                         }
-                                        attrs[name] = value;
+                                        attrs[name] = (value !== undefined && value !== '') ? value : true;
                                     });
                                     temp.push(attrs);
                                 });

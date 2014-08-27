@@ -47,19 +47,22 @@
         "maxlength": "Phone should not exceed |%| characters",
         "minlength": "Phone must have more than |%| characters"
     },
-    "checkbox": {
-        "required": "checkbox is required"
+    "text": {
+        "required": "Text is required"
     },
-    "checkbox2": {
-        "required": "checkbox2 is required"
+    "checkbox": {
+        "required": "Checkbox is required"
     },
     "radio": {
-        "required": "radio is required"
+        "required": "Radio is required"
     },
     "textarea": {
-        "required": "textarea is required"
+        "required": "Textarea is required"
     },
     "select": {
-        "required": "select is required"
+        "required": "Select is required"
+    },
+    "file": {
+        "required": "File is required"
     }
 }

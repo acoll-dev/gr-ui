@@ -4,6 +4,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'checkbox',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.checked = (data === 'true' || data === true || data === '1' || data === 1) ? true : false;
+                    }
+                },
                 attrs: function(form, field){
                     field.default.value = field.default.checked;
                     $compile(
@@ -38,6 +43,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'color',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -71,6 +81,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'datetime',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -104,6 +119,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'date',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -137,6 +157,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'text',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -170,6 +195,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'file',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     var clean_text = "Select a file(s)",
                         html = "";
@@ -240,6 +270,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'month',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -273,6 +308,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'number',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -306,6 +346,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'text',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -339,59 +384,65 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'radio',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'object'){
+                        field.innerElements = [];
+                        angular.forEach(data, function(d){
+                            field.innerElements.push({
+                                'gr-label': d.label,
+                                'gr-value': d.value,
+                                'gr-checked': (d.checked === 'true' || d.checked === true || d.checked === '1' || d.checked === 1) ? true : false
+                            });
+                        });
+                    }else{
+                        angular.forEach(field.innerElements, function(element, id){
+                            if(field.innerElements[id]['gr-value'] === data){
+                                field.innerElements[id]['gr-checked'] = true;
+                            }else{
+                                field.innerElements[id]['gr-checked'] = false;
+                            };
+                        });
+                    }
+                },
                 attrs: function(form, field){
                     $timeout(function(){
-                        var input = field.element.find('input'),
-                            radios = [],
+                        var radios = [],
+                            list = field.element.find('.gr-form-list'),
                             hasChecked = false,
                             checkedValue = '',
                             elements = field.innerElements;
-                        field.input = input;
-                        angular.forEach(elements, function(field){
-                            var checked = field.hasOwnProperty('gr-checked') ? true : false;
+                        angular.forEach(elements, function(f, id){
+                            var checked = f.hasOwnProperty('gr-checked') ? (f['gr-checked'] === true ? true : false) : false;
                             if(checked){
                                 hasChecked = true;
-                                checkedValue = field['gr-value'];
+                                checkedValue = f['gr-value'];
                             }
-                            radios.push({
-                                value: field['gr-value'],
-                                checked: checked
-                            });
+                            var html = '';
+                            html += '<div class="radio gr-form-list-item">';
+                                html += '<label>';
+                                    html += '<input ';
+                                        html += 'type="' + field.type + '" ';
+                                        html += 'name="' + field.name + '" ';
+                                        html += 'gr-validator="' + field.validate + '" ';
+                                        html += 'ng-model="' + field.$modelName(field.name) + '" ';
+                                        html += 'checked="' + checked + '" ';
+                                        html += 'value="' + elements[id]['gr-value'] + '" ';
+                                    html += '/>';
+                                    html += f['gr-label'];
+                                html += '</label>';
+                            html += '</div>';
+                            $compile(list.append(angular.element(html)))(field.scope);
                         });
+                        field.input = list.find('input[type="radio"]');
                         if(hasChecked){
                             field.default.checked = true;
                             field.default.value = checkedValue;
                         }
-                        angular.forEach(field.input, function(input, id){
-                            input = angular.element(input);
-                            $compile(
-                                input.attr({
-                                    'name': field.name,
-                                    'type': field.type,
-                                    'gr-validator': field.validate,
-                                    'ng-value': radios[id].value,
-                                    'ng-model': field.$modelName(field.name),
-                                    'ng-checked': radios[id].checked
-                                })
-                            )(field.scope);
-                        });
                     }, 100);
                 },
                 scope: function(form, field){
-                    var radios = [],
-                        elements = field.innerElements;
-                    angular.forEach(elements, function(field){
-                        radios.push({
-                            label: field['gr-label']
-                        });
-                    });
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
-                        'radios': radios,
-                        'showLabel': (form.labelType === 'inline')
+                        'label': field.label
                     };
                     field.scope[field.name] = field.default.value;
                 }
@@ -400,10 +451,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 var elements = field.innerElements;
                 angular.forEach(field.input, function(input, id){
                     input = angular.element(input);
-                    if(elements[id].hasOwnProperty('gr-checked')){
-                        input.attr('ng-checked', true);
+                    var checked = elements[id].hasOwnProperty('gr-checked') ? (elements[id]['gr-checked'] === true ? true : false) : false;
+                    if(checked){
+                        input.attr('checked', true);
                     }else{
-                        input.attr('ng-checked', false);
+                        input.attr('checked', false);
                     }
                 });
                 $compile(field.input)(field.scope);
@@ -413,6 +465,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'range',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -446,6 +503,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'text',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -479,56 +541,54 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'select',
             type: 'select',
             set: {
-                attrs: function(form, field){
-                    $timeout(function(){
-                        var input = field.element.find('select'),
-                            options = [angular.element('<option value="">'+field.label+'</option>')],
-                            elements = field.innerElements,
-                            hasSelected = false;
-                        field.input = input;
-                        angular.forEach(elements, function(option){
-                            if(option.hasOwnProperty('gr-selected')){
-                                hasSelected = true;
-                            }
-                            options.push(angular.element('<option>'+option['gr-label']+'</option>'));
+                data: function(data, field){
+                    if(typeof data === 'object'){
+                        field.innerElements = [];
+                        angular.forEach(data, function(d){
+                            field.innerElements.push({
+                                'gr-label': d.label,
+                                'gr-value': d.value,
+                                'gr-selected': (d.selected === 'true' || d.selected === true || d.selected === '1' || d.selected === 1) ? true : false,
+                                'gr-disabled': (d.disabled === 'true' || d.disabled === true || d.disabled === '1' || d.disabled === 1) ? true : false
+                            });
                         });
-                        if(!hasSelected){
-                            $compile(
-                                options[0].attr({
-                                    'ng-selected': true,
-                                    'ng-disabled':true
-                                })
-                            )(field.scope);
-                        }else{
-                            $compile(
-                                options[0].attr({
-                                    'ng-selected': false,
-                                    'ng-disabled':true
-                                })
-                            )(field.scope);
-                        }
-                        angular.forEach(options, function(option, id){
-                            var option = angular.element(option);
-                            if(id > 0){
-                                $compile(
-                                    option.attr({
-                                        'ng-value': elements[id-1]['gr-value'],
-                                        'ng-disabled': elements[id-1].hasOwnProperty('gr-disabled') ? true : false,
-                                        'ng-selected': elements[id-1].hasOwnProperty('gr-selected') ? true : false
-                                    })
-                                )(field.scope);
+                    }else{
+                        angular.forEach(field.innerElements, function(element, id){
+                            if(field.innerElements[id]['gr-value'] === data){
+                                field.innerElements[id]['gr-selected'] = true;
                             }else{
-                                $compile(option)(field.scope);
-                            }
+                                field.innerElements[id]['gr-selected'] = false;
+                            };
                         });
-                        $compile(
-                            field.input.append(options).attr({
-                                'name': field.name,
-                                'gr-validator': field.validate,
-                                'ng-model': field.$modelName(field.name)
-                            })
-                        )(field.scope);
-                    }, 100);
+                    }
+                },
+                attrs: function(form, field){
+                    var input = field.element.find('select'),
+                        elements = field.innerElements,
+                        hasSelected = false;
+                    angular.forEach(elements, function(option, id){
+                        var selected = option.hasOwnProperty('gr-selected') ? (option['gr-selected'] === true ? true : false) : false;
+                        if(selected){
+                            hasSelected = true;
+                        }
+                        var html = '';
+                        html += '<option ';
+                            html += 'value="' + option['gr-value'] + '" ';
+                            html += 'ng-selected="' + selected + '" ';
+                            html += (option.hasOwnProperty('gr-disabled') ? (option['gr-disabled'] === true ? 'disabled' : '') : '') + '>';
+                            html += option['gr-label'];
+                        html += '</option>';
+                        $compile(input.append(angular.element(html)))(field.scope);
+                    });
+                    var html = '<option value="" ng-selected="' + (!hasSelected ? true : false) + '" disabled>' + field.label + '</option>';
+                    $compile(
+                        field.input.prepend(html).attr({
+                            'name': field.name,
+                            'gr-validator': field.validate,
+                            'ng-model': field.$modelName(field.name)
+                        })
+                    )(field.scope);
+                    field.input = input;
                 },
                 scope: function(form, field){
                     var options = [],
@@ -560,31 +620,34 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             },
             reset: function(form, field){
                 var elements = field.innerElements,
-                    options = field.input.children('option');
-                if(options.length > 1){
-                    angular.forEach(options, function(option, id){
-                        option = angular.element(option);
-                        if(id < elements.length && id > 0 && elements[id-1].hasOwnProperty('gr-selected')){
-                            $compile(
-                                option.attr('ng-selected', true)
-                            )(field.scope);
+                    hasSelected = false;
+                angular.forEach(field.input.children('option'), function(input, id){
+                    input = angular.element(input);
+                    if(id > 0){
+                        var selected = elements[id-1].hasOwnProperty('gr-selected') ? (elements[id-1]['gr-selected'] === true ? true : false) : false;
+                        if(selected){
+                            input.attr('selected', true);
+                            hasSelected = true;
                         }else{
-                            $compile(
-                                option.attr('ng-selected', false)
-                            )(field.scope);
+                            input.attr('selected', false);
                         }
-                    });
-                }else{
-                    $compile(
-                        options.eq(0).attr('ng-selected', true)
-                    )(field.scope);
+                    }
+                });
+                if(!hasSelected){
+                    field.input.children('option').eq(0).attr('selected', true);
                 }
+                $compile(field.input)(field.scope);
             }
         },
         "tel": {
             template: 'text',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -618,6 +681,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'textarea',
             type: 'textarea',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -643,13 +711,18 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 }
             },
             reset: function(form, field){
-                field.input.val('');
+                field.input.val(field.default.value);
             }
         },
         "text": {
             template: 'text',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -676,13 +749,18 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 }
             },
             reset: function(form, field){
-                field.input.val('');
+                field.input.val(field.default.value);
             }
         },
         "time": {
             template: 'time',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -716,6 +794,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'url',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
@@ -749,6 +832,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             template: 'week',
             type: 'input',
             set: {
+                data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.default.value = data;
+                    }
+                },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
