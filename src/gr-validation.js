@@ -559,11 +559,13 @@ angular.module('grValidation.provider', [])
                                         count = 0,
                                         fn;
                                     angular.forEach(submit, function (o) {
-                                        if (String(typeof o) === 'string') {
+                                        if (typeof o === 'string') {
+                                            console.debug(form.dependence);
+                                            console.debug(o);
                                             injector = angular.injector(form.dependence);
                                             i.push(injector.get(o));
                                             count++;
-                                        } else if (String(typeof o) === 'function' && String(typeof fn) !== 'function') {
+                                        } else if (typeof o === 'function' && typeof fn !== 'function') {
                                             fn = o;
                                         }
                                     });
