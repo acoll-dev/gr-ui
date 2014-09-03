@@ -77,7 +77,7 @@ angular.module('grValidation.provider', [])
                 }
             },
             '$get': function (form) {
-                if (form && String(typeof form) === 'string') {
+                if (form && String(typeof form) === 'string' && form !== 'external') {
                     var form = validator.form[form];
                     if (form) {
                         return {
@@ -85,6 +85,7 @@ angular.module('grValidation.provider', [])
                             name: form.name,
                             translate: form.translate,
                             reset: form.$reset,
+                            submit: form.$validate,
                             $add: form.$add,
                             $change: form.$change,
                             $message: {
@@ -93,6 +94,12 @@ angular.module('grValidation.provider', [])
                             }
                         }
                     }
+                } else if (form === 'external'){
+                    var forms = {};
+                    angular.forEach(validator.form, function(form, id){
+                        forms[id] = form.$get();
+                    })
+                    return forms;
                 } else {
                     return;
                 }
@@ -134,28 +141,32 @@ angular.module('grValidation.provider', [])
                             if(!form.field[field.name]){
                                 if (validator.form[field.form]) {
                                     field = {
+                                        'attrs': {
+                                            'icon': field.attrs.icon,
+                                            'label': tools.translate(form, field.attrs.label),
+                                            'mask': field.attrs.mask,
+                                            'type': field.attrs.type,
+                                            'dataSource': field.attrs.dataSource
+                                        },
                                         'changed': false,
                                         'default': {
                                             'value': field.value,
                                             'checked': field.checked,
-                                            'multiple': field.multiple
+                                            'multiple': field.multiple,
+                                            'innerElements': field.innerElements
                                         },
                                         'element': field.element,
                                         'error': '',
                                         'error_messages': tools.rules.parse(form, field.name, field.validate),
                                         'form': field.form,
-                                        'icon': field.icon,
                                         'id': inputId,
                                         'innerElements': field.innerElements,
-                                        'input': angular.element(field.element).find(validator.field[field.type].type),
-                                        'label': tools.translate(form, field.label),
-                                        'mask': field.mask,
+                                        'input': angular.element(field.element).find(validator.field[field.attrs.type].type),
                                         'model': [],
                                         'name': field.name,
                                         'rules': tools.rules.split(field.validate),
                                         'requiredBy': [],
                                         'scope': field.scope,
-                                        'type': field.type,
                                         'state': '',
                                         'validate': field.validate ? true : false,
                                         'valid': true,
@@ -232,25 +243,41 @@ angular.module('grValidation.provider', [])
                                             inputId++;
                                         },
                                         '$data': {
-                                            set: function(){
-                                                if(typeof form.data[field.name] !== 'undefined') {
-                                                    validator.field[field.type].set.data(form.data[field.name], field);
+                                            set: function(data){
+                                                var setData = function(){
+                                                    if(!data){
+                                                        if(typeof form.data[field.name] !== 'undefined') {
+                                                            validator.field[field.attrs.type].set.defaultData(form.data[field.name], field);
+                                                        }
+                                                        validator.field[field.attrs.type].set.attrs(form, field);
+                                                        validator.field[field.attrs.type].set.scope(form, field);
+                                                    }else{
+                                                        validator.field[field.attrs.type].set.data(data, field);
+                                                    }
                                                 }
-                                                validator.field[field.type].set.attrs(form, field);
-                                                validator.field[field.type].set.scope(form, field);
+                                                if(field.attrs.dataSource){
+                                                    instance.http.get(field.attrs.dataSource).then(function(r){
+                                                        validator.field[field.attrs.type].set.defaultData(r.data.response, field);
+                                                        setData();
+                                                    },function(){
+                                                        setData();
+                                                    });
+                                                }else{
+                                                    setData();
+                                                }
                                             }
                                         },
                                         '$mask': {
                                             object: {},
                                             type: '',
                                             set: function(){
-                                                if(field.mask){
-                                                    if(validator.mask[field.mask]){
+                                                if(field.attrs.mask){
+                                                    if(validator.mask[field.attrs.mask]){
                                                         field.$mask.type = 'string';
-                                                        field.mask = validator.mask[field.mask];
+                                                        field.attrs.mask = validator.mask[field.attrs.mask];
                                                     }else{
                                                         field.$mask.type = 'string';
-                                                        field.mask = '';
+                                                        field.attrs.mask = '';
                                                     }
                                                 }
                                             }
@@ -280,7 +307,7 @@ angular.module('grValidation.provider', [])
                                         '$reset': function () {
                                             field.$state.set('');
                                             field.model.$setViewValue(field.default.value);
-                                            validator.field[field.type].reset(form, field);
+                                            validator.field[field.attrs.type].reset(form, field);
                                             field.$change({
                                                 value: '',
                                                 model: field.model
@@ -293,7 +320,7 @@ angular.module('grValidation.provider', [])
                                             }
                                         }
                                     };
-                                } else {
+                                }else{
                                     instance.timeout(function () {
                                         validator.$add(field);
                                     });
@@ -333,7 +360,7 @@ angular.module('grValidation.provider', [])
                             form.model.$id = String(form.id);
                             form.model.$name = form.name;
                             if (validator.config.form.hasOwnProperty(form.name)) {
-                                var config = validator.config.form[form.name];
+                                var config = validator.config.form[form.name](form.scope);
                                 if (config.hasOwnProperty('submit')) {
                                     form.$submit.set(config.submit);
                                 }
@@ -391,6 +418,15 @@ angular.module('grValidation.provider', [])
                                 validator.data = data;
                             }
                         },
+                        '$dependece': {
+                            set: function (dep) {
+                                if (String(typeof dep) === 'object') {
+                                    angular.forEach(dep, function (d) {
+                                        validator.dependence.push(d);
+                                    });
+                                }
+                            }
+                        },
                         '$error': {
                             set: function (error) {
                                 form.error[error.id] = error.message;
@@ -409,12 +445,24 @@ angular.module('grValidation.provider', [])
                                 }
                             }
                         },
-                        '$dependece': {
-                            set: function (dep) {
-                                if (String(typeof dep) === 'object') {
-                                    angular.forEach(dep, function (d) {
-                                        validator.dependence.push(d);
-                                    });
+                        '$get': function() {
+                            return {
+                                'reset': form.$reset,
+                                'submit': form.$validate,
+                                'data': function(obj){
+                                    if(!obj){
+                                        var data = {};
+                                        angular.forEach(form.field, function(field){
+                                            data[field.name] = field.value;
+                                        });
+                                        return data;
+                                    }else if(typeof obj === 'object') {
+                                        angular.forEach(obj, function(value, id){
+                                            if(form.field[id]){
+                                                form.field[id].$data.set(value);
+                                            }
+                                        });
+                                    }
                                 }
                             }
                         },
@@ -514,12 +562,9 @@ angular.module('grValidation.provider', [])
                                     instance.scope.$broadcast(field.form + field.name + 'submit');
                                 });
                                 if (form.$check()) {
-                                    var data = {};
-                                    angular.forEach(form.field, function(field){
-                                        data[field.name] = field.value;
-                                    });
+                                    var data = form.$get().data();
                                     console.debug(data);
-                                    form.$submit.exec(data);//form.element.serializeArray());
+                                    form.$submit.exec(data);
                                     return;
                                 } else {
                                     var input;
@@ -789,7 +834,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                 restrict: 'E',
                 transclude: true,
                 replace: true,
-                scope: true,
+                scope: false,
                 templateUrl: VALIDATOR.template('form'),
                 require: '?^form',
                 compile: function(){
@@ -804,6 +849,9 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                 validate: attrs.hasOwnProperty('grValidate') ? attrs.grValidate : '',
                                 labelType: attrs.hasOwnProperty('grLabelType') ? attrs.grLabelType : ''
                             });
+                        },
+                        post: function(scope, element, attrs, ctrl){
+                            scope.grForm = VALIDATOR.get('external');
                         }
                     }
                 }
@@ -902,14 +950,17 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                 element: element,
                                 innerElements: innerElements,
                                 scope: scope,
-                                type: (attrs.grType !== '' && attrs.grType !== undefined) ? attrs.grType : 'text',
-                                mask: attrs.grMask,
-                                label: attrs.grLabel,
-                                icon: (attrs.grIcon !== '' && attrs.grIcon !== undefined) ? attrs.grIcon : false,
                                 validate: (attrs.grValidate !== '' && attrs.grValidate !== undefined) ? attrs.grValidate : false,
-                                value: attrs.grValue,
-                                checked: attrs.hasOwnProperty('grChecked') ? true: false,
-                                multiple: attrs.hasOwnProperty('grMultiple') ? true: false
+                                attrs:{
+                                    type: (attrs.grType !== '' && attrs.grType !== undefined) ? attrs.grType : 'text',
+                                    mask: attrs.grMask,
+                                    label: attrs.grLabel,
+                                    icon: (attrs.grIcon !== '' && attrs.grIcon !== undefined) ? attrs.grIcon : false,
+                                    value: attrs.grValue,
+                                    checked: attrs.hasOwnProperty('grChecked') ? true: false,
+                                    multiple: attrs.hasOwnProperty('grMultiple') ? true: false,
+                                    dataSource: attrs.hasOwnProperty('grDataSource') ? attrs.grDataSource : false
+                                }
                             });
                             element.find('gr-input-inner').parent().remove();
                         }

@@ -1,10 +1,22 @@
 angular.module('grValidation.provider').factory('$grValidation.fields', ['$injector', '$timeout', '$compile', function ($injector, $timeout, $compile) {
-    return {
+    var allFields = {
         "checkbox": {
             template: 'checkbox',
             type: 'input',
             set: {
                 data: function(data, field){
+                    if(typeof data === 'string'){
+                        field.value = (data === 'true' || data === true || data === '1' || data === 1) ? true : false;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                        $compile(
+                            field.input.attr({
+                                'ng-checked': field.value
+                            })
+                        )(field.scope);
+                    }
+                },
+                defaultData: function(data, field){
                     if(typeof data === 'string'){
                         field.default.checked = (data === 'true' || data === true || data === '1' || data === 1) ? true : false;
                     }
@@ -14,7 +26,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
                             'ng-checked': field.default.checked,
                             'ng-model': field.$modelName(field.name),
@@ -25,10 +37,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                 }
@@ -45,6 +57,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -52,10 +71,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -64,10 +83,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -83,6 +102,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -90,10 +116,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -102,10 +128,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -121,6 +147,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -128,10 +161,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -140,10 +173,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -159,6 +192,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -166,10 +206,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -178,10 +218,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -197,6 +237,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -206,7 +253,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
                             'multiple': field.default.multiple,
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
@@ -240,6 +287,41 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     });
                 },
                 scope: function(form, field){
+
+                    // Buscar documentação em https://github.com/millerbarros/angular-file-upload
+
+                    var onFileSelect = function($files) {
+                        //$files: an array of files selected, each file has name, size, and type.
+                        for (var i = 0; i < $files.length; i++) {
+                            var file = $files[i];
+                            $scope.upload = $upload.upload({
+                                url: 'server/upload/url', //upload.php script, node.js route, or servlet url
+                                //method: 'POST' or 'PUT',
+                                //headers: {'header-key': 'header-value'},
+                                //withCredentials: true,
+                                data: {myObj: $scope.myModelObj},
+                                file: file, // or list of files ($files) for html5 only
+                                //fileName: 'doc.jpg' or ['1.jpg', '2.jpg', ...] // to modify the name of the file(s)
+                                // customize file formData name ('Content-Disposition'), server side file variable name.
+                                //fileFormDataName: myFile, //or a list of names for multiple files (html5). Default is 'file'
+                                // customize how data is added to formData. See #40#issuecomment-28612000 for sample code
+                                //formDataAppender: function(formData, key, val){}
+                            }).progress(function(evt) {
+                                console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+                            }).success(function(data, status, headers, config) {
+                                // file is uploaded successfully
+                                console.log(data);
+                            });
+                            //.error(...)
+                            //.then(success, error, progress);
+                            // access or attach event listeners to the underlying XMLHttpRequest.
+                            //.xhr(function(xhr){xhr.upload.addEventListener(...)})
+                        }
+                        /* alternative way of uploading, send the file binary with the file's content-type.
+                        Could be used to upload files to CouchDB, imgur, etc... html5 FileReader is needed.
+                        It could also be used to monitor the progress of a normal http post/put request with large data*/
+                        // $scope.upload = $upload.http({...})  see 88#issuecomment-31366487 for sample code.
+                    };
                     field.input.bind({
                         change: function(e){
                             var files = e.target.files;
@@ -250,12 +332,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         }
                     });
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'value': field.value,
                         'file': {},
+                        'onFileSelect': onFileSelect,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -272,6 +355,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -279,10 +369,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -291,10 +381,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -310,6 +400,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -317,10 +414,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -329,10 +426,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -348,6 +445,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -355,10 +459,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -367,10 +471,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -385,15 +489,43 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             type: 'input',
             set: {
                 data: function(data, field){
+                    if(typeof data !== 'object'){
+                        angular.forEach(field.innerElements, function(element, id){
+                            if(field.innerElements[id]['gr-value'] === data){
+                                field.innerElements[id]['gr-checked'] = true;
+                            }else{
+                                field.innerElements[id]['gr-checked'] = false;
+                            };
+                        });
+                        var elements = field.innerElements;
+                        angular.forEach(field.input, function(input, id){
+                            input = angular.element(input);
+                            var checked = elements[id].hasOwnProperty('gr-checked') ? (elements[id]['gr-checked'] === true ? true : false) : false;
+                            if(checked){
+                                input.attr('checked', true);
+                            }else{
+                                input.attr('checked', false);
+                            }
+                        });
+                        field.value = data;
+                    }
+                },
+                defaultData: function(data, field){
                     if(typeof data === 'object'){
-                        field.innerElements = [];
+                        field.default.innerElements = [];
+                        var value = '';
                         angular.forEach(data, function(d){
-                            field.innerElements.push({
+                            var checked = (d.checked === 'true' || d.checked === true || d.checked === '1' || d.checked === 1) ? true : false;
+                            field.default.innerElements.push({
                                 'gr-label': d.label,
                                 'gr-value': d.value,
-                                'gr-checked': (d.checked === 'true' || d.checked === true || d.checked === '1' || d.checked === 1) ? true : false
+                                'gr-checked': checked
                             });
+                            if(checked){
+                                value = d.value;
+                            }
                         });
+                        field.default.value = value;
                     }else{
                         angular.forEach(field.innerElements, function(element, id){
                             if(field.innerElements[id]['gr-value'] === data){
@@ -402,7 +534,9 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                 field.innerElements[id]['gr-checked'] = false;
                             };
                         });
+                        field.default.value = data;
                     }
+                    field.innerElements = field.default.innerElements;
                 },
                 attrs: function(form, field){
                     $timeout(function(){
@@ -421,7 +555,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             html += '<div class="radio gr-form-list-item">';
                                 html += '<label>';
                                     html += '<input ';
-                                        html += 'type="' + field.type + '" ';
+                                        html += 'type="' + field.attrs.type + '" ';
                                         html += 'name="' + field.name + '" ';
                                         html += 'gr-validator="' + field.validate + '" ';
                                         html += 'ng-model="' + field.$modelName(field.name) + '" ';
@@ -442,13 +576,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'label': field.label
+                        'label': field.attrs.label
                     };
                     field.scope[field.name] = field.default.value;
                 }
             },
             reset: function(form, field){
-                var elements = field.innerElements;
+                var elements = field.default.innerElements;
                 angular.forEach(field.input, function(input, id){
                     input = angular.element(input);
                     var checked = elements[id].hasOwnProperty('gr-checked') ? (elements[id]['gr-checked'] === true ? true : false) : false;
@@ -467,6 +601,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -474,10 +615,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -486,10 +627,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -505,6 +646,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -512,10 +660,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -524,10 +672,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -542,17 +690,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             type: 'select',
             set: {
                 data: function(data, field){
-                    if(typeof data === 'object'){
-                        field.innerElements = [];
-                        angular.forEach(data, function(d){
-                            field.innerElements.push({
-                                'gr-label': d.label,
-                                'gr-value': d.value,
-                                'gr-selected': (d.selected === 'true' || d.selected === true || d.selected === '1' || d.selected === 1) ? true : false,
-                                'gr-disabled': (d.disabled === 'true' || d.disabled === true || d.disabled === '1' || d.disabled === 1) ? true : false
-                            });
-                        });
-                    }else{
+                    if(typeof data !== 'object'){
                         angular.forEach(field.innerElements, function(element, id){
                             if(field.innerElements[id]['gr-value'] === data){
                                 field.innerElements[id]['gr-selected'] = true;
@@ -560,7 +698,58 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                 field.innerElements[id]['gr-selected'] = false;
                             };
                         });
+                        var elements = field.innerElements,
+                            hasSelected = false,
+                            value = '';
+                        angular.forEach(field.input.children('option'), function(input, id){
+                            input = angular.element(input);
+                            if(id > 0){
+                                var selected = elements[id-1].hasOwnProperty('gr-selected') ? (elements[id-1]['gr-selected'] === true ? true : false) : false;
+                                if(selected){
+                                    input.attr('selected', true);
+                                    hasSelected = true;
+                                    value = input.val();
+                                }else{
+                                    input.attr('selected', false);
+                                }
+                            }
+                        });
+                        if(!hasSelected){
+                            field.input.children('option').eq(0).attr('selected', true);
+                            value = '';
+                        }
+                        field.value = value;
                     }
+                },
+                defaultData: function(data, field){
+                    var value = '';
+                    if(typeof data === 'object'){
+                        field.default.innerElements = [];
+                        angular.forEach(data, function(d){
+                            var selected = (d.selected === 'true' || d.selected === true || d.selected === '1' || d.selected === 1) ? true : false,
+                                disabled = (d.disabled === 'true' || d.disabled === true || d.disabled === '1' || d.disabled === 1) ? true : false;
+                            field.default.innerElements.push({
+                                'gr-label': d.label,
+                                'gr-value': d.value,
+                                'gr-selected': selected,
+                                'gr-disabled': disabled
+                            });
+                            if(selected){
+                                value = d.value;
+                            }
+                        });
+                    }else{
+                        angular.forEach(field.default.innerElements, function(element, id){
+                            if(field.default.innerElements[id]['gr-value'] === data){
+                                field.default.innerElements[id]['gr-selected'] = true;
+                                value = data;
+                            }else{
+                                field.default.innerElements[id]['gr-selected'] = false;
+                            };
+                        });
+                    }
+                    field.default.value = value;
+                    field.innerElements = field.default.innerElements;
                 },
                 attrs: function(form, field){
                     var input = field.element.find('select'),
@@ -580,7 +769,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         html += '</option>';
                         $compile(input.append(angular.element(html)))(field.scope);
                     });
-                    var html = '<option value="" ng-selected="' + (!hasSelected ? true : false) + '" disabled>' + field.label + '</option>';
+                    var html = '<option value="" ng-selected="' + (!hasSelected ? true : false) + '" disabled>' + field.attrs.label + '</option>';
                     $compile(
                         field.input.prepend(html).attr({
                             'name': field.name,
@@ -597,7 +786,8 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         selectedValue = '';
                     elements = field.innerElements;
                     angular.forEach(elements, function(option){
-                        if(option.hasOwnProperty('gr-selected')){
+                        var selected = option.hasOwnProperty('gr-selected') ? (option['gr-selected'] === true ? true : false) : false;
+                        if(selected){
                             hasSelected = true;
                             selectedValue = option['gr-value'];
                         }
@@ -605,12 +795,11 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             label: option['gr-label']
                         });
                     });
-                    field.default.value = selectedValue;
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'options': options,
                         'hasSelected': hasSelected,
                         'showLabel': (form.labelType === 'inline')
@@ -619,7 +808,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 }
             },
             reset: function(form, field){
-                var elements = field.innerElements,
+                var elements = field.default.innerElements,
                     hasSelected = false;
                 angular.forEach(field.input.children('option'), function(input, id){
                     input = angular.element(input);
@@ -645,6 +834,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -652,10 +848,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -664,10 +860,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -683,6 +879,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -691,8 +894,8 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         field.input.attr({
                             'name': field.name,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -701,10 +904,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -720,32 +923,40 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
+                        field.value = data;
                     }
                 },
                 attrs: function(form, field){
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
-                            'gr-value': field.default.value,
+                            'gr-value': field.value,
                             'ng-model': field.$modelName(field.name)
                         })
                     )(field.scope);
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
-                    field.scope[field.name] = field.default.value;
+                    field.scope[field.name] = field.value;
                 }
             },
             reset: function(form, field){
@@ -758,6 +969,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -765,10 +983,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -777,10 +995,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -796,6 +1014,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -803,10 +1028,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -815,10 +1040,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -834,6 +1059,13 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             set: {
                 data: function(data, field){
                     if(typeof data === 'string'){
+                        field.value = data;
+                        field.model.$setViewValue(field.value);
+                        field.input.val(field.value);
+                    }
+                },
+                defaultData: function(data, field){
+                    if(typeof data === 'string'){
                         field.default.value = data;
                     }
                 },
@@ -841,10 +1073,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     $compile(
                         field.input.attr({
                             'name': field.name,
-                            'type': field.type,
+                            'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.mask}}',
-                            'placeholder': form.labelType === 'placeholder' ? field.label : '',
+                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
                             'ng-model': field.$modelName(field.name)
@@ -853,10 +1085,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 scope: function(form, field){
                     field.scope['field'] = {
-                        'type': field.type,
-                        'label': field.label,
-                        'icon': field.icon,
-                        'mask': field.mask,
+                        'type': field.attrs.type,
+                        'label': field.attrs.label,
+                        'icon': field.attrs.icon,
+                        'mask': field.attrs.mask,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
@@ -867,4 +1099,5 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             }
         }
     };
+    return allFields;
 }]);
