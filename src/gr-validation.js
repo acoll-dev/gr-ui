@@ -28,7 +28,7 @@ angular.module('grValidation.provider', [])
 
         validator = {
             'config': {
-                'form': {}
+                'form': []
             },
             'default': {
                 method: 'onSubmit',
@@ -58,6 +58,7 @@ angular.module('grValidation.provider', [])
                 'set': function(forms){
                     angular.forEach(forms, function(f, i){
                         validator.config.form[i] = f;
+                        validator.config.form.length ++;
                     });
                 }
             },
@@ -572,7 +573,6 @@ angular.module('grValidation.provider', [])
                                 });
                                 if (form.$check()) {
                                     var data = form.$get().data();
-                                    console.debug(data);
                                     form.$submit.exec(data);
                                     return;
                                 } else {
@@ -801,8 +801,8 @@ angular.module('grValidation.provider', [])
                 validator.$template.path = global.template.path;
                 validator.$template.extension = global.template.extension;
             };
-            if (global.hasOwnProperty('config')) {
-                validator.$config.url = global.config;
+            if (global.hasOwnProperty('config') && typeof global.config === 'object') {
+                validator.$config.set(global.config);
             };
             if (global.hasOwnProperty('messages')) {
                 validator.$message.url = global.messages;
@@ -823,10 +823,21 @@ angular.module('grValidation.provider', [])
             instance.compile = instance.injector.get('$compile');
             instance.timeout = instance.injector.get('$timeout');
             instance.window = angular.element(instance.injector.get('$window'));
+
             $grValidation.fields = instance.injector.get('$grValidation.fields');
+            validator.$field.set($grValidation.fields);
+
             $grValidation.rules = instance.injector.get('$grValidation.rules');
+            validator.$rule.set($grValidation.rules);
+
             $grValidation.masks = instance.injector.get('$grValidation.mask.patterns');
-            $grValidation.config = instance.injector.get('$grValidation.config');
+            validator.$mask.config = $grValidation.masks;
+
+            if(!validator.config.form || validator.config.form.length === 0){
+                $grValidation.config = instance.injector.get('$grValidation.config');
+                validator.$config.set($grValidation.config);
+            }
+
             instance.http.get(validator.$message.url).then(
                 function (messages) {
                     var msg = {};
@@ -847,10 +858,6 @@ angular.module('grValidation.provider', [])
             instance.http.get(validator.$mask.url).then(function (masks) {
                 validator.$mask.set(masks.data);
             });
-            validator.$mask.config = $grValidation.masks;
-            validator.$rule.set($grValidation.rules);
-            validator.$config.set($grValidation.config);
-            validator.$field.set($grValidation.fields);
             validator.$template.set();
         };
         this.$get = ['$injector',

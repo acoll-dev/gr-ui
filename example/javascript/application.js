@@ -10,6 +10,16 @@ app.controller('grCtrl', ['$scope',
 app.config(['$grValidationProvider', '$translateProvider',
     function (VALIDATOR, TRANSLATOR) {
         VALIDATOR.config({
+            config: {
+                form: function($scope){
+                    return{
+                        dependencies: ['grRestful'],
+                        submit: [function (REST, $timeout, data, controller) {
+                            alert('Form Submited');
+                        }]
+                    }
+                }
+            },
             template: {
                 path: 'template',
                 extension: '.php'
@@ -22,7 +32,8 @@ app.config(['$grValidationProvider', '$translateProvider',
             }
         });
         TRANSLATOR.translations('pt_BR', {
-            'Send': 'Enviar'
+            Send: 'Enviar',
+            Reset: 'Limpar'
         });
         TRANSLATOR.preferredLanguage('pt_BR');
 }]);
