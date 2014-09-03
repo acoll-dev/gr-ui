@@ -28,7 +28,57 @@ angular.module('grValidation.provider', [])
 
         validator = {
             'config': {
-                'form': []
+                'form': [],
+                'file':{
+                    'mask': {},
+                    'message': {},
+                    'template': {},
+                    '$mask': {
+                        url: '',
+                        config: {},
+                        set: function (masks) {
+                            angular.forEach(masks, function (m, id) {
+                                validator.config.file.mask[id] = m;
+                            });
+                        }
+                    },
+                    '$message': {
+                        url: '',
+                        set: function (messages) {
+                            validator.config.file.message = messages;
+                        }
+                    },
+                    '$template': {
+                        path: '',
+                        extension: '',
+                        set: function () {
+                            angular.forEach(validator.field, function (field, id) {
+                                validator.config.file.template[id] = validator.config.file.$template.path + '/' + field.template + validator.config.file.$template.extension;
+                            });
+                            validator.config.file.template['form'] = validator.config.file.$template.path + '/form' + validator.config.file.$template.extension;
+                            validator.config.file.template['alert'] = validator.config.file.$template.path + '/alert' + validator.config.file.$template.extension;
+                        },
+                        get: function (tpl, field) {
+                            if(!field){
+                                if (!tpl) {
+                                    return validator.config.file.template;
+                                } else {
+                                    return validator.config.file.template[tpl];
+                                }
+                            }else{
+                                return validator.config.file.template[validator.field[tpl].template];
+                            }
+                        }
+                    }
+                },
+                $form: {
+                    'set': function(forms){
+                        angular.forEach(forms, function(f, i){
+                            validator.config.form[i] = f;
+                            validator.config.form.length ++;
+                        });
+                    }
+                }
             },
             'default': {
                 method: 'onSubmit',
@@ -37,8 +87,6 @@ angular.module('grValidation.provider', [])
             },
             'form': {},
             'field': {},
-            'mask': {},
-            'message': {},
             'rules': {
                 0: {
                     name: 'required',
@@ -48,19 +96,9 @@ angular.module('grValidation.provider', [])
                     }
                 }
             },
-            'template': {},
             'translator': {
                 'enable': false,
                 'module': ''
-            },
-            '$config': {
-                'url': '',
-                'set': function(forms){
-                    angular.forEach(forms, function(f, i){
-                        validator.config.form[i] = f;
-                        validator.config.form.length ++;
-                    });
-                }
             },
             '$destroy': function (form) {
                 if(validator.form[form]){
@@ -108,21 +146,6 @@ angular.module('grValidation.provider', [])
                     return forms;
                 } else {
                     return;
-                }
-            },
-            '$mask': {
-                url: '',
-                config: {},
-                set: function (masks) {
-                    angular.forEach(masks, function (m, id) {
-                        validator.mask[id] = m;
-                    });
-                }
-            },
-            '$message': {
-                url: '',
-                set: function (messages) {
-                    validator.message = messages;
                 }
             },
             '$new': function (form) {
@@ -253,9 +276,9 @@ angular.module('grValidation.provider', [])
                                             set: function(data){
                                                 var setData = function(){
                                                     if(!data){
-                                                        if(typeof form.data[field.name] !== 'undefined') {
+                                                        //if(typeof form.data[field.name] !== 'undefined') {
                                                             validator.field[field.attrs.type].set.defaultData(form.data[field.name], field);
-                                                        }
+                                                        //}
                                                         validator.field[field.attrs.type].set.attrs(form, field);
                                                         validator.field[field.attrs.type].set.scope(form, field);
                                                     }else{
@@ -279,9 +302,9 @@ angular.module('grValidation.provider', [])
                                             type: '',
                                             set: function(){
                                                 if(field.attrs.mask){
-                                                    if(validator.mask[field.attrs.mask]){
+                                                    if(validator.config.file.mask[field.attrs.mask]){
                                                         field.$mask.type = 'string';
-                                                        field.attrs.mask = validator.mask[field.attrs.mask];
+                                                        field.attrs.mask = validator.config.file.mask[field.attrs.mask];
                                                     }else{
                                                         field.$mask.type = 'string';
                                                         field.attrs.mask = '';
@@ -371,7 +394,7 @@ angular.module('grValidation.provider', [])
                                 if (config.hasOwnProperty('submit')) {
                                     form.$submit.set(config.submit);
                                 }
-                                if(config.hasOwnProperty('data-source')){
+                                if (config.hasOwnProperty('data-source')){
                                     var source = config['data-source'];
                                     form.$data.hasData = true;
                                     if(typeof source === 'string'){
@@ -390,18 +413,12 @@ angular.module('grValidation.provider', [])
                                     }
                                 }
                                 if (config.hasOwnProperty('translate')) {
-                                    if (String(typeof config.translate) === 'boolean') {
+                                    if (typeof config.translate === 'boolean') {
                                         form.translate = config.translate;
                                     }
                                 }
                                 if (config.hasOwnProperty('inject')) {
-                                    if(String(typeof config.inject) === 'string'){
-                                        form.dependence = config.inject;
-                                    }else{
-                                        angular.forEach(config.inject, function(dep){
-                                            form.dependence.push(dep);
-                                        });
-                                    }
+                                    form.$dependece.set(config.inject);
                                 }
                             }else{
                                 console.error('The "' + form.name + '" was not found in the configuration file, so it is not possible to send or receive data.');
@@ -427,9 +444,11 @@ angular.module('grValidation.provider', [])
                         },
                         '$dependece': {
                             set: function (dep) {
-                                if (String(typeof dep) === 'object') {
+                                if (typeof dep === 'string'){
+                                    form.dependence = config.inject;
+                                }else{
                                     angular.forEach(dep, function (d) {
-                                        validator.dependence.push(d);
+                                        form.dependence.push(d);
                                     });
                                 }
                             }
@@ -628,28 +647,6 @@ angular.module('grValidation.provider', [])
                     });
                 }
             },
-            '$template': {
-                path: '',
-                extension: '',
-                set: function () {
-                    angular.forEach(validator.field, function (field, id) {
-                        validator.template[id] = validator.$template.path + '/' + field.template + validator.$template.extension;
-                    });
-                    validator.template['form'] = validator.$template.path + '/form' + validator.$template.extension;
-                    validator.template['alert'] = validator.$template.path + '/alert' + validator.$template.extension;
-                },
-                get: function (tpl, field) {
-                    if(!field){
-                        if (!tpl) {
-                            return validator.template;
-                        } else {
-                            return validator.template[tpl];
-                        }
-                    }else{
-                        return validator.template[validator.field[tpl].template];
-                    }
-                }
-            },
             '$translator': {
                 'set': function(translator){
                     validator.translator.enable = translator.enable,
@@ -762,7 +759,7 @@ angular.module('grValidation.provider', [])
                     return _rules;
                 },
                 parse: function (form, name, rules) {
-                    var messages = validator.message[name],
+                    var messages = validator.config.file.message[name],
                         _messages = {};
                     rules = tools.rules.split(rules);
                     angular.forEach(rules, function (r, id) {
@@ -798,31 +795,31 @@ angular.module('grValidation.provider', [])
         this.destroy = validator.$destroy;
         this.config = function (global) {
             if (global.hasOwnProperty('config') && typeof global.config === 'object') {
-                validator.$config.set(global.config);
+                validator.config.$form.set(global.config);
             };
             if(global.hasOwnProperty('files')){
                 var files = global.files;
 
                 if (files.hasOwnProperty('templates')) {
-                    validator.$template.path = files.templates.location || '';
-                    validator.$template.extension = files.templates.extension || '.html';
+                    validator.config.file.$template.path = files.templates.location || '';
+                    validator.config.file.$template.extension = files.templates.extension || '.html';
                 }else{
-                    validator.$template.path = '';
-                    validator.$template.extension = '.html';
+                    validator.config.file.$template.path = '';
+                    validator.config.file.$template.extension = '.html';
                 }
 
                 if (files.hasOwnProperty('messages')) {
-                    validator.$message.url = files.messages;
+                    validator.config.file.$message.url = files.messages;
                 }else{
                     console.error('Form messages files not found!');
                 }
 
                 if (files.hasOwnProperty('masks')) {
-                    validator.$mask.url = files.masks;
+                    validator.config.file.$mask.url = files.masks;
                 }
             }else{
-                validator.$template.path = '';
-                validator.$template.extension = '.html';
+                validator.config.file.$template.path = '';
+                validator.config.file.$template.extension = '.html';
                 console.error('Form messages files not found!');
             }
             if (global.hasOwnProperty('translator') || global.translator){
@@ -833,7 +830,7 @@ angular.module('grValidation.provider', [])
                 validator.$translator.set(translator);
             }
         };
-        this.showMessage = validator.$message.show;
+        this.showMessage = validator.config.file.$message.show;
         setup = function (injector) {
             instance.injector = injector;
             instance.scope = instance.injector.get('$rootScope');
@@ -850,14 +847,14 @@ angular.module('grValidation.provider', [])
             validator.$rule.set($grValidation.rules);
 
             $grValidation.masks = instance.injector.get('$grValidation.mask.patterns');
-            validator.$mask.config = $grValidation.masks;
+            validator.config.file.$mask.config = $grValidation.masks;
 
             if(!validator.config.form || validator.config.form.length === 0){
                 $grValidation.config = instance.injector.get('$grValidation.config');
-                validator.$config.set($grValidation.config);
+                validator.config.$form.set($grValidation.config);
             }
 
-            instance.http.get(validator.$message.url).then(
+            instance.http.get(validator.config.file.$message.url).then(
                 function (messages) {
                     var msg = {};
                     angular.forEach(messages.data, function (m, id) {
@@ -869,15 +866,16 @@ angular.module('grValidation.provider', [])
                             }
                         });
                     });
-                    validator.$message.set(msg);
+                    validator.config.file.$message.set(msg);
                 },
                 function (e) {
                     console.error(e);
                 });
-            instance.http.get(validator.$mask.url).then(function (masks) {
-                validator.$mask.set(masks.data);
+            instance.http.get(validator.config.file.$mask.url).then(function (masks) {
+                validator.config.file.$mask.set(masks.data);
             });
-            validator.$template.set();
+
+            validator.config.file.$template.set();
         };
         this.$get = ['$injector',
             function (injector) {
@@ -885,8 +883,8 @@ angular.module('grValidation.provider', [])
                 return {
                     'new': validator.$new,
                     'get': validator.$get,
-                    'mask': validator.$mask.config,
-                    'template': validator.$template.get,
+                    'mask': validator.config.file.$mask.config,
+                    'template': validator.config.file.$template.get,
                     'destroy': validator.$destroy,
                     'translate': tools.translate
                 };
@@ -986,29 +984,26 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                             }
                             form = VALIDATOR.get(ctrl.$name);
                             innerElements = element.find('gr-input-inner');
+                            var tempElements = {};
                             if(innerElements.length > 0){
-                                var temp = [];
                                 angular.forEach(innerElements, function(el, id){
-                                    var attrs = {};
+                                    tempElements[id] = {};
                                     angular.forEach(el.attributes, function(attr){
                                         var name = attr.nodeName,
                                             value = attr.value;
                                         if(name === 'class' && value === 'ng-scope'){
                                             return;
                                         }
-                                        attrs[name] = (value !== undefined && value !== '') ? value : true;
+
+                                        tempElements[id][name] = (value !== 'undefined' && value !== '') ? value : true;
                                     });
-                                    temp.push(attrs);
                                 });
-                                innerElements = temp;
-                            }else{
-                                innerElements = [];
                             }
                             form.$add({
                                 form: ctrl.$name,
                                 name: attrs.grName,
                                 element: element,
-                                innerElements: innerElements,
+                                innerElements: tempElements,
                                 scope: scope,
                                 validate: (attrs.grValidate !== '' && attrs.grValidate !== undefined) ? attrs.grValidate : false,
                                 attrs:{

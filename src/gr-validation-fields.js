@@ -526,7 +526,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             }
                         });
                         field.default.value = value;
-                    }else{
+                    }else if(typeof data === 'string'){
                         angular.forEach(field.innerElements, function(element, id){
                             if(field.innerElements[id]['gr-value'] === data){
                                 field.innerElements[id]['gr-checked'] = true;
@@ -738,11 +738,19 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                 value = d.value;
                             }
                         });
-                    }else{
+                    }else if(typeof data === 'string'){
                         angular.forEach(field.default.innerElements, function(element, id){
                             if(field.default.innerElements[id]['gr-value'] === data){
                                 field.default.innerElements[id]['gr-selected'] = true;
                                 value = data;
+                            }else{
+                                field.default.innerElements[id]['gr-selected'] = false;
+                            };
+                        });
+                    }else{
+                        angular.forEach(field.default.innerElements, function(element, id){
+                            if(field.default.innerElements[id]['gr-selected'] === true){
+                                value = field.default.innerElements[id]['gr-value'];
                             }else{
                                 field.default.innerElements[id]['gr-selected'] = false;
                             };
@@ -770,6 +778,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         $compile(input.append(angular.element(html)))(field.scope);
                     });
                     var html = '<option value="" ng-selected="' + (!hasSelected ? true : false) + '" disabled>' + field.attrs.label + '</option>';
+                    field.input = input;
                     $compile(
                         field.input.prepend(html).attr({
                             'name': field.name,
@@ -777,7 +786,6 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             'ng-model': field.$modelName(field.name)
                         })
                     )(field.scope);
-                    field.input = input;
                 },
                 scope: function(form, field){
                     var options = [],
