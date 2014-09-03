@@ -1500,7 +1500,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                         }
                         function getPlaceholderChar(i) {
                             var placeholder = iAttrs.placeholder;
-                            
+
                             if(!originalPlaceholder){
                                 if (typeof placeholder !== 'undefined' && placeholder[i]) {
                                     return placeholder[i];
