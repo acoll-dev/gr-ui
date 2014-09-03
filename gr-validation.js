@@ -49,6 +49,10 @@ angular.module('grValidation.provider', [])
                 }
             },
             'template': {},
+            'translator': {
+                'enable': false,
+                'module': ''
+            },
             '$config': {
                 'url': '',
                 'set': function(forms){
@@ -81,16 +85,17 @@ angular.module('grValidation.provider', [])
                     var form = validator.form[form];
                     if (form) {
                         return {
-                            id: form.id,
-                            name: form.name,
-                            translate: form.translate,
-                            reset: form.$reset,
-                            submit: form.$validate,
-                            $add: form.$add,
-                            $change: form.$change,
-                            $message: {
-                                get: form.$message.get,
-                                show: form.$message.show
+                            'grForm': form.grForm,
+                            'id': form.id,
+                            'name': form.name,
+                            'reset': form.$reset,
+                            'submit': form.$validate,
+                            'translate': form.translate,
+                            '$add': form.$add,
+                            '$change': form.$change,
+                            '$message': {
+                                'get': form.$message.get,
+                                'show': form.$message.show
                             }
                         }
                     }
@@ -127,6 +132,7 @@ angular.module('grValidation.provider', [])
                         'element': form.element,
                         'error': {},
                         'field': {},
+                        'grForm': true,
                         'id': formId,
                         'labelType': (form.labelType !== '' && form.labelType !== undefined) ? form.labelType : validator.default['labelType'],
                         'method': (form.method !== '' && form.method !== undefined) ? form.method : validator.default['method'],
@@ -447,8 +453,6 @@ angular.module('grValidation.provider', [])
                         },
                         '$get': function() {
                             return {
-                                'reset': form.$reset,
-                                'submit': form.$validate,
                                 'data': function(obj){
                                     if(!obj){
                                         var data = {};
@@ -463,7 +467,11 @@ angular.module('grValidation.provider', [])
                                             }
                                         });
                                     }
-                                }
+                                },
+                                'grForm': form.grForm,
+                                'reset': form.$reset,
+                                'submit': form.$validate,
+                                'translate': form.translate
                             }
                         },
                         '$message': {
@@ -514,6 +522,7 @@ angular.module('grValidation.provider', [])
                                 reset: form.$reset,
                                 submit: form.$validate
                             }
+                            form.scope['__'] = tools.translate;
                         },
                         '$submit': {
                             fn: '',
@@ -640,14 +649,44 @@ angular.module('grValidation.provider', [])
                         return validator.template[validator.field[tpl].template];
                     }
                 }
+            },
+            '$translator': {
+                'set': function(translator){
+                    validator.translator.enable = translator.enable,
+                    validator.translator.module = translator.module
+                }
             }
         };
         tools = {
             translate: function(form, text){
-                if(form.translate){
-                    return instance.filter('translate')(text);
+                if(typeof form === 'object' && form.grForm){
+                    if(form.translate){
+                        return makeTranslation(text);
+                    }else{
+                        return text;
+                    }
                 }else{
-                    return text;
+                    if(typeof form === 'string'){
+                        return makeTranslation(form);
+                    }else{
+                        if(typeof text === 'string'){
+                            return text;
+                        }else{
+                            return '';
+                        }
+                    }
+                }
+                function makeTranslation(str){
+                    if(validator.translator.enable){
+                        if(validator.translator.module === 'pascalprecht.translate'){
+                            return instance.filter('translate')(str);
+                        }else{
+                            return str;
+                        }
+                    }else{
+                        return str;
+                    }
+                    return str;
                 }
             },
             mask: {
@@ -771,6 +810,9 @@ angular.module('grValidation.provider', [])
             if (global.hasOwnProperty('masks')) {
                 validator.$mask.url = global.masks;
             };
+            if (global.hasOwnProperty('translator') || global.translator){
+                validator.$translator.set(global.translator);
+            }
         };
         this.showMessage = validator.$message.show;
         setup = function (injector) {
@@ -793,11 +835,7 @@ angular.module('grValidation.provider', [])
                         angular.forEach(m, function (_m, _id) {
                             msg[id][_id] = _m;
                             if (validator.translate) {
-                                $translate(_m).then(function (t) {
-                                    msg[id][_id] = t;
-                                }, function (t) {
-                                    msg[id][_id] = t;
-                                });
+                                msg[id][_id] = tools.translate(_m);
                             }
                         });
                     });
@@ -823,7 +861,8 @@ angular.module('grValidation.provider', [])
                     'get': validator.$get,
                     'mask': validator.$mask.config,
                     'template': validator.$template.get,
-                    'destroy': validator.$destroy
+                    'destroy': validator.$destroy,
+                    'translate': tools.translate
                 };
         }];
     });
@@ -857,8 +896,8 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                 }
             };
         }])
-    .directive('grAlert', ['$grValidation', '$filter', '$timeout',
-        function (VALIDATOR, $filter, $timeout) {
+    .directive('grAlert', ['$grValidation', '$timeout',
+        function (VALIDATOR, $timeout) {
             return {
                 restrict: 'A',
                 scope: true,
@@ -870,13 +909,12 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                     } else if (!ctrl.$name || !ctrl.$id) {
                         return;
                     }
-                    var form = VALIDATOR.get(ctrl.$name),
-                        title = 'Oops, something is wrong';
+                    var form = VALIDATOR.get(ctrl.$name);
                     scope.message = {
                         text: {},
                         type: '',
                         error: {
-                            title: form.translate ? $filter('translate')(title) : errorTitle
+                            title: VALIDATOR.translate(form, 'Oops, something is wrong')
                         },
                         length: 0,
                         check: function () {
@@ -884,17 +922,13 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                         }
                     };
                     scope.$on('form' + ctrl.$name + 'change', function () {
-                        $timeout(function () {
-                            scope.$apply(function () {
-                                var message = form.$message.get();
-                                scope.message.length = 0;
-                                scope.message.text = message.text;
-                                scope.message.trigger = message.trigger;
-                                scope.message.type = message.type;
-                                angular.forEach(message.text, function () {
-                                    scope.message.length++;
-                                });
-                            });
+                        var message = form.$message.get();
+                        scope.message.length = 0;
+                        scope.message.text = message.text;
+                        scope.message.trigger = message.trigger;
+                        scope.message.type = message.type;
+                        angular.forEach(message.text, function () {
+                            scope.message.length++;
                         });
                     });
                 }
@@ -990,7 +1024,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                             field.$setValidity(field.$name, false);
                             field.$formatters = [];
                             field.$parsers = [];
-                            if(attrs.grValidator === true || attrs.grValidator === 'true') {
+                            if(attrs.grValidator === true || attrs.grValidator === 'true' || attrs.grValidator === false || attrs.grValidator === 'false') {
                                 var _form = VALIDATOR.get(form.$name),
                                     change = function (v, submiting) {
                                         _form.$change({

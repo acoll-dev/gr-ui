@@ -262,19 +262,19 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     )(field.scope);
                     var display = field.element.find('.view-file-name');
                     if(!field.default.multiple){
-                        html += '<div class="view-file-label">{{field.file.name || ("'+clean_text+'" | translate)}}</div><div class="view-file-size">{{field.file.size ? field.file.size + "KB" : ""}}</div>';
+                        html += '<div class="view-file-label">{{field.file.name || __("'+clean_text+'")}}</div><div class="view-file-size">{{field.file.size ? field.file.size + "KB" : ""}}</div>';
                     }else{
                         html += '<ul class="view-file-list" ng-if="field.file[0]">';
                             html += '<li ng-repeat="file in field.file">';
                                 html += '<div class="view-file-label">';
-                                    html += '{{file.name || ("'+clean_text+'" | translate)}}';
+                                    html += '{{file.name || __("'+clean_text+'")}}';
                                 html += '</div>';
                                 html += '<div class="view-file-size">';
                                     html += '{{file.size ? file.size + "KB" : ""}}';
                                 html += '</div>';
                             html += '</li>';
                         html += '</ul>';
-                        html += '<div class="view-file-label" ng-if="!field.file[0]">{{"'+clean_text+'" | translate}}</div>';
+                        html += '<div class="view-file-label" ng-if="!field.file[0]">{{__("'+clean_text+'")}}</div>';
                     }
                     $compile(
                         display.html(html)

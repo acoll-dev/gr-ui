@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" ng-app="griffo" ng-controller="grCtrl">
 
 <head>
     <meta charset="utf-8">
@@ -19,8 +19,8 @@
     <![endif]-->
 </head>
 
-<body ng-app="griffo">
-    <div class="container" ng-controller="grCtrl">
+<body>
+    <div class="container">
         <h2 class="page-header">Griffo Form Validation</h2>
         <gr-form gr-name="form">
             <gr-input gr-name="text" gr-label="Text" gr-icon="fa fa-fw fa-user" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4"></gr-input>
@@ -31,7 +31,6 @@
                 <gr-input-inner gr-label="Option 3" gr-value="3"></gr-input-inner>
             </gr-input>
             <gr-input gr-type="textarea" gr-name="textarea" gr-label="Textarea" gr-icon="fa fa-fw fa-envelope" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4"></gr-input>
-            <gr-input gr-type="file" gr-name="file" gr-label="File" gr-icon="fa fa-fw fa-file" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4" gr-multiple></gr-input>
             <gr-input gr-type="radio" gr-name="radio" gr-label="Radio" gr-validate="required: true" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
                 <gr-input-inner gr-label="Radio 1" gr-value="1"></gr-input-inner>
                 <gr-input-inner gr-label="Radio 2" gr-value="2" gr-checked></gr-input-inner>
@@ -39,8 +38,8 @@
             </gr-input>
             <div class="col-xs-12">
                 <hr/>
-                <button type="submit" class="btn btn-primary">{{'Send' | translate }}</button>
-                <button type="reset" class="btn btn-info">{{'Reset' | translate}}</button>
+                <button type="submit" class="btn btn-primary">{{__('Send')}}</button>
+                <button type="reset" class="btn btn-info">{{__('Reset')}}</button>
             </div>
         </gr-form>
     </div>
