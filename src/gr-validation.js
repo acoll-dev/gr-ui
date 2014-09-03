@@ -394,11 +394,11 @@ angular.module('grValidation.provider', [])
                                         form.translate = config.translate;
                                     }
                                 }
-                                if (config.hasOwnProperty('dependencies')) {
-                                    if(String(typeof config.dependencies) === 'string'){
-                                        form.dependence = config.dependencies;
+                                if (config.hasOwnProperty('inject')) {
+                                    if(String(typeof config.inject) === 'string'){
+                                        form.dependence = config.inject;
                                     }else{
-                                        angular.forEach(config.dependencies, function(dep){
+                                        angular.forEach(config.inject, function(dep){
                                             form.dependence.push(dep);
                                         });
                                     }
@@ -797,21 +797,40 @@ angular.module('grValidation.provider', [])
         };
         this.destroy = validator.$destroy;
         this.config = function (global) {
-            if (global.hasOwnProperty('template')) {
-                validator.$template.path = global.template.path;
-                validator.$template.extension = global.template.extension;
-            };
             if (global.hasOwnProperty('config') && typeof global.config === 'object') {
                 validator.$config.set(global.config);
             };
-            if (global.hasOwnProperty('messages')) {
-                validator.$message.url = global.messages;
-            };
-            if (global.hasOwnProperty('masks')) {
-                validator.$mask.url = global.masks;
-            };
+            if(global.hasOwnProperty('files')){
+                var files = global.files;
+
+                if (files.hasOwnProperty('templates')) {
+                    validator.$template.path = files.templates.location || '';
+                    validator.$template.extension = files.templates.extension || '.html';
+                }else{
+                    validator.$template.path = '';
+                    validator.$template.extension = '.html';
+                }
+
+                if (files.hasOwnProperty('messages')) {
+                    validator.$message.url = files.messages;
+                }else{
+                    console.error('Form messages files not found!');
+                }
+
+                if (files.hasOwnProperty('masks')) {
+                    validator.$mask.url = files.masks;
+                }
+            }else{
+                validator.$template.path = '';
+                validator.$template.extension = '.html';
+                console.error('Form messages files not found!');
+            }
             if (global.hasOwnProperty('translator') || global.translator){
-                validator.$translator.set(global.translator);
+                var translator = {
+                    enable: global.translator.enable || false,
+                    module: global.translator.enable ? global.translator.module : ''
+                }
+                validator.$translator.set(translator);
             }
         };
         this.showMessage = validator.$message.show;
