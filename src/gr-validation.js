@@ -560,8 +560,6 @@ angular.module('grValidation.provider', [])
                                         fn;
                                     angular.forEach(submit, function (o) {
                                         if (typeof o === 'string') {
-                                            console.debug(form.dependence);
-                                            console.debug(o);
                                             injector = angular.injector(form.dependence);
                                             i.push(injector.get(o));
                                             count++;
