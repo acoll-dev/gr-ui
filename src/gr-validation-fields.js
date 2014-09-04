@@ -718,6 +718,9 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             field.input.children('option').eq(0).attr('selected', true);
                             value = '';
                         }
+                        if(field.default.multiple){
+                            field.input.attr('multiple', field.default.multiple);
+                        }
                         field.value = value;
                     }
                 },
