@@ -722,6 +722,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     }
                 },
                 defaultData: function(data, field){
+                    console.debug(typeof data);
                     console.debug(data);
                     var value = '';
                     if(typeof data === 'object'){
