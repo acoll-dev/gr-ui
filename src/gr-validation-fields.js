@@ -948,7 +948,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             'name': field.name,
                             'type': field.attrs.type,
                             'gr-validator': field.validate,
-                            'gr-mask-pattern': '{{field.attrs.mask}}',
+                            'gr-mask-pattern': field.attrs.mask,
                             'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.value,
