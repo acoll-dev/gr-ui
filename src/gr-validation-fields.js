@@ -284,7 +284,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             var el = display.siblings('input[type="file"]') || display.children('input[type="file"]');
                             el.click();
                         }
-                    });
+                    }).css('cursor', 'pointer');
                 },
                 scope: function(form, field){
 
