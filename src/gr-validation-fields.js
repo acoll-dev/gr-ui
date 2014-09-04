@@ -690,7 +690,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
             type: 'select',
             set: {
                 data: function(data, field){
-                    console.debug(data);
+                    console.debug('data');
                     if(typeof data !== 'object'){
                         angular.forEach(field.innerElements, function(element, id){
                             if(field.innerElements[id]['gr-value'] === data){
@@ -723,6 +723,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     }
                 },
                 defaultData: function(data, field){
+                    console.debug('dataDefault');
                     var value = '';
                     if(typeof data === 'object'){
                         field.default.innerElements = [];
