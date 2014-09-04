@@ -280,18 +280,20 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         display.append(html)
                     )(field.scope);
                     display.on({
-                        click: function(){
+                        click: function(e){
+                            e.preventDefault();
                             var el;
                             if(display.siblings('input[type="file"]').length > 0){
-                                el = display.siblings('input[type="file"]');
+                                el = display.siblings('input[type="file"]').eq(0);
                             }else{
-                                el = display.children('input[type="file"]');
+                                el = display.children('input[type="file"]').eq(0);
                             }
                             if(el.length > 0){
                                 el.click();
                             }
                         }
                     }).css('cursor', 'pointer');
+                    display.children('input[type="file"]').on({click: function(e){e.stopPropagation();}});
                 },
                 scope: function(form, field){
 
