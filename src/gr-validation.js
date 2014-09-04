@@ -903,18 +903,25 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                 compile: function(){
                     return{
                         pre: function(scope, element, attrs, ctrl){
-                            VALIDATOR.new({
-                                name: attrs.grName,
-                                element: element,
-                                scope: scope,
-                                model: ctrl,
-                                method: attrs.hasOwnProperty('grValidateMethod') ? attrs.grValidateMethod : '',
-                                validate: attrs.hasOwnProperty('grValidate') ? attrs.grValidate : '',
-                                labelType: attrs.hasOwnProperty('grLabelType') ? attrs.grLabelType : ''
-                            });
+                            if(attrs.grName){
+                                VALIDATOR.new({
+                                    name: attrs.grName,
+                                    element: element,
+                                    scope: scope,
+                                    model: ctrl,
+                                    method: attrs.hasOwnProperty('grValidateMethod') ? attrs.grValidateMethod : '',
+                                    validate: attrs.hasOwnProperty('grValidate') ? attrs.grValidate : '',
+                                    labelType: attrs.hasOwnProperty('grLabelType') ? attrs.grLabelType : ''
+                                });
+                            }else{
+                                console.error('"gr-name" attribute not found.');
+                                element.html('');
+                            }
                         },
                         post: function(scope, element, attrs, ctrl){
-                            scope.grForm = VALIDATOR.get('external');
+                            if(attrs.grName){
+                                scope.grForm = VALIDATOR.get('external');
+                            }
                         }
                     }
                 }
