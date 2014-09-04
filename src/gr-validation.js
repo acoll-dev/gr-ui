@@ -101,11 +101,15 @@ angular.module('grValidation.provider', [])
                 'module': ''
             },
             '$destroy': function (form) {
-                if(validator.form[form]){
-                    delete validator.form[form];
-                    return;
+                if(form !== 'all'){
+                    if(validator.form[form]){
+                        delete validator.form[form];
+                        return;
+                    }else{
+                        return;
+                    }
                 }else{
-                    return;
+                    validator.form = {};
                 }
             },
             '$field':{
