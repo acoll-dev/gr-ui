@@ -281,8 +281,15 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     )(field.scope);
                     display.on({
                         click: function(){
-                            var el = display.siblings('input[type="file"]') || display.children('input[type="file"]');
-                            el.click();
+                            var el;
+                            if(display.siblings('input[type="file"]').length > 0){
+                                el = display.siblings('input[type="file"]');
+                            }else{
+                                el = display.children('input[type="file"]');
+                            }
+                            if(el.length > 0){
+                                el.click();
+                            }
                         }
                     }).css('cursor', 'pointer');
                 },
