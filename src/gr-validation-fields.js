@@ -248,7 +248,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     }
                 },
                 attrs: function(form, field){
-                    var clean_text = "Select a file(s)",
+                    var clean_text = field.attrs.label || "Select a file(s)",
                         html = "";
                     $compile(
                         field.input.attr({
@@ -281,7 +281,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     )(field.scope);
                     display.on({
                         click: function(){
-                            var el = display.siblings('input');
+                            var el = display.siblings('input[type="file"]') || display.children('input[type="file"]');
                             el.click();
                         }
                     });
