@@ -277,7 +277,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         html += '<div class="view-file-label" ng-if="!field.file[0]">{{__("'+clean_text+'")}}</div>';
                     }
                     $compile(
-                        display.html(html)
+                        display.append(html)
                     )(field.scope);
                     display.on({
                         click: function(){
