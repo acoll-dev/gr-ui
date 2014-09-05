@@ -1,5 +1,5 @@
 angular.module('grValidation', ['grValidation.provider', 'grValidation.directive']);
-angular.module('grValidation.provider', [])
+angular.module('grValidation.provider', ['grScriptbind'])
     .provider('$grValidation', function () {
         var checkValid,
             formChange,
@@ -9,6 +9,7 @@ angular.module('grValidation.provider', [])
             instance = {
                 compile: {},
                 injector: {},
+                scriptbind: {},
                 filter: {},
                 http: {},
                 scope: {},
@@ -393,7 +394,20 @@ angular.module('grValidation.provider', [])
                             form.$scope();
                             form.model.$id = String(form.id);
                             form.model.$name = form.name;
-                            if (validator.config.form.hasOwnProperty(form.name)) {
+
+                            var scriptbind = instance.scriptbind.get(),
+                                sbCount = 0;
+
+                            angular.forEach(scriptbind, function(){
+                                sbCount ++;
+                            });
+                            if(sbCount > 0) {
+                                var script = instance.scriptbind.get('grForm/form')[0][0][form.name];
+                                if(angular.isFunction(script)){
+                                    validator.config.form[form.name] = instance.scriptbind.get('grForm/form')[0][0][form.name];
+                                }
+                            }
+                            if (validator.config.form.hasOwnProperty(form.name)){
                                 var config = validator.config.form[form.name](form.scope);
                                 if (config.hasOwnProperty('submit')) {
                                     form.$submit.set(config.submit);
@@ -425,7 +439,7 @@ angular.module('grValidation.provider', [])
                                     form.$dependece.set(config.inject);
                                 }
                             }else{
-                                console.error('The "' + form.name + '" was not found in the configuration file, so it is not possible to send or receive data.');
+                                console.error('Not found configuration of "' + form.name + '" form, so it is not possible to send or receive data.');
                             };
                             form.element.bind({
                                 'submit': function (e) {
@@ -837,6 +851,7 @@ angular.module('grValidation.provider', [])
         this.showMessage = validator.config.file.$message.show;
         setup = function (injector) {
             instance.injector = injector;
+            instance.scriptbind = instance.injector.get('$grScriptbind');
             instance.scope = instance.injector.get('$rootScope');
             instance.filter = instance.injector.get('$filter');
             instance.http = instance.injector.get('$http');
@@ -893,7 +908,30 @@ angular.module('grValidation.provider', [])
                     'translate': tools.translate
                 };
         }];
-    });
+    })
+    .config(['$grScriptbindProvider', function($scriptBind){
+        $scriptBind.addType('grForm/form', function(binds, args){
+            var put = angular.isArray(args) ? (angular.isArray(args[0]) ? args.shift() : undefined) : undefined,
+                inject = args;
+
+            angular.forEach(binds, function (b) {
+                var d = angular.isFunction(b[0]) ? b[0].apply(null, put) : b[0][0].apply(null, put);
+                if (d.inject) {
+                    var i = [],
+                        injector = angular.injector(d.inject),
+                        fn = d.submit.pop();
+                    var injected = injector.get(d.submit);
+                    i.push(injected);
+                    if (angular.isArray(inject)) {
+                        angular.forEach(inject, function (a) {
+                            i.push(a);
+                        });
+                    }
+                    fn.apply(null, i);
+                }
+            });
+        });
+    }]);
 angular.module('grValidation.directive', ['grValidation.provider'])
     .directive('grForm', ['$grValidation',
         function (VALIDATOR) {
