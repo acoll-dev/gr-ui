@@ -157,6 +157,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                 if(!validator.form[form.name]){
                     form = {
                         'data': {},
+                        'dataSource': (form.dataSource !== '' && form.dataSource !== undefined) ? form.dataSource : '',
                         'dependence': [],
                         'element': form.element,
                         'error': {},
@@ -411,6 +412,9 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                 var config = validator.config.form[form.name](form.scope);
                                 if (config.hasOwnProperty('submit')) {
                                     form.$submit.set(config.submit);
+                                }
+                                if(form.dataSource !== ''){
+                                    config['data-source'] = dorm.dataSource;
                                 }
                                 if (config.hasOwnProperty('data-source')){
                                     var source = config['data-source'];
@@ -953,7 +957,8 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                     model: ctrl,
                                     method: attrs.hasOwnProperty('grValidateMethod') ? attrs.grValidateMethod : '',
                                     validate: attrs.hasOwnProperty('grValidate') ? attrs.grValidate : '',
-                                    labelType: attrs.hasOwnProperty('grLabelType') ? attrs.grLabelType : ''
+                                    labelType: attrs.hasOwnProperty('grLabelType') ? attrs.grLabelType : '',
+                                    dataSource: attrs.hasOwnProperty('grDataSource') ? attrs.grDataSource : ''
                                 });
                             }else{
                                 console.error('"gr-name" attribute not found.');
