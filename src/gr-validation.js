@@ -414,7 +414,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                     form.$submit.set(config.submit);
                                 }
                                 if(form.dataSource !== ''){
-                                    config['data-source'] = dorm.dataSource;
+                                    config['data-source'] = form.dataSource;
                                 }
                                 if (config.hasOwnProperty('data-source')){
                                     var source = config['data-source'];
