@@ -582,7 +582,11 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                         fn;
                                     angular.forEach(submit, function (o) {
                                         if (typeof o === 'string') {
-                                            injector = angular.injector(form.dependence);
+                                            if(form.dependence && form.dependence.length > 0){
+                                                injector = angular.injector(form.dependence);
+                                            }else{
+                                                injector = instance.injector;
+                                            }
                                             i.push(injector.get(o));
                                             count++;
                                         } else if (typeof o === 'function' && typeof fn !== 'function') {
