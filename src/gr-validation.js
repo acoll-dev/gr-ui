@@ -133,6 +133,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             'grForm': form.grForm,
                             'id': form.id,
                             'name': form.name,
+                            'noAjaxSubmit': form.$noAjaxSubmit,
                             'reset': form.$reset,
                             'submit': form.$validate,
                             'translate': form.translate,
@@ -513,6 +514,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                 },
                                 'element': form.element,
                                 'grForm': form.grForm,
+                                'noAjaxSubmit': form.$noAjaxSubmit,
                                 'reset': form.$reset,
                                 'submit': form.$validate,
                                 'translate': form.translate
@@ -553,6 +555,18 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             show: function (type, text) {
                                 form.$message.change(type, 'show', tools.translate(form,text));
                             }
+                        },
+                        '$noAjaxSubmit': function(url, method, enctype){
+                            if(!url){
+                                return false;
+                            }
+                            method = methos || 'POST';
+                            enctype = enctype || 'multipart/form-data';
+                            form.element[0].attr({
+                                action: url,
+                                method: method,
+                                enctype: enctype
+                            }).submit();
                         },
                         '$status': {
                             set: function (validate) {
