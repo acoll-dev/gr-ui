@@ -129,6 +129,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                     var form = validator.form[form];
                     if (form) {
                         return {
+                            'element': form.element,
                             'grForm': form.grForm,
                             'id': form.id,
                             'name': form.name,
@@ -510,6 +511,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                         });
                                     }
                                 },
+                                'element': form.element,
                                 'grForm': form.grForm,
                                 'reset': form.$reset,
                                 'submit': form.$validate,
