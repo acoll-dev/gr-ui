@@ -335,18 +335,18 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     field.input.bind({
                         change: function(e){
                             var files = e.target.files,
-                                file = [];
+                                names = [];
 
-                            angular.forEach(files, function(f){ file.push(f); });
+                            angular.forEach(files, function(f){
+                                names.push(f.name);
+                            });
 
-                            file = file.length > 1 ? file.join(';') : file[0];
-
-                            console.debug(files);
-                            console.debug(file);
-
-                            field.scope.file = file ? files : undefined;
+                            field.scope.file = files || undefined;
                             field.scope.$apply();
-                            field.scope['field'][field.name] = files;
+                            field.scope['field'][field.name] =  names.length > 1 ? names.join('; ') : files[0];
+
+                            console.log(field.scope['field'][field.name]);
+                            console.debug(files);
                         }
                     });
                     field.scope['field'] = {
@@ -359,12 +359,12 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         'onFileSelect': onFileSelect,
                         'showLabel': (form.labelType === 'inline')
                     };
-                    field.scope[field.name] = field.default.value;
+                    field.scope['field'][field.name] = field.default.value;
                 }
             },
             reset: function(form, field){
                 field.input.val('');
-                field.scope['field'].file = {};
+                field.scope['field'][field.name] = {};
             }
         },
         "month": {
