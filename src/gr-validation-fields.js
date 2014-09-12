@@ -263,14 +263,14 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     var display = field.element.find('.view-file-name');
                     if(!field.default.multiple){
                         html += '<div class="view-file-label">' +
-                                    '{{field.' + field.name + '.name || __("'+clean_text+'")}}' +
+                                    '{{field.file.name || __("'+clean_text+'")}}' +
                                 '</div>' +
                                 '<div class="view-file-size">' +
-                                    '{{field.' + field.name + '.size ? field.' + field.name + '.size + "KB" : ""}}' +
+                                    '{{field.file.size ? field.file.size + "KB" : ""}}' +
                                 '</div>';
                     }else{
-                        html += '<ul class="view-file-list" ng-if="field.' + field.name + '[0]">' +
-                                    '<li ng-repeat="file in field.' + field.name + '">' +
+                        html += '<ul class="view-file-list" ng-if="field.file[0]">' +
+                                    '<li ng-repeat="file in field.file">' +
                                         '<div class="view-file-label">' +
                                             '{{file.name || __("'+clean_text+'")}}' +
                                         '</div>' +
@@ -279,7 +279,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                         '</div>' +
                                     '</li>' +
                                 '</ul>' +
-                                '<div class="view-file-label" ng-if="!field.' + field.name + '[0]">' +
+                                '<div class="view-file-label" ng-if="!field.file[0]">' +
                                     '{{__("'+clean_text+'")}}' +
                                 '</div>';
                     }
@@ -350,10 +350,9 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
 
                             field.scope.file = files || undefined;
                             field.scope.$apply();
-                            field.scope['field'][field.name] =  names.length > 1 ? names.join('; ') : files[0];
+                            field.scope.field.file =  files;
 
-                            console.log(field.scope['field'][field.name]);
-                            console.debug(files);
+                            field.scope.$apply();
                         }
                     });
                     field.scope['field'] = {
