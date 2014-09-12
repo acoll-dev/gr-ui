@@ -249,7 +249,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 attrs: function(form, field){
                     var clean_text = field.attrs.label || "Select a file(s)",
-                        html = "";
+                        html = "{{field." + field.name +"}}";
                     $compile(
                         field.input.attr({
                             'name': field.name,
@@ -262,19 +262,26 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     )(field.scope);
                     var display = field.element.find('.view-file-name');
                     if(!field.default.multiple){
-                        html += '<div class="view-file-label">{{field.' + field.name + '.name || __("'+clean_text+'")}}</div><div class="view-file-size">{{field.' + field.name + '.size ? field.' + field.name + '.size + "KB" : ""}}</div>';
+                        html += '<div class="view-file-label">' +
+                                    '{{field.' + field.name + '.name || __("'+clean_text+'")}}' +
+                                '</div>' +
+                                '<div class="view-file-size">' +
+                                    '{{field.' + field.name + '.size ? field.' + field.name + '.size + "KB" : ""}}' +
+                                '</div>';
                     }else{
-                        html += '<ul class="view-file-list" ng-if="field.' + field.name + '[0]">';
-                            html += '<li ng-repeat="file in field.' + field.name + '">';
-                                html += '<div class="view-file-label">';
-                                    html += '{{file.name || __("'+clean_text+'")}}';
-                                html += '</div>';
-                                html += '<div class="view-file-size">';
-                                    html += '{{file.size ? file.size + "KB" : ""}}';
-                                html += '</div>';
-                            html += '</li>';
-                        html += '</ul>';
-                        html += '<div class="view-file-label" ng-if="!field.' + field.name + '[0]">{{__("'+clean_text+'")}}</div>';
+                        html += '<ul class="view-file-list" ng-if="field.' + field.name + '[0]">' +
+                                    '<li ng-repeat="file in field.' + field.name + '">' +
+                                        '<div class="view-file-label">' +
+                                            '{{file.name || __("'+clean_text+'")}}' +
+                                        '</div>' +
+                                        '<div class="view-file-size">' +
+                                            '{{file.size ? file.size + "KB" : ""}}' +
+                                        '</div>' +
+                                    '</li>' +
+                                '</ul>' +
+                                '<div class="view-file-label" ng-if="!field.' + field.name + '[0]">' +
+                                    '{{__("'+clean_text+'")}}' +
+                                '</div>';
                     }
                     $compile(
                         display.append(html)
