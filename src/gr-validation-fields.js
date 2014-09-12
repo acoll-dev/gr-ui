@@ -331,13 +331,15 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         It could also be used to monitor the progress of a normal http post/put request with large data*/
                         // $scope.upload = $upload.http({...})  see 88#issuecomment-31366487 for sample code.
                     };
+                    console.debug(field);
                     field.input.bind({
                         change: function(e){
                             var files = e.target.files;
-                            var file = files[0];
+                            var file = files.join(';');
                             field.scope.file = file ? file.name : undefined;
                             field.scope.$apply();
                             field.scope['field'].file = files;
+                            console.debug(field.scope);
                         }
                     });
                     field.scope['field'] = {
