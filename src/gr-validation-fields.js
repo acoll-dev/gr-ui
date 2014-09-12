@@ -262,10 +262,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     )(field.scope);
                     var display = field.element.find('.view-file-name');
                     if(!field.default.multiple){
-                        html += '<div class="view-file-label">{{field.file.name || __("'+clean_text+'")}}</div><div class="view-file-size">{{field.file.size ? field.file.size + "KB" : ""}}</div>';
+                        html += '<div class="view-file-label">{{field.' + field.name + '.name || __("'+clean_text+'")}}</div><div class="view-file-size">{{field.' + field.name + '.size ? field.' + field.name + '.size + "KB" : ""}}</div>';
                     }else{
-                        html += '<ul class="view-file-list" ng-if="field.file[0]">';
-                            html += '<li ng-repeat="file in field.file">';
+                        html += '<ul class="view-file-list" ng-if="field.' + field.name + '[0]">';
+                            html += '<li ng-repeat="file in field.' + field.name + '">';
                                 html += '<div class="view-file-label">';
                                     html += '{{file.name || __("'+clean_text+'")}}';
                                 html += '</div>';
@@ -274,7 +274,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                 html += '</div>';
                             html += '</li>';
                         html += '</ul>';
-                        html += '<div class="view-file-label" ng-if="!field.file[0]">{{__("'+clean_text+'")}}</div>';
+                        html += '<div class="view-file-label" ng-if="!field.' + field.name + '[0]">{{__("'+clean_text+'")}}</div>';
                     }
                     $compile(
                         display.append(html)
@@ -359,12 +359,12 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         'onFileSelect': onFileSelect,
                         'showLabel': (form.labelType === 'inline')
                     };
-                    field.scope['field'][field.name] = field.default.value;
+                    field.scope[field.name] = field.default.value;
                 }
             },
             reset: function(form, field){
                 field.input.val('');
-                field.scope['field'][field.name] = {};
+                field.scope[field.name] = {};
             }
         },
         "month": {
