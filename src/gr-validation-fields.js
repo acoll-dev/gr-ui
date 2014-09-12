@@ -335,11 +335,12 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     field.input.bind({
                         change: function(e){
                             var files = e.target.files;
-                            var file = files.join(';');
+                            var file = files[0];
+                            console.debug(files);
+                            console.debug(file);
                             field.scope.file = file ? file.name : undefined;
                             field.scope.$apply();
                             field.scope['field'].file = files;
-                            console.debug(field.scope);
                         }
                     });
                     field.scope['field'] = {
