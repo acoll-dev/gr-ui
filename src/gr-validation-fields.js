@@ -266,7 +266,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                                     '<div class="view-file-label">' +
                                         '{{file.name || __("'+clean_text+'")}}' +
                                     '</div>' +
-                                    '<div class="view-file-size">' +
+                                    '<div class="view-file-size" ng-if="file.size">' +
                                         '{{file.size ? file.size + "KB" : ""}}' +
                                     '</div>' +
                                 '</li>' +
