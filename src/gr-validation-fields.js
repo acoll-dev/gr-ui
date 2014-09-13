@@ -334,6 +334,18 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             var files = e.target.files;
                             field.scope.field.file =  files;
                             field.scope.$apply();
+                            var change = {
+                                field: field.$name,
+                                model: field.model,
+                                value: '',
+                                submiting: false
+                            }
+                            if(field.default.multiple){
+                                change.value = files;
+                            }else{
+                                change.value = files[0];
+                            }
+                            field.$change(change);
                         }
                     });
                     field.scope['field'] = {
@@ -343,7 +355,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         'mask': field.attrs.mask,
                         'value': field.value,
                         'file': {},
-                        'onFileSelect': onFileSelect,
+                        //'onFileSelect': onFileSelect,
                         'showLabel': (form.labelType === 'inline')
                     };
                     field.scope[field.name] = field.default.value;
