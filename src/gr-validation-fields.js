@@ -249,7 +249,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 attrs: function(form, field){
                     var clean_text = field.attrs.label || "Select a file(s)",
-                        html = "<span>teste</span>{{field." + field.name +"}}";
+                        html = "<span>teste</span>{{field.file}}";
                     $compile(
                         field.input.attr({
                             'name': field.name,
