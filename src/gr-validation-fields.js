@@ -249,7 +249,7 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                 },
                 attrs: function(form, field){
                     var clean_text = field.attrs.label || "Select a file(s)",
-                        html = "{{field.file}}";
+                        html = "";
                     $compile(
                         field.input.attr({
                             'name': field.name,
@@ -329,13 +329,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                         It could also be used to monitor the progress of a normal http post/put request with large data*/
                         // $scope.upload = $upload.http({...})  see 88#issuecomment-31366487 for sample code.
                     };
-                    console.debug(field);
                     field.input.bind({
                         change: function(e){
                             var files = e.target.files;
-
                             field.scope.field.file =  files;
-
                             field.scope.$apply();
                         }
                     });
