@@ -332,15 +332,8 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                     console.debug(field);
                     field.input.bind({
                         change: function(e){
-                            var files = e.target.files,
-                                names = [];
+                            var files = e.target.files;
 
-                            angular.forEach(files, function(f){
-                                names.push(f.name);
-                            });
-
-                            field.scope.file = files || undefined;
-                            field.scope.$apply();
                             field.scope.field.file =  files;
 
                             field.scope.$apply();
