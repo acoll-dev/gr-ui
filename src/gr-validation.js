@@ -404,10 +404,8 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             angular.forEach(scriptbind, function(){
                                 sbCount ++;
                             });
-                            console.debug(scriptbind);
                             if(sbCount > 0) {
-                                var script = instance.scriptbind.get('grForm/form')[0][0][form.name];
-                                console.debug(script);
+                                var script = instance.scriptbind.get('grForm/form')[form.name];
                                 if(angular.isFunction(script)){
                                     validator.config.form[form.name] = instance.scriptbind.get('grForm/form')[0][0][form.name];
                                 }
