@@ -407,7 +407,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             if(sbCount > 0) {
                                 var script = instance.scriptbind.get('grForm/form')[form.name];
                                 if(angular.isFunction(script)){
-                                    validator.config.form[form.name] = instance.scriptbind.get('grForm/form')[0][0][form.name];
+                                    validator.config.form[form.name] = instance.scriptbind.get('grForm/form')[form.name];
                                 }
                             }
                             if (validator.config.form.hasOwnProperty(form.name)){
