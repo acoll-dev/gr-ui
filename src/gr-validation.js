@@ -562,11 +562,12 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             }
                             method = method || 'POST';
                             enctype = enctype || 'multipart/form-data';
-                            form.element[0].attr({
+                            form.element.attr({
                                 action: url,
                                 method: method,
                                 enctype: enctype
-                            }).submit();
+                            });
+                            form.element[0].submit();
                         },
                         '$status': {
                             set: function (validate) {
