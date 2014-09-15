@@ -560,7 +560,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             if(!url){
                                 return false;
                             }
-                            method = methos || 'POST';
+                            method = method || 'POST';
                             enctype = enctype || 'multipart/form-data';
                             form.element[0].attr({
                                 action: url,
