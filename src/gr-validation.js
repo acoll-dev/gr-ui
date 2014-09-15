@@ -445,6 +445,7 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                     form.$dependece.set(config.inject);
                                 }
                             }else{
+                                console.debug(validator.config.form);
                                 console.error('Not found configuration of "' + form.name + '" form, so it is not possible to send or receive data.');
                             };
                             form.element.bind({
