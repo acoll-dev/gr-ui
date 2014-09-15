@@ -404,8 +404,10 @@ angular.module('grValidation.provider', ['grScriptbind'])
                             angular.forEach(scriptbind, function(){
                                 sbCount ++;
                             });
+                            console.debug(scriptbind);
                             if(sbCount > 0) {
                                 var script = instance.scriptbind.get('grForm/form')[0][0][form.name];
+                                console.debug(script);
                                 if(angular.isFunction(script)){
                                     validator.config.form[form.name] = instance.scriptbind.get('grForm/form')[0][0][form.name];
                                 }
@@ -445,7 +447,6 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                     form.$dependece.set(config.inject);
                                 }
                             }else{
-                                console.debug(validator.config.form);
                                 console.error('Not found configuration of "' + form.name + '" form, so it is not possible to send or receive data.');
                             };
                             form.element.bind({
