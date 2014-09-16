@@ -1116,8 +1116,8 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                 return;
                             }
                             field.$setValidity(field.$name, false);
-                            field.$formatters = [];
-                            field.$parsers = [];
+                            //field.$formatters = [];
+                            //field.$parsers = [];
                             scope.model = field;
                             if(attrs.grValidator === true || attrs.grValidator === 'true' || attrs.grValidator === false || attrs.grValidator === 'false') {
                                 var _form = VALIDATOR.get(form.$name),
