@@ -616,16 +616,18 @@ angular.module('grValidation.provider', ['grScriptbind'])
                                 }
                             }
                         },
-                        '$reset': function() {
+                        '$reset': function(clearMessage) {
                             form.validated = false;
                             form.valid = true;
                             angular.forEach(form.field, function(field){
                                 field.$reset();
                             });
-                            form.$message.type = '';
-                            form.$message.trigger = '';
-                            form.$message.text = {};
-                            instance.scope.$broadcast('form' + form.name + 'change');
+                            if(!clearMessage){
+                                form.$message.type = '';
+                                form.$message.trigger = '';
+                                form.$message.text = {};
+                                instance.scope.$broadcast('form' + form.name + 'change');
+                            }
                         },
                         '$validate': function () {
                             if (form.validate) {
