@@ -1102,9 +1102,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
         function (VALIDATOR) {
             return {
                 restrict: 'A',
-                scope: {
-                    model: '=ngModel'
-                },
+                //scope: { model: '=ngModel' },
                 priority: 1,
                 require: ['?^form', 'ngModel'],
                 compile: function(){
@@ -1120,6 +1118,7 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                             field.$setValidity(field.$name, false);
                             field.$formatters = [];
                             field.$parsers = [];
+                            scope.model = field;
                             if(attrs.grValidator === true || attrs.grValidator === 'true' || attrs.grValidator === false || attrs.grValidator === 'false') {
                                 var _form = VALIDATOR.get(form.$name),
                                     change = function (v, submiting) {
@@ -1130,9 +1129,9 @@ angular.module('grValidation.directive', ['grValidation.provider'])
                                             submiting: submiting | false
                                         });
                                     };
-                                scope.$watch('model', function (v) {
+                                scope.$watch('model.$viewValue', function (v) {
                                     change(v);
-                                });
+                                }, true);
                                 scope.$on(form.$name + field.$name + 'submit', function () {
                                     change(element.val(), true);
                                 });

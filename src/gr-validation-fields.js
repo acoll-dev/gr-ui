@@ -122,7 +122,10 @@ angular.module('grValidation.provider').factory('$grValidation.fields', ['$injec
                             'placeholder': form.labelType === 'placeholder' ? field.attrs.label : '',
                             'maxlength': field.rules['maxlength'] ? field.rules['maxlength'] : '',
                             'gr-value': field.default.value,
-                            'ng-model': field.$modelName(field.name)
+                            'ng-model': field.$modelName(field.name),
+                            'date-time': 'start',
+                            //'view': 'year',
+                            //'date-picker': 'start'
                         })
                     )(field.scope);
                 },
