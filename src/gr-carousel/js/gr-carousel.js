@@ -215,6 +215,7 @@
                                 carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 3));
                             },
                             go: function(index){
+                                console.debug(index);
                                 if(!carousel.allow.go(index)){ return false; }
                                 carousel.stop();
                                 index = parseInt(index);
@@ -244,6 +245,8 @@
                             isRunning: carousel.checkRun,
                             isVisible: carousel.isVisible,
                             isCurrent: function(index){ return index ? carousel.current === parseInt(index) : false; },
+                            interval: function(){ return carousel.interval; },
+                            bsCols: function(){ return carousel.bsCols; },
                             allow: carousel.allow,
                             current: function(){ return carousel.current; },
                             indicators: carousel.indicators,
@@ -256,35 +259,47 @@
                             ajust: carousel.ajust,
                             drag: carousel.drag
                         },
-                        viewPort = function() {
-                            return {
-                                width: (angular.element($window).width() - angular.element('body').width()),
-                                height: angular.element($window).height()
+                        viewPort = function(el) {
+                            var w = el || $window,
+                                d = w.document,
+                                _return = {};
+                            if (w.innerWidth != null){
+                                _return = {
+                                    width: w.innerWidth,
+                                    height: w.innerHeight
+                                };
                             };
+                            if (document.compatMode == "CSS1Compat"){
+                                _return = {
+                                    width: d.documentElement.clientWidth,
+                                    height: d.documentElement.clientHeight
+                                };
+                            };
+                            _return = {
+                                width: d.body.clientWidth,
+                                height: d.body.clientHeight
+                            };
+                            return _return;
                         },
                         relativeWidth = function(carousel){
                             var wWidth = viewPort().width,
                                 width = $element.innerWidth(),
                                 padding = parseFloat(carousel.scroller.css('padding-left')) + parseFloat(carousel.scroller.css('padding-right')),
                                 bs;
-                            if(carousel.bsCols.length === 4){
-                                if(wWidth >= 1200){
-                                    bs = carousel.bsCols[3];
-                                }
-                                if(wWidth < 1200){
-                                    bs = carousel.bsCols[2];
-                                }
-                                if(wWidth < 991){
-                                    bs = carousel.bsCols[1];
-                                }
-                                if(wWidth < 768){
-                                    bs = carousel.bsCols[0];
-                                }
-                            }else{
-                                bs = 12;
+                            if(wWidth >= 1200){
+                                bs = carousel.bsCols.lg || 1;
                             }
-                            carousel.visible = 12/bs;
-                            return Math.round(((width/12)*bs) - ((padding/12)*bs));
+                            if(wWidth < 1200){
+                                bs = carousel.bsCols.md || 1;
+                            }
+                            if(wWidth < 991){
+                                bs = carousel.bsCols.sm || 1;
+                            }
+                            if(wWidth < 768){
+                                bs = carousel.bsCols.xs || 1;
+                            }
+                            carousel.visible = bs;
+                            return Math.round((width/bs)-(padding/bs));
                         },
                         init = function(){
                             carousel.scroller = $element.children('.gr-carousel-inner');
@@ -340,11 +355,9 @@
                         }
                     });
                     $attrs.$observe('bs', function(args){
-                        if(args && args !== ''){
-                            carousel.bsCols = args.split(',');
-                        }else{
-                            carousel.bsCols = ['12','12','12','12'];
-                        }
+                        carousel.bsCols = $scope.$eval(args);
+                        carousel.ajust();
+                        carousel.reset();
                     });
                     $attrs.$observe('autoplay', function(autoplay){
                         if(autoplay > 0){
