@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui.table', ['ngTable', 'ngTableExport', 'grModal'])
+    angular.module('gr.ui.table', ['ngTable', 'ngTableExport', 'gr.ui.modal'])
         .value('grTableDefaults', {
             tag: {
                 'gr-col': 'grCol'
