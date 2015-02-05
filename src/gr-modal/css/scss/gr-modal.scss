@@ -1,0 +1,32 @@
+.modal-open{
+    min-width: 320px;
+    overflow-x: auto;
+    .modal{
+        min-width: 320px;
+        .modal-dialog{
+            font-size: 0.875rem;
+            .modal-content{
+                border-radius: 0;
+                form{
+                    .form-group{
+                        &:last-child{
+                            margin-bottom: 0;
+                        }
+                    }
+                }
+            }
+            &.modal-sm{
+                width: 300px;
+                max-width: 300px;
+                margin: 10px auto;
+            }
+            &.modal-responsive{
+                width: auto;
+                margin: 10px;
+            }
+        }
+    }
+    .modal-backdrop{
+        min-width: 320px;
+    }
+}

@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.html', 'gr.ui.table']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.html', 'gr.ui.modal', 'gr.ui.table']);
 })();
 
 /*
@@ -328,16 +328,6 @@
                 }
             }
         }]);
-})();
-/*
- * angular-ui-bootstrap
- * http://angular-ui.github.io/bootstrap/
-
- * Version: 0.12.0 - 2014-11-16
- * License: MIT
- */
-(function(){
-    angular.module("ui.bootstrap",["ui.bootstrap.tpls","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.datepicker","ui.bootstrap.tooltip","ui.bootstrap.bindHtml"]),angular.module("ui.bootstrap.tpls",["template/datepicker/datepicker.html","template/datepicker/day.html","template/datepicker/month.html","template/datepicker/popup.html","template/datepicker/year.html","template/tooltip/tooltip-html-unsafe-popup.html","template/tooltip/tooltip-popup.html"]),angular.module("ui.bootstrap.dateparser",[]).service("dateParser",["$locale","orderByFilter",function(e,t){function n(e){var n=[],a=e.split("");return angular.forEach(i,function(t,i){var o=e.indexOf(i);if(o>-1){e=e.split(""),a[o]="("+t.regex+")",e[o]="$";for(var r=o+1,l=o+i.length;l>r;r++)a[r]="",e[r]="$";e=e.join(""),n.push({index:o,apply:t.apply})}}),{regex:new RegExp("^"+a.join("")+"$"),map:t(n,"index")}}function a(e,t,n){return 1===t&&n>28?29===n&&(e%4===0&&e%100!==0||e%400===0):3===t||5===t||8===t||10===t?31>n:!0}this.parsers={};var i={yyyy:{regex:"\\d{4}",apply:function(e){this.year=+e}},yy:{regex:"\\d{2}",apply:function(e){this.year=+e+2e3}},y:{regex:"\\d{1,4}",apply:function(e){this.year=+e}},MMMM:{regex:e.DATETIME_FORMATS.MONTH.join("|"),apply:function(t){this.month=e.DATETIME_FORMATS.MONTH.indexOf(t)}},MMM:{regex:e.DATETIME_FORMATS.SHORTMONTH.join("|"),apply:function(t){this.month=e.DATETIME_FORMATS.SHORTMONTH.indexOf(t)}},MM:{regex:"0[1-9]|1[0-2]",apply:function(e){this.month=e-1}},M:{regex:"[1-9]|1[0-2]",apply:function(e){this.month=e-1}},dd:{regex:"[0-2][0-9]{1}|3[0-1]{1}",apply:function(e){this.date=+e}},d:{regex:"[1-2]?[0-9]{1}|3[0-1]{1}",apply:function(e){this.date=+e}},EEEE:{regex:e.DATETIME_FORMATS.DAY.join("|")},EEE:{regex:e.DATETIME_FORMATS.SHORTDAY.join("|")}};this.parse=function(t,i){if(!angular.isString(t)||!i)return t;i=e.DATETIME_FORMATS[i]||i,this.parsers[i]||(this.parsers[i]=n(i));var o=this.parsers[i],r=o.regex,l=o.map,c=t.match(r);if(c&&c.length){for(var p,s={year:1900,month:0,date:1,hours:0},u=1,d=c.length;d>u;u++){var f=l[u-1];f.apply&&f.apply.call(s,c[u])}return a(s.year,s.month,s.date)&&(p=new Date(s.year,s.month,s.date,s.hours)),p}}}]),angular.module("ui.bootstrap.position",[]).factory("$position",["$document","$window",function(e,t){function n(e,n){return e.currentStyle?e.currentStyle[n]:t.getComputedStyle?t.getComputedStyle(e)[n]:e.style[n]}function a(e){return"static"===(n(e,"position")||"static")}var i=function(t){for(var n=e[0],i=t.offsetParent||n;i&&i!==n&&a(i);)i=i.offsetParent;return i||n};return{position:function(t){var n=this.offset(t),a={top:0,left:0},o=i(t[0]);o!=e[0]&&(a=this.offset(angular.element(o)),a.top+=o.clientTop-o.scrollTop,a.left+=o.clientLeft-o.scrollLeft);var r=t[0].getBoundingClientRect();return{width:r.width||t.prop("offsetWidth"),height:r.height||t.prop("offsetHeight"),top:n.top-a.top,left:n.left-a.left}},offset:function(n){var a=n[0].getBoundingClientRect();return{width:a.width||n.prop("offsetWidth"),height:a.height||n.prop("offsetHeight"),top:a.top+(t.pageYOffset||e[0].documentElement.scrollTop),left:a.left+(t.pageXOffset||e[0].documentElement.scrollLeft)}},positionElements:function(e,t,n,a){var i,o,r,l,c=n.split("-"),p=c[0],s=c[1]||"center";i=a?this.offset(e):this.position(e),o=t.prop("offsetWidth"),r=t.prop("offsetHeight");var u={center:function(){return i.left+i.width/2-o/2},left:function(){return i.left},right:function(){return i.left+i.width}},d={center:function(){return i.top+i.height/2-r/2},top:function(){return i.top},bottom:function(){return i.top+i.height}};switch(p){case"right":l={top:d[s](),left:u[p]()};break;case"left":l={top:d[s](),left:i.left-o};break;case"bottom":l={top:d[p](),left:u[s]()};break;default:l={top:i.top-r,left:u[s]()}}return l}}}]),angular.module("ui.bootstrap.datepicker",["ui.bootstrap.dateparser","ui.bootstrap.position"]).constant("datepickerConfig",{formatDay:"dd",formatMonth:"MMMM",formatYear:"yyyy",formatDayHeader:"EEE",formatDayTitle:"MMMM yyyy",formatMonthTitle:"yyyy",datepickerMode:"day",minMode:"day",maxMode:"year",showWeeks:!0,startingDay:0,yearRange:20,minDate:null,maxDate:null}).controller("DatepickerController",["$scope","$attrs","$parse","$interpolate","$timeout","$log","dateFilter","datepickerConfig",function(e,t,n,a,i,o,r,l){var c=this,p={$setViewValue:angular.noop};this.modes=["day","month","year"],angular.forEach(["formatDay","formatMonth","formatYear","formatDayHeader","formatDayTitle","formatMonthTitle","minMode","maxMode","showWeeks","startingDay","yearRange"],function(n,i){c[n]=angular.isDefined(t[n])?8>i?a(t[n])(e.$parent):e.$parent.$eval(t[n]):l[n]}),angular.forEach(["minDate","maxDate"],function(a){t[a]?e.$parent.$watch(n(t[a]),function(e){c[a]=e?new Date(e):null,c.refreshView()}):c[a]=l[a]?new Date(l[a]):null}),e.datepickerMode=e.datepickerMode||l.datepickerMode,e.uniqueId="datepicker-"+e.$id+"-"+Math.floor(1e4*Math.random()),this.activeDate=angular.isDefined(t.initDate)?e.$parent.$eval(t.initDate):new Date,e.isActive=function(t){return 0===c.compare(t.date,c.activeDate)?(e.activeDateId=t.uid,!0):!1},this.init=function(e){p=e,p.$render=function(){c.render()}},this.render=function(){if(p.$modelValue){var e=new Date(p.$modelValue),t=!isNaN(e);t?this.activeDate=e:o.error('Datepicker directive: "ng-model" value must be a Date object, a number of milliseconds since 01.01.1970 or a string representing an RFC2822 or ISO 8601 date.'),p.$setValidity("date",t)}this.refreshView()},this.refreshView=function(){if(this.element){this._refreshView();var e=p.$modelValue?new Date(p.$modelValue):null;p.$setValidity("date-disabled",!e||this.element&&!this.isDisabled(e))}},this.createDateObject=function(e,t){var n=p.$modelValue?new Date(p.$modelValue):null;return{date:e,label:r(e,t),selected:n&&0===this.compare(e,n),disabled:this.isDisabled(e),current:0===this.compare(e,new Date)}},this.isDisabled=function(n){return this.minDate&&this.compare(n,this.minDate)<0||this.maxDate&&this.compare(n,this.maxDate)>0||t.dateDisabled&&e.dateDisabled({date:n,mode:e.datepickerMode})},this.split=function(e,t){for(var n=[];e.length>0;)n.push(e.splice(0,t));return n},e.select=function(t){if(e.datepickerMode===c.minMode){var n=p.$modelValue?new Date(p.$modelValue):new Date(0,0,0,0,0,0,0);n.setFullYear(t.getFullYear(),t.getMonth(),t.getDate()),p.$setViewValue(n),p.$render()}else c.activeDate=t,e.datepickerMode=c.modes[c.modes.indexOf(e.datepickerMode)-1]},e.move=function(e){var t=c.activeDate.getFullYear()+e*(c.step.years||0),n=c.activeDate.getMonth()+e*(c.step.months||0);c.activeDate.setFullYear(t,n,1),c.refreshView()},e.toggleMode=function(t){t=t||1,e.datepickerMode===c.maxMode&&1===t||e.datepickerMode===c.minMode&&-1===t||(e.datepickerMode=c.modes[c.modes.indexOf(e.datepickerMode)+t])},e.keys={13:"enter",32:"space",33:"pageup",34:"pagedown",35:"end",36:"home",37:"left",38:"up",39:"right",40:"down"};var s=function(){i(function(){c.element[0].focus()},0,!1)};e.$on("datepicker.focus",s),e.keydown=function(t){var n=e.keys[t.which];if(n&&!t.shiftKey&&!t.altKey)if(t.preventDefault(),t.stopPropagation(),"enter"===n||"space"===n){if(c.isDisabled(c.activeDate))return;e.select(c.activeDate),s()}else!t.ctrlKey||"up"!==n&&"down"!==n?(c.handleKeyDown(n,t),c.refreshView()):(e.toggleMode("up"===n?1:-1),s())}}]).directive("datepicker",function(){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/datepicker.html",scope:{datepickerMode:"=?",dateDisabled:"&"},require:["datepicker","?^ngModel"],controller:"DatepickerController",link:function(e,t,n,a){var i=a[0],o=a[1];o&&i.init(o)}}}).directive("daypicker",["dateFilter",function(e){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/day.html",require:"^datepicker",link:function(t,n,a,i){function o(e,t){return 1!==t||e%4!==0||e%100===0&&e%400!==0?c[t]:29}function r(e,t){var n=new Array(t),a=new Date(e),i=0;for(a.setHours(12);t>i;)n[i++]=new Date(a),a.setDate(a.getDate()+1);return n}function l(e){var t=new Date(e);t.setDate(t.getDate()+4-(t.getDay()||7));var n=t.getTime();return t.setMonth(0),t.setDate(1),Math.floor(Math.round((n-t)/864e5)/7)+1}t.showWeeks=i.showWeeks,i.step={months:1},i.element=n;var c=[31,28,31,30,31,30,31,31,30,31,30,31];i._refreshView=function(){var n=i.activeDate.getFullYear(),a=i.activeDate.getMonth(),o=new Date(n,a,1),c=i.startingDay-o.getDay(),p=c>0?7-c:-c,s=new Date(o);p>0&&s.setDate(-p+1);for(var u=r(s,42),d=0;42>d;d++)u[d]=angular.extend(i.createDateObject(u[d],i.formatDay),{secondary:u[d].getMonth()!==a,uid:t.uniqueId+"-"+d});t.labels=new Array(7);for(var f=0;7>f;f++)t.labels[f]={abbr:e(u[f].date,i.formatDayHeader),full:e(u[f].date,"EEEE")};if(t.title=e(i.activeDate,i.formatDayTitle),t.rows=i.split(u,7),t.showWeeks){t.weekNumbers=[];for(var h=l(t.rows[0][0].date),m=t.rows.length;t.weekNumbers.push(h++)<m;);}},i.compare=function(e,t){return new Date(e.getFullYear(),e.getMonth(),e.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate())},i.handleKeyDown=function(e){var t=i.activeDate.getDate();if("left"===e)t-=1;else if("up"===e)t-=7;else if("right"===e)t+=1;else if("down"===e)t+=7;else if("pageup"===e||"pagedown"===e){var n=i.activeDate.getMonth()+("pageup"===e?-1:1);i.activeDate.setMonth(n,1),t=Math.min(o(i.activeDate.getFullYear(),i.activeDate.getMonth()),t)}else"home"===e?t=1:"end"===e&&(t=o(i.activeDate.getFullYear(),i.activeDate.getMonth()));i.activeDate.setDate(t)},i.refreshView()}}}]).directive("monthpicker",["dateFilter",function(e){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/month.html",require:"^datepicker",link:function(t,n,a,i){i.step={years:1},i.element=n,i._refreshView=function(){for(var n=new Array(12),a=i.activeDate.getFullYear(),o=0;12>o;o++)n[o]=angular.extend(i.createDateObject(new Date(a,o,1),i.formatMonth),{uid:t.uniqueId+"-"+o});t.title=e(i.activeDate,i.formatMonthTitle),t.rows=i.split(n,3)},i.compare=function(e,t){return new Date(e.getFullYear(),e.getMonth())-new Date(t.getFullYear(),t.getMonth())},i.handleKeyDown=function(e){var t=i.activeDate.getMonth();if("left"===e)t-=1;else if("up"===e)t-=3;else if("right"===e)t+=1;else if("down"===e)t+=3;else if("pageup"===e||"pagedown"===e){var n=i.activeDate.getFullYear()+("pageup"===e?-1:1);i.activeDate.setFullYear(n)}else"home"===e?t=0:"end"===e&&(t=11);i.activeDate.setMonth(t)},i.refreshView()}}}]).directive("yearpicker",["dateFilter",function(){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/year.html",require:"^datepicker",link:function(e,t,n,a){function i(e){return parseInt((e-1)/o,10)*o+1}var o=a.yearRange;a.step={years:o},a.element=t,a._refreshView=function(){for(var t=new Array(o),n=0,r=i(a.activeDate.getFullYear());o>n;n++)t[n]=angular.extend(a.createDateObject(new Date(r+n,0,1),a.formatYear),{uid:e.uniqueId+"-"+n});e.title=[t[0].label,t[o-1].label].join(" - "),e.rows=a.split(t,5)},a.compare=function(e,t){return e.getFullYear()-t.getFullYear()},a.handleKeyDown=function(e){var t=a.activeDate.getFullYear();"left"===e?t-=1:"up"===e?t-=5:"right"===e?t+=1:"down"===e?t+=5:"pageup"===e||"pagedown"===e?t+=("pageup"===e?-1:1)*a.step.years:"home"===e?t=i(a.activeDate.getFullYear()):"end"===e&&(t=i(a.activeDate.getFullYear())+o-1),a.activeDate.setFullYear(t)},a.refreshView()}}}]).constant("datepickerPopupConfig",{datepickerPopup:"yyyy-MM-dd",currentText:"Today",clearText:"Clear",closeText:"Done",closeOnDateSelection:!0,appendToBody:!1,showButtonBar:!0}).directive("datepickerPopup",["$compile","$parse","$document","$position","dateFilter","dateParser","datepickerPopupConfig",function(e,t,n,a,i,o,r){return{restrict:"EA",require:"ngModel",scope:{isOpen:"=?",currentText:"@",clearText:"@",closeText:"@",dateDisabled:"&"},link:function(l,c,p,s){function u(e){return e.replace(/([A-Z])/g,function(e){return"-"+e.toLowerCase()})}function d(e){if(e){if(angular.isDate(e)&&!isNaN(e))return s.$setValidity("date",!0),e;if(angular.isString(e)){var t=o.parse(e,f)||new Date(e);return isNaN(t)?void s.$setValidity("date",!1):(s.$setValidity("date",!0),t)}return void s.$setValidity("date",!1)}return s.$setValidity("date",!0),null}var f,h=angular.isDefined(p.closeOnDateSelection)?l.$parent.$eval(p.closeOnDateSelection):r.closeOnDateSelection,m=angular.isDefined(p.datepickerAppendToBody)?l.$parent.$eval(p.datepickerAppendToBody):r.appendToBody;l.showButtonBar=angular.isDefined(p.showButtonBar)?l.$parent.$eval(p.showButtonBar):r.showButtonBar,l.getText=function(e){return l[e+"Text"]||r[e+"Text"]},p.$observe("datepickerPopup",function(e){f=e||r.datepickerPopup,s.$render()});var g=angular.element("<div datepicker-popup-wrap><div datepicker></div></div>");g.attr({"ng-model":"date","ng-change":"dateSelection()"});var y=angular.element(g.children()[0]);p.datepickerOptions&&angular.forEach(l.$parent.$eval(p.datepickerOptions),function(e,t){y.attr(u(t),e)}),l.watchData={},angular.forEach(["minDate","maxDate","datepickerMode"],function(e){if(p[e]){var n=t(p[e]);if(l.$parent.$watch(n,function(t){l.watchData[e]=t}),y.attr(u(e),"watchData."+e),"datepickerMode"===e){var a=n.assign;l.$watch("watchData."+e,function(e,t){e!==t&&a(l.$parent,e)})}}}),p.dateDisabled&&y.attr("date-disabled","dateDisabled({ date: date, mode: mode })"),s.$parsers.unshift(d),l.dateSelection=function(e){angular.isDefined(e)&&(l.date=e),s.$setViewValue(l.date),s.$render(),h&&(l.isOpen=!1,c[0].focus())},c.bind("input change keyup",function(){l.$apply(function(){l.date=s.$modelValue})}),s.$render=function(){var e=s.$viewValue?i(s.$viewValue,f):"";c.val(e),l.date=d(s.$modelValue)};var v=function(e){l.isOpen&&e.target!==c[0]&&l.$apply(function(){l.isOpen=!1})},b=function(e){l.keydown(e)};c.bind("keydown",b),l.keydown=function(e){27===e.which?(e.preventDefault(),e.stopPropagation(),l.close()):40!==e.which||l.isOpen||(l.isOpen=!0)},l.$watch("isOpen",function(e){e?(l.$broadcast("datepicker.focus"),l.position=m?a.offset(c):a.position(c),l.position.top=l.position.top+c.prop("offsetHeight"),n.bind("click",v)):n.unbind("click",v)}),l.select=function(e){if("today"===e){var t=new Date;angular.isDate(s.$modelValue)?(e=new Date(s.$modelValue),e.setFullYear(t.getFullYear(),t.getMonth(),t.getDate())):e=new Date(t.setHours(0,0,0,0))}l.dateSelection(e)},l.close=function(){l.isOpen=!1,c[0].focus()};var D=e(g)(l);g.remove(),m?n.find("body").append(D):c.after(D),l.$on("$destroy",function(){D.remove(),c.unbind("keydown",b),n.unbind("click",v)})}}}]).directive("datepickerPopupWrap",function(){return{restrict:"EA",replace:!0,transclude:!0,templateUrl:"template/datepicker/popup.html",link:function(e,t){t.bind("click",function(e){e.preventDefault(),e.stopPropagation()})}}}),angular.module("ui.bootstrap.tooltip",["ui.bootstrap.position","ui.bootstrap.bindHtml"]).provider("$tooltip",function(){function e(e){var t=/[A-Z]/g,n="-";return e.replace(t,function(e,t){return(t?n:"")+e.toLowerCase()})}var t={placement:"top",animation:!0,popupDelay:0},n={mouseenter:"mouseleave",click:"click",focus:"blur"},a={};this.options=function(e){angular.extend(a,e)},this.setTriggers=function(e){angular.extend(n,e)},this.$get=["$window","$compile","$timeout","$document","$position","$interpolate",function(i,o,r,l,c,p){return function(i,s,u){function d(e){var t=e||f.trigger||u,a=n[t]||t;return{show:t,hide:a}}var f=angular.extend({},t,a),h=e(i),m=p.startSymbol(),g=p.endSymbol(),y="<div "+h+'-popup title="'+m+"title"+g+'" content="'+m+"content"+g+'" placement="'+m+"placement"+g+'" animation="animation" is-open="isOpen"></div>';return{restrict:"EA",compile:function(){var e=o(y);return function(t,n,a){function o(){V.isOpen?u():p()}function p(){(!E||t.$eval(a[s+"Enable"]))&&(v(),V.popupDelay?x||(x=r(h,V.popupDelay,!1),x.then(function(e){e()})):h()())}function u(){t.$apply(function(){m()})}function h(){return x=null,M&&(r.cancel(M),M=null),V.content?(g(),k.css({top:0,left:0,display:"block"}),T?l.find("body").append(k):n.after(k),A(),V.isOpen=!0,V.$digest(),A):angular.noop}function m(){V.isOpen=!1,r.cancel(x),x=null,V.animation?M||(M=r(y,500)):y()}function g(){k&&y(),$=V.$new(),k=e($,angular.noop)}function y(){M=null,k&&(k.remove(),k=null),$&&($.$destroy(),$=null)}function v(){b(),D()}function b(){var e=a[s+"Placement"];V.placement=angular.isDefined(e)?e:f.placement}function D(){var e=a[s+"PopupDelay"],t=parseInt(e,10);V.popupDelay=isNaN(t)?f.popupDelay:t}function w(){var e=a[s+"Trigger"];F(),O=d(e),O.show===O.hide?n.bind(O.show,o):(n.bind(O.show,p),n.bind(O.hide,u))}var k,$,M,x,T=angular.isDefined(f.appendToBody)?f.appendToBody:!1,O=d(void 0),E=angular.isDefined(a[s+"Enable"]),V=t.$new(!0),A=function(){var e=c.positionElements(n,k,V.placement,T);e.top+="px",e.left+="px",k.css(e)};V.isOpen=!1,a.$observe(i,function(e){V.content=e,!e&&V.isOpen&&m()}),a.$observe(s+"Title",function(e){V.title=e});var F=function(){n.unbind(O.show,p),n.unbind(O.hide,u)};w();var Y=t.$eval(a[s+"Animation"]);V.animation=angular.isDefined(Y)?!!Y:f.animation;var S=t.$eval(a[s+"AppendToBody"]);T=angular.isDefined(S)?S:T,T&&t.$on("$locationChangeSuccess",function(){V.isOpen&&m()}),t.$on("$destroy",function(){r.cancel(M),r.cancel(x),F(),y(),V=null})}}}}}]}).directive("tooltipPopup",function(){return{restrict:"EA",replace:!0,scope:{content:"@",placement:"@",animation:"&",isOpen:"&"},templateUrl:"template/tooltip/tooltip-popup.html"}}).directive("tooltip",["$tooltip",function(e){return e("tooltip","tooltip","mouseenter")}]).directive("tooltipHtmlUnsafePopup",function(){return{restrict:"EA",replace:!0,scope:{content:"@",placement:"@",animation:"&",isOpen:"&"},templateUrl:"template/tooltip/tooltip-html-unsafe-popup.html"}}).directive("tooltipHtmlUnsafe",["$tooltip",function(e){return e("tooltipHtmlUnsafe","tooltip","mouseenter")}]),angular.module("ui.bootstrap.bindHtml",[]).directive("bindHtmlUnsafe",function(){return function(e,t,n){t.addClass("ng-binding").data("$binding",n.bindHtmlUnsafe),e.$watch(n.bindHtmlUnsafe,function(e){t.html(e||"")})}}),angular.module("template/datepicker/datepicker.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/datepicker.html",'<div ng-switch="datepickerMode" role="application" ng-keydown="keydown($event)">\n  <daypicker ng-switch-when="day" tabindex="0"></daypicker>\n  <monthpicker ng-switch-when="month" tabindex="0"></monthpicker>\n  <yearpicker ng-switch-when="year" tabindex="0"></yearpicker>\n</div>')}]),angular.module("template/datepicker/day.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/day.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th colspan="{{5 + showWeeks}}"><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n    <tr>\n      <th ng-show="showWeeks" class="text-center"></th>\n      <th ng-repeat="label in labels track by $index" class="text-center"><small aria-label="{{label.full}}">{{label.abbr}}</small></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-show="showWeeks" class="text-center h6"><em>{{ weekNumbers[$index] }}</em></td>\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default btn-sm" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-muted\': dt.secondary, \'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]),angular.module("template/datepicker/month.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/month.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]),angular.module("template/datepicker/popup.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/popup.html",'<ul class="dropdown-menu" ng-style="{display: (isOpen && \'block\') || \'none\', top: position.top+\'px\', left: position.left+\'px\'}" ng-keydown="keydown($event)">\n	<li ng-transclude></li>\n	<li ng-if="showButtonBar" style="padding:10px 9px 2px">\n		<span class="btn-group pull-left">\n			<button type="button" class="btn btn-sm btn-info" ng-click="select(\'today\')">{{ getText(\'current\') }}</button>\n			<button type="button" class="btn btn-sm btn-danger" ng-click="select(null)">{{ getText(\'clear\') }}</button>\n		</span>\n		<button type="button" class="btn btn-sm btn-success pull-right" ng-click="close()">{{ getText(\'close\') }}</button>\n	</li>\n</ul>\n')}]),angular.module("template/datepicker/year.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/year.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th colspan="3"><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]),angular.module("template/tooltip/tooltip-html-unsafe-popup.html",[]).run(["$templateCache",function(e){e.put("template/tooltip/tooltip-html-unsafe-popup.html",'<div class="tooltip {{placement}}" ng-class="{ in: isOpen(), fade: animation() }">\n  <div class="tooltip-arrow"></div>\n  <div class="tooltip-inner" bind-html-unsafe="content"></div>\n</div>\n')}]),angular.module("template/tooltip/tooltip-popup.html",[]).run(["$templateCache",function(e){e.put("template/tooltip/tooltip-popup.html",'<div class="tooltip {{placement}}" ng-class="{ in: isOpen(), fade: animation() }">\n  <div class="tooltip-arrow"></div>\n  <div class="tooltip-inner" ng-bind="content"></div>\n</div>\n')}]);
 })();
 /**
  * @license Autofields v2.1.6
@@ -1620,13 +1610,6 @@
                                 '</ul>');
         }]);
 })();
-/*! jQuery UI - v1.11.2 - 2015-01-23
-* http://jqueryui.com
-* Includes: effect.js
-* Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
-(function(){
-    (function(e){"function"==typeof define&&define.amd?define(["jquery"],e):e(jQuery)})(function(e){var t="ui-effects-",i=e;e.effects={effect:{}},function(e,t){function i(e,t,i){var s=d[t.type]||{};return null==e?i||!t.def?null:t.def:(e=s.floor?~~e:parseFloat(e),isNaN(e)?t.def:s.mod?(e+s.mod)%s.mod:0>e?0:e>s.max?s.max:e)}function s(i){var s=l(),n=s._rgba=[];return i=i.toLowerCase(),f(h,function(e,a){var o,r=a.re.exec(i),h=r&&a.parse(r),l=a.space||"rgba";return h?(o=s[l](h),s[u[l].cache]=o[u[l].cache],n=s._rgba=o._rgba,!1):t}),n.length?("0,0,0,0"===n.join()&&e.extend(n,a.transparent),s):a[i]}function n(e,t,i){return i=(i+1)%1,1>6*i?e+6*(t-e)*i:1>2*i?t:2>3*i?e+6*(t-e)*(2/3-i):e}var a,o="backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",r=/^([\-+])=\s*(\d+\.?\d*)/,h=[{re:/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[e[1],e[2],e[3],e[4]]}},{re:/rgba?\(\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[2.55*e[1],2.55*e[2],2.55*e[3],e[4]]}},{re:/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/,parse:function(e){return[parseInt(e[1],16),parseInt(e[2],16),parseInt(e[3],16)]}},{re:/#([a-f0-9])([a-f0-9])([a-f0-9])/,parse:function(e){return[parseInt(e[1]+e[1],16),parseInt(e[2]+e[2],16),parseInt(e[3]+e[3],16)]}},{re:/hsla?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,space:"hsla",parse:function(e){return[e[1],e[2]/100,e[3]/100,e[4]]}}],l=e.Color=function(t,i,s,n){return new e.Color.fn.parse(t,i,s,n)},u={rgba:{props:{red:{idx:0,type:"byte"},green:{idx:1,type:"byte"},blue:{idx:2,type:"byte"}}},hsla:{props:{hue:{idx:0,type:"degrees"},saturation:{idx:1,type:"percent"},lightness:{idx:2,type:"percent"}}}},d={"byte":{floor:!0,max:255},percent:{max:1},degrees:{mod:360,floor:!0}},c=l.support={},p=e("<p>")[0],f=e.each;p.style.cssText="background-color:rgba(1,1,1,.5)",c.rgba=p.style.backgroundColor.indexOf("rgba")>-1,f(u,function(e,t){t.cache="_"+e,t.props.alpha={idx:3,type:"percent",def:1}}),l.fn=e.extend(l.prototype,{parse:function(n,o,r,h){if(n===t)return this._rgba=[null,null,null,null],this;(n.jquery||n.nodeType)&&(n=e(n).css(o),o=t);var d=this,c=e.type(n),p=this._rgba=[];return o!==t&&(n=[n,o,r,h],c="array"),"string"===c?this.parse(s(n)||a._default):"array"===c?(f(u.rgba.props,function(e,t){p[t.idx]=i(n[t.idx],t)}),this):"object"===c?(n instanceof l?f(u,function(e,t){n[t.cache]&&(d[t.cache]=n[t.cache].slice())}):f(u,function(t,s){var a=s.cache;f(s.props,function(e,t){if(!d[a]&&s.to){if("alpha"===e||null==n[e])return;d[a]=s.to(d._rgba)}d[a][t.idx]=i(n[e],t,!0)}),d[a]&&0>e.inArray(null,d[a].slice(0,3))&&(d[a][3]=1,s.from&&(d._rgba=s.from(d[a])))}),this):t},is:function(e){var i=l(e),s=!0,n=this;return f(u,function(e,a){var o,r=i[a.cache];return r&&(o=n[a.cache]||a.to&&a.to(n._rgba)||[],f(a.props,function(e,i){return null!=r[i.idx]?s=r[i.idx]===o[i.idx]:t})),s}),s},_space:function(){var e=[],t=this;return f(u,function(i,s){t[s.cache]&&e.push(i)}),e.pop()},transition:function(e,t){var s=l(e),n=s._space(),a=u[n],o=0===this.alpha()?l("transparent"):this,r=o[a.cache]||a.to(o._rgba),h=r.slice();return s=s[a.cache],f(a.props,function(e,n){var a=n.idx,o=r[a],l=s[a],u=d[n.type]||{};null!==l&&(null===o?h[a]=l:(u.mod&&(l-o>u.mod/2?o+=u.mod:o-l>u.mod/2&&(o-=u.mod)),h[a]=i((l-o)*t+o,n)))}),this[n](h)},blend:function(t){if(1===this._rgba[3])return this;var i=this._rgba.slice(),s=i.pop(),n=l(t)._rgba;return l(e.map(i,function(e,t){return(1-s)*n[t]+s*e}))},toRgbaString:function(){var t="rgba(",i=e.map(this._rgba,function(e,t){return null==e?t>2?1:0:e});return 1===i[3]&&(i.pop(),t="rgb("),t+i.join()+")"},toHslaString:function(){var t="hsla(",i=e.map(this.hsla(),function(e,t){return null==e&&(e=t>2?1:0),t&&3>t&&(e=Math.round(100*e)+"%"),e});return 1===i[3]&&(i.pop(),t="hsl("),t+i.join()+")"},toHexString:function(t){var i=this._rgba.slice(),s=i.pop();return t&&i.push(~~(255*s)),"#"+e.map(i,function(e){return e=(e||0).toString(16),1===e.length?"0"+e:e}).join("")},toString:function(){return 0===this._rgba[3]?"transparent":this.toRgbaString()}}),l.fn.parse.prototype=l.fn,u.hsla.to=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t,i,s=e[0]/255,n=e[1]/255,a=e[2]/255,o=e[3],r=Math.max(s,n,a),h=Math.min(s,n,a),l=r-h,u=r+h,d=.5*u;return t=h===r?0:s===r?60*(n-a)/l+360:n===r?60*(a-s)/l+120:60*(s-n)/l+240,i=0===l?0:.5>=d?l/u:l/(2-u),[Math.round(t)%360,i,d,null==o?1:o]},u.hsla.from=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t=e[0]/360,i=e[1],s=e[2],a=e[3],o=.5>=s?s*(1+i):s+i-s*i,r=2*s-o;return[Math.round(255*n(r,o,t+1/3)),Math.round(255*n(r,o,t)),Math.round(255*n(r,o,t-1/3)),a]},f(u,function(s,n){var a=n.props,o=n.cache,h=n.to,u=n.from;l.fn[s]=function(s){if(h&&!this[o]&&(this[o]=h(this._rgba)),s===t)return this[o].slice();var n,r=e.type(s),d="array"===r||"object"===r?s:arguments,c=this[o].slice();return f(a,function(e,t){var s=d["object"===r?e:t.idx];null==s&&(s=c[t.idx]),c[t.idx]=i(s,t)}),u?(n=l(u(c)),n[o]=c,n):l(c)},f(a,function(t,i){l.fn[t]||(l.fn[t]=function(n){var a,o=e.type(n),h="alpha"===t?this._hsla?"hsla":"rgba":s,l=this[h](),u=l[i.idx];return"undefined"===o?u:("function"===o&&(n=n.call(this,u),o=e.type(n)),null==n&&i.empty?this:("string"===o&&(a=r.exec(n),a&&(n=u+parseFloat(a[2])*("+"===a[1]?1:-1))),l[i.idx]=n,this[h](l)))})})}),l.hook=function(t){var i=t.split(" ");f(i,function(t,i){e.cssHooks[i]={set:function(t,n){var a,o,r="";if("transparent"!==n&&("string"!==e.type(n)||(a=s(n)))){if(n=l(a||n),!c.rgba&&1!==n._rgba[3]){for(o="backgroundColor"===i?t.parentNode:t;(""===r||"transparent"===r)&&o&&o.style;)try{r=e.css(o,"backgroundColor"),o=o.parentNode}catch(h){}n=n.blend(r&&"transparent"!==r?r:"_default")}n=n.toRgbaString()}try{t.style[i]=n}catch(h){}}},e.fx.step[i]=function(t){t.colorInit||(t.start=l(t.elem,i),t.end=l(t.end),t.colorInit=!0),e.cssHooks[i].set(t.elem,t.start.transition(t.end,t.pos))}})},l.hook(o),e.cssHooks.borderColor={expand:function(e){var t={};return f(["Top","Right","Bottom","Left"],function(i,s){t["border"+s+"Color"]=e}),t}},a=e.Color.names={aqua:"#00ffff",black:"#000000",blue:"#0000ff",fuchsia:"#ff00ff",gray:"#808080",green:"#008000",lime:"#00ff00",maroon:"#800000",navy:"#000080",olive:"#808000",purple:"#800080",red:"#ff0000",silver:"#c0c0c0",teal:"#008080",white:"#ffffff",yellow:"#ffff00",transparent:[null,null,null,0],_default:"#ffffff"}}(i),function(){function t(t){var i,s,n=t.ownerDocument.defaultView?t.ownerDocument.defaultView.getComputedStyle(t,null):t.currentStyle,a={};if(n&&n.length&&n[0]&&n[n[0]])for(s=n.length;s--;)i=n[s],"string"==typeof n[i]&&(a[e.camelCase(i)]=n[i]);else for(i in n)"string"==typeof n[i]&&(a[i]=n[i]);return a}function s(t,i){var s,n,o={};for(s in i)n=i[s],t[s]!==n&&(a[s]||(e.fx.step[s]||!isNaN(parseFloat(n)))&&(o[s]=n));return o}var n=["add","remove","toggle"],a={border:1,borderBottom:1,borderColor:1,borderLeft:1,borderRight:1,borderTop:1,borderWidth:1,margin:1,padding:1};e.each(["borderLeftStyle","borderRightStyle","borderBottomStyle","borderTopStyle"],function(t,s){e.fx.step[s]=function(e){("none"!==e.end&&!e.setAttr||1===e.pos&&!e.setAttr)&&(i.style(e.elem,s,e.end),e.setAttr=!0)}}),e.fn.addBack||(e.fn.addBack=function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}),e.effects.animateClass=function(i,a,o,r){var h=e.speed(a,o,r);return this.queue(function(){var a,o=e(this),r=o.attr("class")||"",l=h.children?o.find("*").addBack():o;l=l.map(function(){var i=e(this);return{el:i,start:t(this)}}),a=function(){e.each(n,function(e,t){i[t]&&o[t+"Class"](i[t])})},a(),l=l.map(function(){return this.end=t(this.el[0]),this.diff=s(this.start,this.end),this}),o.attr("class",r),l=l.map(function(){var t=this,i=e.Deferred(),s=e.extend({},h,{queue:!1,complete:function(){i.resolve(t)}});return this.el.animate(this.diff,s),i.promise()}),e.when.apply(e,l.get()).done(function(){a(),e.each(arguments,function(){var t=this.el;e.each(this.diff,function(e){t.css(e,"")})}),h.complete.call(o[0])})})},e.fn.extend({addClass:function(t){return function(i,s,n,a){return s?e.effects.animateClass.call(this,{add:i},s,n,a):t.apply(this,arguments)}}(e.fn.addClass),removeClass:function(t){return function(i,s,n,a){return arguments.length>1?e.effects.animateClass.call(this,{remove:i},s,n,a):t.apply(this,arguments)}}(e.fn.removeClass),toggleClass:function(t){return function(i,s,n,a,o){return"boolean"==typeof s||void 0===s?n?e.effects.animateClass.call(this,s?{add:i}:{remove:i},n,a,o):t.apply(this,arguments):e.effects.animateClass.call(this,{toggle:i},s,n,a)}}(e.fn.toggleClass),switchClass:function(t,i,s,n,a){return e.effects.animateClass.call(this,{add:i,remove:t},s,n,a)}})}(),function(){function i(t,i,s,n){return e.isPlainObject(t)&&(i=t,t=t.effect),t={effect:t},null==i&&(i={}),e.isFunction(i)&&(n=i,s=null,i={}),("number"==typeof i||e.fx.speeds[i])&&(n=s,s=i,i={}),e.isFunction(s)&&(n=s,s=null),i&&e.extend(t,i),s=s||i.duration,t.duration=e.fx.off?0:"number"==typeof s?s:s in e.fx.speeds?e.fx.speeds[s]:e.fx.speeds._default,t.complete=n||i.complete,t}function s(t){return!t||"number"==typeof t||e.fx.speeds[t]?!0:"string"!=typeof t||e.effects.effect[t]?e.isFunction(t)?!0:"object"!=typeof t||t.effect?!1:!0:!0}e.extend(e.effects,{version:"1.11.2",save:function(e,i){for(var s=0;i.length>s;s++)null!==i[s]&&e.data(t+i[s],e[0].style[i[s]])},restore:function(e,i){var s,n;for(n=0;i.length>n;n++)null!==i[n]&&(s=e.data(t+i[n]),void 0===s&&(s=""),e.css(i[n],s))},setMode:function(e,t){return"toggle"===t&&(t=e.is(":hidden")?"show":"hide"),t},getBaseline:function(e,t){var i,s;switch(e[0]){case"top":i=0;break;case"middle":i=.5;break;case"bottom":i=1;break;default:i=e[0]/t.height}switch(e[1]){case"left":s=0;break;case"center":s=.5;break;case"right":s=1;break;default:s=e[1]/t.width}return{x:s,y:i}},createWrapper:function(t){if(t.parent().is(".ui-effects-wrapper"))return t.parent();var i={width:t.outerWidth(!0),height:t.outerHeight(!0),"float":t.css("float")},s=e("<div></div>").addClass("ui-effects-wrapper").css({fontSize:"100%",background:"transparent",border:"none",margin:0,padding:0}),n={width:t.width(),height:t.height()},a=document.activeElement;try{a.id}catch(o){a=document.body}return t.wrap(s),(t[0]===a||e.contains(t[0],a))&&e(a).focus(),s=t.parent(),"static"===t.css("position")?(s.css({position:"relative"}),t.css({position:"relative"})):(e.extend(i,{position:t.css("position"),zIndex:t.css("z-index")}),e.each(["top","left","bottom","right"],function(e,s){i[s]=t.css(s),isNaN(parseInt(i[s],10))&&(i[s]="auto")}),t.css({position:"relative",top:0,left:0,right:"auto",bottom:"auto"})),t.css(n),s.css(i).show()},removeWrapper:function(t){var i=document.activeElement;return t.parent().is(".ui-effects-wrapper")&&(t.parent().replaceWith(t),(t[0]===i||e.contains(t[0],i))&&e(i).focus()),t},setTransition:function(t,i,s,n){return n=n||{},e.each(i,function(e,i){var a=t.cssUnit(i);a[0]>0&&(n[i]=a[0]*s+a[1])}),n}}),e.fn.extend({effect:function(){function t(t){function i(){e.isFunction(a)&&a.call(n[0]),e.isFunction(t)&&t()}var n=e(this),a=s.complete,r=s.mode;(n.is(":hidden")?"hide"===r:"show"===r)?(n[r](),i()):o.call(n[0],s,i)}var s=i.apply(this,arguments),n=s.mode,a=s.queue,o=e.effects.effect[s.effect];return e.fx.off||!o?n?this[n](s.duration,s.complete):this.each(function(){s.complete&&s.complete.call(this)}):a===!1?this.each(t):this.queue(a||"fx",t)},show:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="show",this.effect.call(this,n)}}(e.fn.show),hide:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="hide",this.effect.call(this,n)}}(e.fn.hide),toggle:function(e){return function(t){if(s(t)||"boolean"==typeof t)return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="toggle",this.effect.call(this,n)}}(e.fn.toggle),cssUnit:function(t){var i=this.css(t),s=[];return e.each(["em","px","%","pt"],function(e,t){i.indexOf(t)>0&&(s=[parseFloat(i),t])}),s}})}(),function(){var t={};e.each(["Quad","Cubic","Quart","Quint","Expo"],function(e,i){t[i]=function(t){return Math.pow(t,e+2)}}),e.extend(t,{Sine:function(e){return 1-Math.cos(e*Math.PI/2)},Circ:function(e){return 1-Math.sqrt(1-e*e)},Elastic:function(e){return 0===e||1===e?e:-Math.pow(2,8*(e-1))*Math.sin((80*(e-1)-7.5)*Math.PI/15)},Back:function(e){return e*e*(3*e-2)},Bounce:function(e){for(var t,i=4;((t=Math.pow(2,--i))-1)/11>e;);return 1/Math.pow(4,3-i)-7.5625*Math.pow((3*t-2)/22-e,2)}}),e.each(t,function(t,i){e.easing["easeIn"+t]=i,e.easing["easeOut"+t]=function(e){return 1-i(1-e)},e.easing["easeInOut"+t]=function(e){return.5>e?i(2*e)/2:1-i(-2*e+2)/2}})}(),e.effects});
-})();
 
 /*
  *
@@ -1654,12 +1637,768 @@
 
 /*
  *
+ * GR-MODAL
+ *
+ */
+
+(function(){
+    angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template']);
+})();
+(function(){
+    angular.module('gr.ui.modal.provider', [])
+        .provider('$grModal', function(){
+            var setup,
+                $injector,
+                $modal,
+                $templateCache,
+                grModal,
+                id = 0;
+            grModal = {
+                'element': {},
+                'template': {
+                    'base': '',
+                    'model': {
+                        'window': '',
+                        'backdrop': '',
+                        'alert': ''
+                    }
+                },
+                'new': function (config) {
+                    if (angular.isObject(config)) {
+                        if (!config.name) {
+                            return;
+                        }
+                        if (!config.size) {
+                            return;
+                        }
+                        if (!config.model && !config.text) {
+                            return;
+                        }
+                        var element = {
+                            'id': id,
+                            'name': config.name,
+                            'title': config.title || false,
+                            'size': config.size,
+                            'model': config.model,
+                            'text': config.text,
+                            'element': '',
+                            'zIndex': config.zIndex,
+                            'backdrop': config.backdrop !== undefined ? config.backdrop : true,
+                            'buttons': config.buttons || false,
+                            'events': {
+                                onOpen: config.onOpen || false,
+                                onClose: config.onClose || false
+                            }
+                        };
+                        grModal.element[element.name] = element;
+                        var ModalInstanceCtrl = ['$scope', '$modalInstance',
+                            function ($scope, $modalInstance) {
+                                if (typeof config.define === 'object') {
+                                    angular.forEach(config.define, function (d, i) {
+                                        $scope[i] = d;
+                                    });
+                                }
+                                $scope.modal = $modalInstance;
+                        }];
+                        id++;
+                        return {
+                            'open': function(){
+                                var options = {
+                                    'title': element.title,
+                                    'name': element.name,
+                                    'backdrop': element.backdrop,
+                                    'zIndex': element.zIndex,
+                                    'controller': ModalInstanceCtrl,
+                                    'size': element.size,
+                                    'buttons': element.buttons,
+                                    'events': {
+                                        onOpen: element.events.onOpen || grModal.events.onOpen,
+                                        onClose: element.events.onClose || grModal.events.onClose
+                                    }
+                                };
+                                if(element.text){
+                                    options.template = $templateCache.get('grModal/alert.html');
+                                    if(angular.isUndefined(config.define)){
+                                        config.define = {
+                                            alert: {
+                                                text: element.text
+                                            }
+                                        };
+                                    }else{
+                                        config.define.alert = {
+                                            text: element.text
+                                        }
+                                    }
+                                }else if(element.model){
+                                    options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
+                                }
+                                var grModalInstance = $modal.open(options);
+                                return grModalInstance;
+                            }
+                        }
+                    } else {
+                        return;
+                    }
+                },
+                'set': function (name, el) {
+                    grModal.element[name].element = el;
+                },
+                'alert': function (message, size) {
+                    var alert = grModal.new({
+                        'name': 'alert',
+                        'size': size || 'sm',
+                        'text': message || '',
+                        'buttons': [{
+                            'type': 'default',
+                            'label': 'Close',
+                            'onClick': function (scope, element, controller) {
+                                controller.close();
+                            }
+                        }],
+                        'backdrop': 'static'
+                    });
+                    alert.open();
+                },
+				'confirm': function (message, confirm, cancel, size) {
+					var alert = grModal.new({
+						'name': 'confirm',
+						'size': size || 'sm',
+						'text': message || '',
+						'buttons': [{
+							'type': 'primary',
+							'label': 'Confirm',
+							'onClick': function (scope, element, controller) {
+								if(confirm && angular.isFunction(confirm)){
+									confirm();
+								}
+								controller.close();
+							}
+                    	}, {
+							'type': 'default',
+							'label': 'Cancel',
+							'onClick': function (scope, element, controller) {
+								if(cancel && angular.isFunction(cancel)){
+									cancel();
+								}
+								controller.close();
+								
+							}
+                    	}],
+						'backdrop': 'static'
+					});
+					alert.open();
+				},
+                'events': {
+                    'onOpen': function(){},
+                    'onClose': function(){}
+                }
+            };
+            this.config = function (config) {
+                if (angular.isString(config.base)) {
+                    grModal.template.base = config.base;
+                }
+                if (angular.isFunction(config.onClose)) {
+                    grModal.events.onClose = config.onClose;
+                }
+                if (angular.isFunction(config.onOpen)) {
+                    grModal.events.onOpen = config.onOpen;
+                }
+            };
+            setup = function (injector) {
+                $injector = injector;
+                $modal = $injector.get('$grModal.ui');
+                $templateCache = $injector.get('$templateCache');
+            };
+            this.$get = ['$injector',
+            function (injector) {
+                    setup(injector);
+                    return {
+                        'new': grModal.new,
+                        'alert': grModal.alert,
+						'confirm': grModal.confirm,
+                        'template': {
+                            'get': function (name) {
+                                if (angular.isString(name)) {
+                                    return grModal.template.base + grModal.element[name].model;
+                                }
+                            }
+                        }
+                    };
+            }];
+        })
+        .provider('$grModal.ui', function(){
+            var $modalProvider = {
+                options: {
+                    backdrop: true, //can be also false or 'static'
+                    keyboard: true
+                },
+                $get: ['$injector', '$rootScope', '$q', '$http', '$templateCache', '$controller', '$grModalStack',
+                    function ($injector, $rootScope, $q, $http, $templateCache, $controller, $grModalStack) {
+                        var $modal = {};
+
+                        function getTemplatePromise(options) {
+                            return options.template ? $q.when(options.template) :
+                                $http.get(angular.isFunction(options.templateUrl) ? (options.templateUrl)() : options.templateUrl, {
+                                    cache: $templateCache
+                                }).then(function (result) {
+                                    return result.data;
+                                });
+                        };
+
+                        function getResolvePromises(resolves) {
+                            var promisesArr = [];
+                            angular.forEach(resolves, function (value) {
+                                if (angular.isFunction(value) || angular.isArray(value)) {
+                                    promisesArr.push($q.when($injector.invoke(value)));
+                                }
+                            });
+                            return promisesArr;
+                        };
+                        $modal.open = function (modalOptions) {
+
+                            var modalResultDeferred = $q.defer();
+                            var modalOpenedDeferred = $q.defer();
+
+                            //prepare an instance of a modal to be injected into controllers and returned to a caller
+                            var modalInstance = {
+                                result: modalResultDeferred.promise,
+                                opened: modalOpenedDeferred.promise,
+                                close: function (result) {
+                                    $grModalStack.close(modalInstance, result);
+                                },
+                                dismiss: function (reason) {
+                                    $grModalStack.dismiss(modalInstance, reason);
+                                }
+                            };
+
+                            //merge and clean up options
+                            modalOptions = angular.extend({}, $modalProvider.options, modalOptions);
+                            modalOptions.resolve = modalOptions.resolve || {};
+
+                            //verify options
+                            if (!modalOptions.template && !modalOptions.templateUrl) {
+                                throw new Error('One of template or templateUrl options is required.');
+                            }
+
+                            var templateAndResolvePromise =
+                                $q.all([getTemplatePromise(modalOptions)].concat(getResolvePromises(modalOptions.resolve)));
+
+                            templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
+
+                                var modalScope = (modalOptions.scope || $rootScope).$new();
+                                modalScope.$close = modalInstance.close;
+                                modalScope.$dismiss = modalInstance.dismiss;
+
+                                var ctrlInstance, ctrlLocals = {};
+                                var resolveIter = 1;
+
+                                //controllers
+                                if (modalOptions.controller) {
+                                    ctrlLocals.$scope = modalScope;
+                                    ctrlLocals.$modalInstance = modalInstance;
+                                    angular.forEach(modalOptions.resolve, function (value, key) {
+                                        ctrlLocals[key] = tplAndVars[resolveIter++];
+                                    });
+
+                                    ctrlInstance = $controller(modalOptions.controller, ctrlLocals);
+                                    if (modalOptions.controller) {
+                                        modalScope[modalOptions.controllerAs] = ctrlInstance;
+                                    }
+                                }
+
+                                $grModalStack.open(modalInstance, {
+                                    scope: modalScope,
+                                    deferred: modalResultDeferred,
+                                    content: tplAndVars[0],
+                                    backdrop: modalOptions.backdrop,
+                                    keyboard: modalOptions.keyboard,
+                                    backdropClass: modalOptions.backdropClass,
+                                    windowClass: modalOptions.windowClass,
+                                    windowTemplateUrl: modalOptions.windowTemplateUrl,
+                                    size: modalOptions.size,
+                                    zIndex: modalOptions.zIndex,
+                                    title: modalOptions.title,
+                                    name: modalOptions.name,
+                                    buttons: modalOptions.buttons,
+                                    events: modalOptions.events
+                                });
+
+                            }, function resolveError(reason) {
+                                modalResultDeferred.reject(reason);
+                            });
+
+                            templateAndResolvePromise.then(function(){
+                                modalOpenedDeferred.resolve(true);
+                            }, function(){
+                                modalOpenedDeferred.reject(false);
+                            });
+
+                            modalInstance.element = $grModalStack.getTop();
+
+                            return modalInstance;
+                        };
+                        return $modal;
+                }]
+            };
+            return $modalProvider;
+        });
+})();
+(function(){
+    angular.module('gr.ui.modal.factory', [])
+        .factory('$$grStackedMap', function(){
+            return {
+                createNew: function(){
+                    var stack = [];
+
+                    return {
+                        add: function (key, value) {
+                            stack.push({
+                                key: key,
+                                value: value
+                            });
+                        },
+                        get: function (key) {
+                            for (var i = 0; i < stack.length; i++) {
+                                if (key == stack[i].key) {
+                                    return stack[i];
+                                }
+                            }
+                        },
+                        keys: function(){
+                            var keys = [];
+                            for (var i = 0; i < stack.length; i++) {
+                                keys.push(stack[i].key);
+                            }
+                            return keys;
+                        },
+                        top: function(){
+                            return stack[stack.length - 1];
+                        },
+                        remove: function (key) {
+                            var idx = -1;
+                            for (var i = 0; i < stack.length; i++) {
+                                if (key == stack[i].key) {
+                                    idx = i;
+                                    break;
+                                }
+                            }
+                            return stack.splice(idx, 1)[0];
+                        },
+                        removeTop: function(){
+                            return stack.splice(stack.length - 1, 1)[0];
+                        },
+                        length: function(){
+                            return stack.length;
+                        }
+                    };
+                }
+            };
+        })
+        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap',
+            function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
+
+                var OPENED_MODAL_CLASS = 'modal-open';
+
+                var backdropDomEl, backdropScope;
+                var openedWindows = $$grStackedMap.createNew();
+                var $grModalStack = {};
+
+                function backdropIndex() {
+                    var topBackdropIndex = -1;
+                    var opened = openedWindows.keys();
+                    for (var i = 0; i < opened.length; i++) {
+                        if (openedWindows.get(opened[i]).value.backdrop) {
+                            topBackdropIndex = i;
+                        }
+                    }
+                    return topBackdropIndex;
+                }
+
+                $rootScope.$watch(backdropIndex, function (newBackdropIndex) {
+                    if (backdropScope) {
+                        backdropScope.index = newBackdropIndex;
+                    }
+                });
+
+                function removeModalWindow(modalInstance) {
+
+                    var body = $document.find('body').eq(0);
+                    var grModalWindow = openedWindows.get(modalInstance).value;
+
+                    //clean up the stack
+                    openedWindows.remove(modalInstance);
+
+                    //remove window DOM element
+                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function(){
+                        grModalWindow.modalScope.$destroy();
+                        body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
+                        checkRemoveBackdrop();
+                    });
+                }
+
+                function checkRemoveBackdrop() {
+                    //remove backdrop if no longer needed
+                    if (backdropDomEl && backdropIndex() == -1) {
+                        var backdropScopeRef = backdropScope;
+                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function(){
+                            backdropScopeRef.$destroy();
+                            backdropScopeRef = null;
+                        });
+                        backdropDomEl = undefined;
+                        backdropScope = undefined;
+                    }
+                }
+
+                function removeAfterAnimate(domEl, scope, emulateTime, done) {
+                    // Closing animation
+                    scope.animate = false;
+
+                    var transitionEndEventName = $transition.transitionEndEventName;
+                    if (transitionEndEventName) {
+                        // transition out
+                        var timeout = $timeout(afterAnimating, emulateTime);
+
+                        domEl.bind(transitionEndEventName, function(){
+                            $timeout.cancel(timeout);
+                            afterAnimating();
+                            scope.$apply();
+                        });
+                    } else {
+                        // Ensure this call is async
+                        $timeout(afterAnimating);
+                    }
+
+                    function afterAnimating() {
+                        if (afterAnimating.done) {
+                            return;
+                        }
+                        afterAnimating.done = true;
+
+                        domEl.remove();
+                        if (done) {
+                            done();
+                        }
+                    }
+                }
+
+                $document.bind('keydown', function (evt) {
+                    var modal;
+
+                    if (evt.which === 27) {
+                        modal = openedWindows.top();
+                        if (modal && modal.value.keyboard) {
+                            evt.preventDefault();
+                            $rootScope.$apply(function(){
+                                $grModalStack.dismiss(modal.key, 'escape key press');
+                            });
+                        }
+                    }else if(evt.which === 13) {
+                        modal = angular.element(openedWindows.top().value.modalDomEl);
+                        var enterBind = modal.find('[gr-enter-bind]');
+                        if(enterBind.length > 0){
+                            enterBind.click();
+                        }
+                    }
+                });
+
+                $grModalStack.open = function (modalInstance, modal) {
+
+                    openedWindows.add(modalInstance, {
+                        deferred: modal.deferred,
+                        modalScope: modal.scope,
+                        backdrop: modal.backdrop,
+                        keyboard: modal.keyboard,
+                        buttons: modal.buttons,
+                        events: modal.events
+                    });
+
+                    var body = $document.find('body').eq(0),
+                        currBackdropIndex = backdropIndex();
+
+                    if (currBackdropIndex >= 0 && !backdropDomEl) {
+                        backdropScope = $rootScope.$new(true);
+                        backdropScope.index = currBackdropIndex;
+                        backdropScope.zIndex = modal.zIndex;
+                        var angularBackgroundDomEl = angular.element('<div gr-modal-backdrop></div>');
+                        angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
+                        backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
+                        body.append(backdropDomEl);
+                    }
+
+                    var angularDomEl = angular.element('<div gr-modal-window></div>');
+                    angularDomEl.attr({
+                        'template-url': modal.windowTemplateUrl,
+                        'window-class': modal.windowClass,
+                        'size': modal.size,
+                        'data-title': modal.title,
+                        'id': 'gr-modal-' + (modal.name ? modal.name : (openedWindows.length() - 1)),
+                        'index': openedWindows.length() - 1,
+                        'z-index': modal.zIndex,
+                        'animate': 'animate'
+                    }).html(modal.content);
+
+                    var modalDomEl = $compile(angularDomEl)(modal.scope);
+                    openedWindows.top().value.modalDomEl = modalDomEl;
+                    modalInstance.element = angular.element(modalDomEl);
+                    body.append(modalDomEl);
+                    body.addClass(OPENED_MODAL_CLASS);
+                };
+
+                $grModalStack.close = function (modalInstance, result) {
+                    var grModalWindow = openedWindows.get(modalInstance);
+                    if (grModalWindow) {
+                        grModalWindow.value.deferred.resolve(result);
+                        removeModalWindow(modalInstance);
+                    }
+                };
+
+                $grModalStack.dismiss = function (modalInstance, reason) {
+                    var grModalWindow = openedWindows.get(modalInstance);
+                    if (grModalWindow) {
+                        grModalWindow.value.deferred.reject(reason);
+                        removeModalWindow(modalInstance);
+                    }
+                };
+
+                $grModalStack.dismissAll = function (reason) {
+                    var topModal = this.getTop();
+                    while (topModal) {
+                        this.dismiss(topModal.key, reason);
+                        topModal = this.getTop();
+                    }
+                };
+
+                $grModalStack.getTop = function(){
+                    return openedWindows.top();
+                };
+
+                return $grModalStack;
+        }])
+        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope',
+            function ($q, $timeout, $rootScope) {
+                var $transition = function (element, trigger, options) {
+                    options = options || {};
+                    var deferred = $q.defer();
+                    var endEventName = $transition[options.animation ? 'animationEndEventName' : 'transitionEndEventName'];
+
+                    var transitionEndHandler = function (event) {
+                        $rootScope.$apply(function(){
+                            element.unbind(endEventName, transitionEndHandler);
+                            deferred.resolve(element);
+                        });
+                    };
+
+                    if (endEventName) {
+                        element.bind(endEventName, transitionEndHandler);
+                    }
+
+                    // Wrap in a timeout to allow the browser time to update the DOM before the transition is to occur
+                    $timeout(function(){
+                        if (angular.isString(trigger)) {
+                            element.addClass(trigger);
+                        } else if (angular.isFunction(trigger)) {
+                            trigger(element);
+                        } else if (angular.isObject(trigger)) {
+                            element.css(trigger);
+                        }
+                        //If browser does not support transitions, instantly resolve
+                        if (!endEventName) {
+                            deferred.resolve(element);
+                        }
+                    });
+
+                    // Add our custom cancel function to the promise that is returned
+                    // We can call this if we are about to run a new transition, which we know will prevent this transition from ending,
+                    // i.e. it will therefore never raise a transitionEnd event for that transition
+                    deferred.promise.cancel = function(){
+                        if (endEventName) {
+                            element.unbind(endEventName, transitionEndHandler);
+                        }
+                        deferred.reject('Transition cancelled');
+                    };
+
+                    return deferred.promise;
+                };
+
+                // Work out the name of the transitionEnd event
+                var transElement = document.createElement('trans');
+                var transitionEndEventNames = {
+                    'WebkitTransition': 'webkitTransitionEnd',
+                    'MozTransition': 'transitionend',
+                    'OTransition': 'oTransitionEnd',
+                    'transition': 'transitionend'
+                };
+                var animationEndEventNames = {
+                    'WebkitTransition': 'webkitAnimationEnd',
+                    'MozTransition': 'animationend',
+                    'OTransition': 'oAnimationEnd',
+                    'transition': 'animationend'
+                };
+
+                function findEndEventName(endEventNames) {
+                    for (var name in endEventNames) {
+                        if (transElement.style[name] !== undefined) {
+                            return endEventNames[name];
+                        }
+                    }
+                }
+                $transition.transitionEndEventName = findEndEventName(transitionEndEventNames);
+                $transition.animationEndEventName = findEndEventName(animationEndEventNames);
+                return $transition;
+        }]);
+})();
+(function(){
+    angular.module('gr.ui.modal.directive', [])
+        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout',
+            function (MODAL, $templateCache, $timeout) {
+                return {
+                    restrict: 'EA',
+                    replace: true,
+                    template: $templateCache.get('grModal/backdrop.html'),
+                    link: function (scope, element, attrs) {
+                        scope.backdropClass = attrs.backdropClass || '';
+
+                        scope.animate = false;
+
+                        //trigger CSS transitions
+                        $timeout(function(){
+                            scope.animate = true;
+                        });
+                    }
+                };
+        }])
+        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile',
+            function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
+                return {
+                    restrict: 'EA',
+                    scope: {
+                        index: '@',
+                        animate: '='
+                    },
+                    replace: true,
+                    transclude: true,
+                    template: $templateCache.get('grModal/window.html'),
+                    link: function (scope, element, attrs, ctrl, $transclude) {
+                        element.addClass(attrs.windowClass || '');
+
+                        scope.size = attrs.size;
+                        scope.zIndex = attrs.zIndex;
+                        scope.title = attrs.title;
+                        
+                        var modal = $grModalStack.getTop(),
+                            opened = true;
+
+                        scope.buttons = modal.value.buttons;
+                        scope.exec = function (fn) {
+                            fn(scope.$parent, element, modal.key);
+                        };
+
+                        modal.key.result.then(function(){
+                            modal.value.events.onClose(element);
+                        }, function(){
+                            modal.value.events.onClose(element);
+                        })
+
+                        modal.key.opened.then(function(){
+                            modal.value.events.onOpen(element);
+                        }, function(){
+                            modal.value.events.onOpen(element);
+                        });
+
+                        $timeout(function(){
+                            // trigger CSS transitions
+                            scope.animate = true;
+                            // focus a freshly-opened modal
+                            element[0].focus();
+                        });
+
+                        scope.close = function (evt) {
+                            if (!evt || evt === true) {
+                                $grModalStack.close(modal.key);
+                            } else if (modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)) {
+                                evt.preventDefault();
+                                evt.stopPropagation();
+                                $grModalStack.dismiss(modal.key, 'backdrop click');
+                            }
+                        }
+                    }
+                };
+        }])
+        .directive('grModalButton', ['$compile', '$timeout', '$templateCache', function($compile, $timeout, $templateCache){
+            return{
+                    restrict: 'EA',
+                    replace: true,
+                    transclude: true,
+                    link: function (scope, element, attrs, ctrl, $transclude) {
+                        $transclude(scope, function(clone) {
+                            var buttonTemplate = $templateCache.get('grModal/button.html');
+                            scope.$watch('buttons', function(scopeButtons){
+                                angular.forEach(scopeButtons, function(btn, id){
+                                    var attrs = {
+                                        'title': btn.label,
+                                        'ng-click': 'exec(buttons[' + id + '].onClick)'
+                                    };
+                                    if(angular.isObject(btn.attr)){
+                                        angular.forEach(btn.attr, function(value, key){
+                                            if(angular.isString(value)){
+                                                attrs[key] = value;
+                                            }
+                                        });
+                                    }
+                                    var buttonContent = btn.labelIcon ? '<span class="hidden-xs hidden-sm"><i class="' + btn.labelIcon + '"></i> ' + btn.label + '</span><span class="visible-xs visible-sm"><i class="' + btn.labelIcon + '"></i></span>' : btn.label,
+                                        button = angular.element(buttonTemplate).addClass('btn-' + btn.type).attr(attrs).html(buttonContent);
+                                    $compile(button)(scope);
+                                    element.append(button);
+                                });
+                            });
+                        });
+                    }
+            }
+        }])
+        .directive('grModalTransclude', function(){
+            return {
+                link: function ($scope, $element, $attrs, controller, $transclude) {
+                    $transclude($scope.$parent, function (clone) {
+                        $element.empty();
+                        $element.append(clone);
+                    });
+                }
+            };
+        });
+})();
+(function(){
+    angular.module('gr.ui.modal.template', [])
+        .run(['$templateCache', function($templaceCache){
+            $templaceCache.put('grModal/window.html',
+               '<div tabindex="-1" role="dialog" class="modal fade" ng-class="{in: animate}" ng-style="{\'z-index\': (zIndex && zIndex > 0 ? (zIndex + 10) : (100050 + index*10)), display: \'block\'}" ng-click="close($event)">' +
+                    '<div class="modal-dialog" ng-class="{\'modal-sm\': size == \'sm\', \'modal-lg\': size == \'lg\', \'modal-responsive\': size == \'responsive\'}">' +
+                        '<div class="modal-content">' +
+                            '<div class="modal-header" ng-if="title">' +
+                                '<button type="button" class="close" ng-click="close()" title="{{\'Close\' | translate}}"><span aria-hidden="true">&times;</span><span class="sr-only">{{\'Close\' | translate}}</span>' +
+                                '</button>' +
+                                '<h4 class="modal-title">{{title | translate}}</h4>' +
+                            '</div>' +
+                            '<div class="modal-body" gr-modal-transclude></div>' +
+                            '<div class="modal-footer">' +
+                                '<gr-modal-button></gr-modal-button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>');
+            $templaceCache.put('grModal/backdrop.html', '<div class="modal-backdrop fade {{ backdropClass }}" ng-class="{in: animate}" ng-style="{\'z-index\': (zIndex && zIndex > 0 ? zIndex : (100040 + (index && 1 || 0) + index*10))}" ></div>');
+            $templaceCache.put('grModal/alert.html', '<p>{{alert.text | translate}}</p>');
+            $templaceCache.put('grModal/button.html', '<button type="button" class="btn"></button>');
+        }]);
+})();
+
+/*
+ *
  * GR-TABLE
  *
  */
  
 (function(){
-    angular.module('gr.ui.table', ['ngTable', 'ngTableExport', 'grModal'])
+    angular.module('gr.ui.table', ['ngTable', 'ngTableExport', 'gr.ui.modal'])
         .value('grTableDefaults', {
             tag: {
                 'gr-col': 'grCol'
@@ -2129,4 +2868,29 @@
 /*! ngTableExport v0.1.0 by Vitalii Savchuk(esvit666@gmail.com) - https://github.com/esvit/ng-table-export - New BSD License */
 (function(){
     angular.module("ngTableExport",[]).config(["$compileProvider",function(a){a.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/)}]).directive("exportCsv",["$parse",function(a){return{restrict:"A",scope:!1,link:function(b,c,d){var e="",f={stringify:function(a){return'"'+a.replace(/^\s\s*/,"").replace(/\s*\s$/,"").replace(/"/g,'""')+'"'},generate:function(){e="";var a=c.find("tr");angular.forEach(a,function(a,b){var c=angular.element(a),d=c.find("th"),g="";c.hasClass("ng-table-filters")||(0==d.length&&(d=c.find("td")),1!=b&&(angular.forEach(d,function(a){g+=f.stringify(angular.element(a).text())+";"}),g=g.slice(0,g.length-1)),e+=g+"\n")})},link:function(){return"data:text/csv;charset=UTF-8,"+encodeURIComponent(e)}};a(d.exportCsv).assign(b.$parent,f)}}}]);
+})();
+
+/*
+ *
+ * DEPENDENCIES
+ *
+ */
+ 
+/*! jQuery UI - v1.11.2 - 2015-01-23
+* http://jqueryui.com
+* Includes: effect.js
+* Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
+(function(){
+    (function(e){"function"==typeof define&&define.amd?define(["jquery"],e):e(jQuery)})(function(e){var t="ui-effects-",i=e;e.effects={effect:{}},function(e,t){function i(e,t,i){var s=d[t.type]||{};return null==e?i||!t.def?null:t.def:(e=s.floor?~~e:parseFloat(e),isNaN(e)?t.def:s.mod?(e+s.mod)%s.mod:0>e?0:e>s.max?s.max:e)}function s(i){var s=l(),n=s._rgba=[];return i=i.toLowerCase(),f(h,function(e,a){var o,r=a.re.exec(i),h=r&&a.parse(r),l=a.space||"rgba";return h?(o=s[l](h),s[u[l].cache]=o[u[l].cache],n=s._rgba=o._rgba,!1):t}),n.length?("0,0,0,0"===n.join()&&e.extend(n,a.transparent),s):a[i]}function n(e,t,i){return i=(i+1)%1,1>6*i?e+6*(t-e)*i:1>2*i?t:2>3*i?e+6*(t-e)*(2/3-i):e}var a,o="backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",r=/^([\-+])=\s*(\d+\.?\d*)/,h=[{re:/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[e[1],e[2],e[3],e[4]]}},{re:/rgba?\(\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[2.55*e[1],2.55*e[2],2.55*e[3],e[4]]}},{re:/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/,parse:function(e){return[parseInt(e[1],16),parseInt(e[2],16),parseInt(e[3],16)]}},{re:/#([a-f0-9])([a-f0-9])([a-f0-9])/,parse:function(e){return[parseInt(e[1]+e[1],16),parseInt(e[2]+e[2],16),parseInt(e[3]+e[3],16)]}},{re:/hsla?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,space:"hsla",parse:function(e){return[e[1],e[2]/100,e[3]/100,e[4]]}}],l=e.Color=function(t,i,s,n){return new e.Color.fn.parse(t,i,s,n)},u={rgba:{props:{red:{idx:0,type:"byte"},green:{idx:1,type:"byte"},blue:{idx:2,type:"byte"}}},hsla:{props:{hue:{idx:0,type:"degrees"},saturation:{idx:1,type:"percent"},lightness:{idx:2,type:"percent"}}}},d={"byte":{floor:!0,max:255},percent:{max:1},degrees:{mod:360,floor:!0}},c=l.support={},p=e("<p>")[0],f=e.each;p.style.cssText="background-color:rgba(1,1,1,.5)",c.rgba=p.style.backgroundColor.indexOf("rgba")>-1,f(u,function(e,t){t.cache="_"+e,t.props.alpha={idx:3,type:"percent",def:1}}),l.fn=e.extend(l.prototype,{parse:function(n,o,r,h){if(n===t)return this._rgba=[null,null,null,null],this;(n.jquery||n.nodeType)&&(n=e(n).css(o),o=t);var d=this,c=e.type(n),p=this._rgba=[];return o!==t&&(n=[n,o,r,h],c="array"),"string"===c?this.parse(s(n)||a._default):"array"===c?(f(u.rgba.props,function(e,t){p[t.idx]=i(n[t.idx],t)}),this):"object"===c?(n instanceof l?f(u,function(e,t){n[t.cache]&&(d[t.cache]=n[t.cache].slice())}):f(u,function(t,s){var a=s.cache;f(s.props,function(e,t){if(!d[a]&&s.to){if("alpha"===e||null==n[e])return;d[a]=s.to(d._rgba)}d[a][t.idx]=i(n[e],t,!0)}),d[a]&&0>e.inArray(null,d[a].slice(0,3))&&(d[a][3]=1,s.from&&(d._rgba=s.from(d[a])))}),this):t},is:function(e){var i=l(e),s=!0,n=this;return f(u,function(e,a){var o,r=i[a.cache];return r&&(o=n[a.cache]||a.to&&a.to(n._rgba)||[],f(a.props,function(e,i){return null!=r[i.idx]?s=r[i.idx]===o[i.idx]:t})),s}),s},_space:function(){var e=[],t=this;return f(u,function(i,s){t[s.cache]&&e.push(i)}),e.pop()},transition:function(e,t){var s=l(e),n=s._space(),a=u[n],o=0===this.alpha()?l("transparent"):this,r=o[a.cache]||a.to(o._rgba),h=r.slice();return s=s[a.cache],f(a.props,function(e,n){var a=n.idx,o=r[a],l=s[a],u=d[n.type]||{};null!==l&&(null===o?h[a]=l:(u.mod&&(l-o>u.mod/2?o+=u.mod:o-l>u.mod/2&&(o-=u.mod)),h[a]=i((l-o)*t+o,n)))}),this[n](h)},blend:function(t){if(1===this._rgba[3])return this;var i=this._rgba.slice(),s=i.pop(),n=l(t)._rgba;return l(e.map(i,function(e,t){return(1-s)*n[t]+s*e}))},toRgbaString:function(){var t="rgba(",i=e.map(this._rgba,function(e,t){return null==e?t>2?1:0:e});return 1===i[3]&&(i.pop(),t="rgb("),t+i.join()+")"},toHslaString:function(){var t="hsla(",i=e.map(this.hsla(),function(e,t){return null==e&&(e=t>2?1:0),t&&3>t&&(e=Math.round(100*e)+"%"),e});return 1===i[3]&&(i.pop(),t="hsl("),t+i.join()+")"},toHexString:function(t){var i=this._rgba.slice(),s=i.pop();return t&&i.push(~~(255*s)),"#"+e.map(i,function(e){return e=(e||0).toString(16),1===e.length?"0"+e:e}).join("")},toString:function(){return 0===this._rgba[3]?"transparent":this.toRgbaString()}}),l.fn.parse.prototype=l.fn,u.hsla.to=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t,i,s=e[0]/255,n=e[1]/255,a=e[2]/255,o=e[3],r=Math.max(s,n,a),h=Math.min(s,n,a),l=r-h,u=r+h,d=.5*u;return t=h===r?0:s===r?60*(n-a)/l+360:n===r?60*(a-s)/l+120:60*(s-n)/l+240,i=0===l?0:.5>=d?l/u:l/(2-u),[Math.round(t)%360,i,d,null==o?1:o]},u.hsla.from=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t=e[0]/360,i=e[1],s=e[2],a=e[3],o=.5>=s?s*(1+i):s+i-s*i,r=2*s-o;return[Math.round(255*n(r,o,t+1/3)),Math.round(255*n(r,o,t)),Math.round(255*n(r,o,t-1/3)),a]},f(u,function(s,n){var a=n.props,o=n.cache,h=n.to,u=n.from;l.fn[s]=function(s){if(h&&!this[o]&&(this[o]=h(this._rgba)),s===t)return this[o].slice();var n,r=e.type(s),d="array"===r||"object"===r?s:arguments,c=this[o].slice();return f(a,function(e,t){var s=d["object"===r?e:t.idx];null==s&&(s=c[t.idx]),c[t.idx]=i(s,t)}),u?(n=l(u(c)),n[o]=c,n):l(c)},f(a,function(t,i){l.fn[t]||(l.fn[t]=function(n){var a,o=e.type(n),h="alpha"===t?this._hsla?"hsla":"rgba":s,l=this[h](),u=l[i.idx];return"undefined"===o?u:("function"===o&&(n=n.call(this,u),o=e.type(n)),null==n&&i.empty?this:("string"===o&&(a=r.exec(n),a&&(n=u+parseFloat(a[2])*("+"===a[1]?1:-1))),l[i.idx]=n,this[h](l)))})})}),l.hook=function(t){var i=t.split(" ");f(i,function(t,i){e.cssHooks[i]={set:function(t,n){var a,o,r="";if("transparent"!==n&&("string"!==e.type(n)||(a=s(n)))){if(n=l(a||n),!c.rgba&&1!==n._rgba[3]){for(o="backgroundColor"===i?t.parentNode:t;(""===r||"transparent"===r)&&o&&o.style;)try{r=e.css(o,"backgroundColor"),o=o.parentNode}catch(h){}n=n.blend(r&&"transparent"!==r?r:"_default")}n=n.toRgbaString()}try{t.style[i]=n}catch(h){}}},e.fx.step[i]=function(t){t.colorInit||(t.start=l(t.elem,i),t.end=l(t.end),t.colorInit=!0),e.cssHooks[i].set(t.elem,t.start.transition(t.end,t.pos))}})},l.hook(o),e.cssHooks.borderColor={expand:function(e){var t={};return f(["Top","Right","Bottom","Left"],function(i,s){t["border"+s+"Color"]=e}),t}},a=e.Color.names={aqua:"#00ffff",black:"#000000",blue:"#0000ff",fuchsia:"#ff00ff",gray:"#808080",green:"#008000",lime:"#00ff00",maroon:"#800000",navy:"#000080",olive:"#808000",purple:"#800080",red:"#ff0000",silver:"#c0c0c0",teal:"#008080",white:"#ffffff",yellow:"#ffff00",transparent:[null,null,null,0],_default:"#ffffff"}}(i),function(){function t(t){var i,s,n=t.ownerDocument.defaultView?t.ownerDocument.defaultView.getComputedStyle(t,null):t.currentStyle,a={};if(n&&n.length&&n[0]&&n[n[0]])for(s=n.length;s--;)i=n[s],"string"==typeof n[i]&&(a[e.camelCase(i)]=n[i]);else for(i in n)"string"==typeof n[i]&&(a[i]=n[i]);return a}function s(t,i){var s,n,o={};for(s in i)n=i[s],t[s]!==n&&(a[s]||(e.fx.step[s]||!isNaN(parseFloat(n)))&&(o[s]=n));return o}var n=["add","remove","toggle"],a={border:1,borderBottom:1,borderColor:1,borderLeft:1,borderRight:1,borderTop:1,borderWidth:1,margin:1,padding:1};e.each(["borderLeftStyle","borderRightStyle","borderBottomStyle","borderTopStyle"],function(t,s){e.fx.step[s]=function(e){("none"!==e.end&&!e.setAttr||1===e.pos&&!e.setAttr)&&(i.style(e.elem,s,e.end),e.setAttr=!0)}}),e.fn.addBack||(e.fn.addBack=function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}),e.effects.animateClass=function(i,a,o,r){var h=e.speed(a,o,r);return this.queue(function(){var a,o=e(this),r=o.attr("class")||"",l=h.children?o.find("*").addBack():o;l=l.map(function(){var i=e(this);return{el:i,start:t(this)}}),a=function(){e.each(n,function(e,t){i[t]&&o[t+"Class"](i[t])})},a(),l=l.map(function(){return this.end=t(this.el[0]),this.diff=s(this.start,this.end),this}),o.attr("class",r),l=l.map(function(){var t=this,i=e.Deferred(),s=e.extend({},h,{queue:!1,complete:function(){i.resolve(t)}});return this.el.animate(this.diff,s),i.promise()}),e.when.apply(e,l.get()).done(function(){a(),e.each(arguments,function(){var t=this.el;e.each(this.diff,function(e){t.css(e,"")})}),h.complete.call(o[0])})})},e.fn.extend({addClass:function(t){return function(i,s,n,a){return s?e.effects.animateClass.call(this,{add:i},s,n,a):t.apply(this,arguments)}}(e.fn.addClass),removeClass:function(t){return function(i,s,n,a){return arguments.length>1?e.effects.animateClass.call(this,{remove:i},s,n,a):t.apply(this,arguments)}}(e.fn.removeClass),toggleClass:function(t){return function(i,s,n,a,o){return"boolean"==typeof s||void 0===s?n?e.effects.animateClass.call(this,s?{add:i}:{remove:i},n,a,o):t.apply(this,arguments):e.effects.animateClass.call(this,{toggle:i},s,n,a)}}(e.fn.toggleClass),switchClass:function(t,i,s,n,a){return e.effects.animateClass.call(this,{add:i,remove:t},s,n,a)}})}(),function(){function i(t,i,s,n){return e.isPlainObject(t)&&(i=t,t=t.effect),t={effect:t},null==i&&(i={}),e.isFunction(i)&&(n=i,s=null,i={}),("number"==typeof i||e.fx.speeds[i])&&(n=s,s=i,i={}),e.isFunction(s)&&(n=s,s=null),i&&e.extend(t,i),s=s||i.duration,t.duration=e.fx.off?0:"number"==typeof s?s:s in e.fx.speeds?e.fx.speeds[s]:e.fx.speeds._default,t.complete=n||i.complete,t}function s(t){return!t||"number"==typeof t||e.fx.speeds[t]?!0:"string"!=typeof t||e.effects.effect[t]?e.isFunction(t)?!0:"object"!=typeof t||t.effect?!1:!0:!0}e.extend(e.effects,{version:"1.11.2",save:function(e,i){for(var s=0;i.length>s;s++)null!==i[s]&&e.data(t+i[s],e[0].style[i[s]])},restore:function(e,i){var s,n;for(n=0;i.length>n;n++)null!==i[n]&&(s=e.data(t+i[n]),void 0===s&&(s=""),e.css(i[n],s))},setMode:function(e,t){return"toggle"===t&&(t=e.is(":hidden")?"show":"hide"),t},getBaseline:function(e,t){var i,s;switch(e[0]){case"top":i=0;break;case"middle":i=.5;break;case"bottom":i=1;break;default:i=e[0]/t.height}switch(e[1]){case"left":s=0;break;case"center":s=.5;break;case"right":s=1;break;default:s=e[1]/t.width}return{x:s,y:i}},createWrapper:function(t){if(t.parent().is(".ui-effects-wrapper"))return t.parent();var i={width:t.outerWidth(!0),height:t.outerHeight(!0),"float":t.css("float")},s=e("<div></div>").addClass("ui-effects-wrapper").css({fontSize:"100%",background:"transparent",border:"none",margin:0,padding:0}),n={width:t.width(),height:t.height()},a=document.activeElement;try{a.id}catch(o){a=document.body}return t.wrap(s),(t[0]===a||e.contains(t[0],a))&&e(a).focus(),s=t.parent(),"static"===t.css("position")?(s.css({position:"relative"}),t.css({position:"relative"})):(e.extend(i,{position:t.css("position"),zIndex:t.css("z-index")}),e.each(["top","left","bottom","right"],function(e,s){i[s]=t.css(s),isNaN(parseInt(i[s],10))&&(i[s]="auto")}),t.css({position:"relative",top:0,left:0,right:"auto",bottom:"auto"})),t.css(n),s.css(i).show()},removeWrapper:function(t){var i=document.activeElement;return t.parent().is(".ui-effects-wrapper")&&(t.parent().replaceWith(t),(t[0]===i||e.contains(t[0],i))&&e(i).focus()),t},setTransition:function(t,i,s,n){return n=n||{},e.each(i,function(e,i){var a=t.cssUnit(i);a[0]>0&&(n[i]=a[0]*s+a[1])}),n}}),e.fn.extend({effect:function(){function t(t){function i(){e.isFunction(a)&&a.call(n[0]),e.isFunction(t)&&t()}var n=e(this),a=s.complete,r=s.mode;(n.is(":hidden")?"hide"===r:"show"===r)?(n[r](),i()):o.call(n[0],s,i)}var s=i.apply(this,arguments),n=s.mode,a=s.queue,o=e.effects.effect[s.effect];return e.fx.off||!o?n?this[n](s.duration,s.complete):this.each(function(){s.complete&&s.complete.call(this)}):a===!1?this.each(t):this.queue(a||"fx",t)},show:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="show",this.effect.call(this,n)}}(e.fn.show),hide:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="hide",this.effect.call(this,n)}}(e.fn.hide),toggle:function(e){return function(t){if(s(t)||"boolean"==typeof t)return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="toggle",this.effect.call(this,n)}}(e.fn.toggle),cssUnit:function(t){var i=this.css(t),s=[];return e.each(["em","px","%","pt"],function(e,t){i.indexOf(t)>0&&(s=[parseFloat(i),t])}),s}})}(),function(){var t={};e.each(["Quad","Cubic","Quart","Quint","Expo"],function(e,i){t[i]=function(t){return Math.pow(t,e+2)}}),e.extend(t,{Sine:function(e){return 1-Math.cos(e*Math.PI/2)},Circ:function(e){return 1-Math.sqrt(1-e*e)},Elastic:function(e){return 0===e||1===e?e:-Math.pow(2,8*(e-1))*Math.sin((80*(e-1)-7.5)*Math.PI/15)},Back:function(e){return e*e*(3*e-2)},Bounce:function(e){for(var t,i=4;((t=Math.pow(2,--i))-1)/11>e;);return 1/Math.pow(4,3-i)-7.5625*Math.pow((3*t-2)/22-e,2)}}),e.each(t,function(t,i){e.easing["easeIn"+t]=i,e.easing["easeOut"+t]=function(e){return 1-i(1-e)},e.easing["easeInOut"+t]=function(e){return.5>e?i(2*e)/2:1-i(-2*e+2)/2}})}(),e.effects});
+})();
+
+/*
+ * angular-ui-bootstrap
+ * http://angular-ui.github.io/bootstrap/
+
+ * Version: 0.12.0 - 2014-11-16
+ * License: MIT
+ */
+(function(){
+    angular.module("ui.bootstrap",["ui.bootstrap.tpls","ui.bootstrap.dateparser","ui.bootstrap.position","ui.bootstrap.transition","ui.bootstrap.tooltip","ui.bootstrap.bindHtml","ui.bootstrap.datepicker"]),angular.module("ui.bootstrap.tpls",["template/tooltip/tooltip-html-unsafe-popup.html","template/tooltip/tooltip-popup.html","template/datepicker/datepicker.html","template/datepicker/day.html","template/datepicker/month.html","template/datepicker/popup.html","template/datepicker/year.html"]),angular.module("ui.bootstrap.dateparser",[]).service("dateParser",["$locale","orderByFilter",function(e,t){function n(e){var n=[],a=e.split("");return angular.forEach(i,function(t,i){var o=e.indexOf(i);if(o>-1){e=e.split(""),a[o]="("+t.regex+")",e[o]="$";for(var r=o+1,l=o+i.length;l>r;r++)a[r]="",e[r]="$";e=e.join(""),n.push({index:o,apply:t.apply})}}),{regex:new RegExp("^"+a.join("")+"$"),map:t(n,"index")}}function a(e,t,n){return 1===t&&n>28?29===n&&(e%4===0&&e%100!==0||e%400===0):3===t||5===t||8===t||10===t?31>n:!0}this.parsers={};var i={yyyy:{regex:"\\d{4}",apply:function(e){this.year=+e}},yy:{regex:"\\d{2}",apply:function(e){this.year=+e+2e3}},y:{regex:"\\d{1,4}",apply:function(e){this.year=+e}},MMMM:{regex:e.DATETIME_FORMATS.MONTH.join("|"),apply:function(t){this.month=e.DATETIME_FORMATS.MONTH.indexOf(t)}},MMM:{regex:e.DATETIME_FORMATS.SHORTMONTH.join("|"),apply:function(t){this.month=e.DATETIME_FORMATS.SHORTMONTH.indexOf(t)}},MM:{regex:"0[1-9]|1[0-2]",apply:function(e){this.month=e-1}},M:{regex:"[1-9]|1[0-2]",apply:function(e){this.month=e-1}},dd:{regex:"[0-2][0-9]{1}|3[0-1]{1}",apply:function(e){this.date=+e}},d:{regex:"[1-2]?[0-9]{1}|3[0-1]{1}",apply:function(e){this.date=+e}},EEEE:{regex:e.DATETIME_FORMATS.DAY.join("|")},EEE:{regex:e.DATETIME_FORMATS.SHORTDAY.join("|")}};this.parse=function(t,i){if(!angular.isString(t)||!i)return t;i=e.DATETIME_FORMATS[i]||i,this.parsers[i]||(this.parsers[i]=n(i));var o=this.parsers[i],r=o.regex,l=o.map,c=t.match(r);if(c&&c.length){for(var s,u={year:1900,month:0,date:1,hours:0},p=1,d=c.length;d>p;p++){var f=l[p-1];f.apply&&f.apply.call(u,c[p])}return a(u.year,u.month,u.date)&&(s=new Date(u.year,u.month,u.date,u.hours)),s}}}]),angular.module("ui.bootstrap.position",[]).factory("$position",["$document","$window",function(e,t){function n(e,n){return e.currentStyle?e.currentStyle[n]:t.getComputedStyle?t.getComputedStyle(e)[n]:e.style[n]}function a(e){return"static"===(n(e,"position")||"static")}var i=function(t){for(var n=e[0],i=t.offsetParent||n;i&&i!==n&&a(i);)i=i.offsetParent;return i||n};return{position:function(t){var n=this.offset(t),a={top:0,left:0},o=i(t[0]);o!=e[0]&&(a=this.offset(angular.element(o)),a.top+=o.clientTop-o.scrollTop,a.left+=o.clientLeft-o.scrollLeft);var r=t[0].getBoundingClientRect();return{width:r.width||t.prop("offsetWidth"),height:r.height||t.prop("offsetHeight"),top:n.top-a.top,left:n.left-a.left}},offset:function(n){var a=n[0].getBoundingClientRect();return{width:a.width||n.prop("offsetWidth"),height:a.height||n.prop("offsetHeight"),top:a.top+(t.pageYOffset||e[0].documentElement.scrollTop),left:a.left+(t.pageXOffset||e[0].documentElement.scrollLeft)}},positionElements:function(e,t,n,a){var i,o,r,l,c=n.split("-"),s=c[0],u=c[1]||"center";i=a?this.offset(e):this.position(e),o=t.prop("offsetWidth"),r=t.prop("offsetHeight");var p={center:function(){return i.left+i.width/2-o/2},left:function(){return i.left},right:function(){return i.left+i.width}},d={center:function(){return i.top+i.height/2-r/2},top:function(){return i.top},bottom:function(){return i.top+i.height}};switch(s){case"right":l={top:d[u](),left:p[s]()};break;case"left":l={top:d[u](),left:i.left-o};break;case"bottom":l={top:d[s](),left:p[u]()};break;default:l={top:i.top-r,left:p[u]()}}return l}}}]),angular.module("ui.bootstrap.transition",[]).factory("$transition",["$q","$timeout","$rootScope",function(e,t,n){function a(e){for(var t in e)if(void 0!==o.style[t])return e[t]}var i=function(a,o,r){r=r||{};var l=e.defer(),c=i[r.animation?"animationEndEventName":"transitionEndEventName"],s=function(){n.$apply(function(){a.unbind(c,s),l.resolve(a)})};return c&&a.bind(c,s),t(function(){angular.isString(o)?a.addClass(o):angular.isFunction(o)?o(a):angular.isObject(o)&&a.css(o),c||l.resolve(a)}),l.promise.cancel=function(){c&&a.unbind(c,s),l.reject("Transition cancelled")},l.promise},o=document.createElement("trans"),r={WebkitTransition:"webkitTransitionEnd",MozTransition:"transitionend",OTransition:"oTransitionEnd",transition:"transitionend"},l={WebkitTransition:"webkitAnimationEnd",MozTransition:"animationend",OTransition:"oAnimationEnd",transition:"animationend"};return i.transitionEndEventName=a(r),i.animationEndEventName=a(l),i}]),angular.module("ui.bootstrap.tooltip",["ui.bootstrap.position","ui.bootstrap.bindHtml"]).provider("$tooltip",function(){function e(e){var t=/[A-Z]/g,n="-";return e.replace(t,function(e,t){return(t?n:"")+e.toLowerCase()})}var t={placement:"top",animation:!0,popupDelay:0},n={mouseenter:"mouseleave",click:"click",focus:"blur"},a={};this.options=function(e){angular.extend(a,e)},this.setTriggers=function(e){angular.extend(n,e)},this.$get=["$window","$compile","$timeout","$document","$position","$interpolate",function(i,o,r,l,c,s){return function(i,u,p){function d(e){var t=e||f.trigger||p,a=n[t]||t;return{show:t,hide:a}}var f=angular.extend({},t,a),h=e(i),m=s.startSymbol(),g=s.endSymbol(),v="<div "+h+'-popup title="'+m+"title"+g+'" content="'+m+"content"+g+'" placement="'+m+"placement"+g+'" animation="animation" is-open="isOpen"></div>';return{restrict:"EA",compile:function(){var e=o(v);return function(t,n,a){function o(){A.isOpen?p():s()}function s(){(!O||t.$eval(a[u+"Enable"]))&&(b(),A.popupDelay?T||(T=r(h,A.popupDelay,!1),T.then(function(e){e()})):h()())}function p(){t.$apply(function(){m()})}function h(){return T=null,M&&(r.cancel(M),M=null),A.content?(g(),k.css({top:0,left:0,display:"block"}),x?l.find("body").append(k):n.after(k),V(),A.isOpen=!0,A.$digest(),V):angular.noop}function m(){A.isOpen=!1,r.cancel(T),T=null,A.animation?M||(M=r(v,500)):v()}function g(){k&&v(),$=A.$new(),k=e($,angular.noop)}function v(){M=null,k&&(k.remove(),k=null),$&&($.$destroy(),$=null)}function b(){y(),D()}function y(){var e=a[u+"Placement"];A.placement=angular.isDefined(e)?e:f.placement}function D(){var e=a[u+"PopupDelay"],t=parseInt(e,10);A.popupDelay=isNaN(t)?f.popupDelay:t}function w(){var e=a[u+"Trigger"];F(),E=d(e),E.show===E.hide?n.bind(E.show,o):(n.bind(E.show,s),n.bind(E.hide,p))}var k,$,M,T,x=angular.isDefined(f.appendToBody)?f.appendToBody:!1,E=d(void 0),O=angular.isDefined(a[u+"Enable"]),A=t.$new(!0),V=function(){var e=c.positionElements(n,k,A.placement,x);e.top+="px",e.left+="px",k.css(e)};A.isOpen=!1,a.$observe(i,function(e){A.content=e,!e&&A.isOpen&&m()}),a.$observe(u+"Title",function(e){A.title=e});var F=function(){n.unbind(E.show,s),n.unbind(E.hide,p)};w();var S=t.$eval(a[u+"Animation"]);A.animation=angular.isDefined(S)?!!S:f.animation;var Y=t.$eval(a[u+"AppendToBody"]);x=angular.isDefined(Y)?Y:x,x&&t.$on("$locationChangeSuccess",function(){A.isOpen&&m()}),t.$on("$destroy",function(){r.cancel(M),r.cancel(T),F(),v(),A=null})}}}}}]}).directive("tooltipPopup",function(){return{restrict:"EA",replace:!0,scope:{content:"@",placement:"@",animation:"&",isOpen:"&"},templateUrl:"template/tooltip/tooltip-popup.html"}}).directive("tooltip",["$tooltip",function(e){return e("tooltip","tooltip","mouseenter")}]).directive("tooltipHtmlUnsafePopup",function(){return{restrict:"EA",replace:!0,scope:{content:"@",placement:"@",animation:"&",isOpen:"&"},templateUrl:"template/tooltip/tooltip-html-unsafe-popup.html"}}).directive("tooltipHtmlUnsafe",["$tooltip",function(e){return e("tooltipHtmlUnsafe","tooltip","mouseenter")}]),angular.module("ui.bootstrap.bindHtml",[]).directive("bindHtmlUnsafe",function(){return function(e,t,n){t.addClass("ng-binding").data("$binding",n.bindHtmlUnsafe),e.$watch(n.bindHtmlUnsafe,function(e){t.html(e||"")})}}),angular.module("ui.bootstrap.datepicker",["ui.bootstrap.dateparser","ui.bootstrap.position"]).constant("datepickerConfig",{formatDay:"dd",formatMonth:"MMMM",formatYear:"yyyy",formatDayHeader:"EEE",formatDayTitle:"MMMM yyyy",formatMonthTitle:"yyyy",datepickerMode:"day",minMode:"day",maxMode:"year",showWeeks:!0,startingDay:0,yearRange:20,minDate:null,maxDate:null}).controller("DatepickerController",["$scope","$attrs","$parse","$interpolate","$timeout","$log","dateFilter","datepickerConfig",function(e,t,n,a,i,o,r,l){var c=this,s={$setViewValue:angular.noop};this.modes=["day","month","year"],angular.forEach(["formatDay","formatMonth","formatYear","formatDayHeader","formatDayTitle","formatMonthTitle","minMode","maxMode","showWeeks","startingDay","yearRange"],function(n,i){c[n]=angular.isDefined(t[n])?8>i?a(t[n])(e.$parent):e.$parent.$eval(t[n]):l[n]}),angular.forEach(["minDate","maxDate"],function(a){t[a]?e.$parent.$watch(n(t[a]),function(e){c[a]=e?new Date(e):null,c.refreshView()}):c[a]=l[a]?new Date(l[a]):null}),e.datepickerMode=e.datepickerMode||l.datepickerMode,e.uniqueId="datepicker-"+e.$id+"-"+Math.floor(1e4*Math.random()),this.activeDate=angular.isDefined(t.initDate)?e.$parent.$eval(t.initDate):new Date,e.isActive=function(t){return 0===c.compare(t.date,c.activeDate)?(e.activeDateId=t.uid,!0):!1},this.init=function(e){s=e,s.$render=function(){c.render()}},this.render=function(){if(s.$modelValue){var e=new Date(s.$modelValue),t=!isNaN(e);t?this.activeDate=e:o.error('Datepicker directive: "ng-model" value must be a Date object, a number of milliseconds since 01.01.1970 or a string representing an RFC2822 or ISO 8601 date.'),s.$setValidity("date",t)}this.refreshView()},this.refreshView=function(){if(this.element){this._refreshView();var e=s.$modelValue?new Date(s.$modelValue):null;s.$setValidity("date-disabled",!e||this.element&&!this.isDisabled(e))}},this.createDateObject=function(e,t){var n=s.$modelValue?new Date(s.$modelValue):null;return{date:e,label:r(e,t),selected:n&&0===this.compare(e,n),disabled:this.isDisabled(e),current:0===this.compare(e,new Date)}},this.isDisabled=function(n){return this.minDate&&this.compare(n,this.minDate)<0||this.maxDate&&this.compare(n,this.maxDate)>0||t.dateDisabled&&e.dateDisabled({date:n,mode:e.datepickerMode})},this.split=function(e,t){for(var n=[];e.length>0;)n.push(e.splice(0,t));return n},e.select=function(t){if(e.datepickerMode===c.minMode){var n=s.$modelValue?new Date(s.$modelValue):new Date(0,0,0,0,0,0,0);n.setFullYear(t.getFullYear(),t.getMonth(),t.getDate()),s.$setViewValue(n),s.$render()}else c.activeDate=t,e.datepickerMode=c.modes[c.modes.indexOf(e.datepickerMode)-1]},e.move=function(e){var t=c.activeDate.getFullYear()+e*(c.step.years||0),n=c.activeDate.getMonth()+e*(c.step.months||0);c.activeDate.setFullYear(t,n,1),c.refreshView()},e.toggleMode=function(t){t=t||1,e.datepickerMode===c.maxMode&&1===t||e.datepickerMode===c.minMode&&-1===t||(e.datepickerMode=c.modes[c.modes.indexOf(e.datepickerMode)+t])},e.keys={13:"enter",32:"space",33:"pageup",34:"pagedown",35:"end",36:"home",37:"left",38:"up",39:"right",40:"down"};var u=function(){i(function(){c.element[0].focus()},0,!1)};e.$on("datepicker.focus",u),e.keydown=function(t){var n=e.keys[t.which];if(n&&!t.shiftKey&&!t.altKey)if(t.preventDefault(),t.stopPropagation(),"enter"===n||"space"===n){if(c.isDisabled(c.activeDate))return;e.select(c.activeDate),u()}else!t.ctrlKey||"up"!==n&&"down"!==n?(c.handleKeyDown(n,t),c.refreshView()):(e.toggleMode("up"===n?1:-1),u())}}]).directive("datepicker",function(){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/datepicker.html",scope:{datepickerMode:"=?",dateDisabled:"&"},require:["datepicker","?^ngModel"],controller:"DatepickerController",link:function(e,t,n,a){var i=a[0],o=a[1];o&&i.init(o)}}}).directive("daypicker",["dateFilter",function(e){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/day.html",require:"^datepicker",link:function(t,n,a,i){function o(e,t){return 1!==t||e%4!==0||e%100===0&&e%400!==0?c[t]:29}function r(e,t){var n=new Array(t),a=new Date(e),i=0;for(a.setHours(12);t>i;)n[i++]=new Date(a),a.setDate(a.getDate()+1);return n}function l(e){var t=new Date(e);t.setDate(t.getDate()+4-(t.getDay()||7));var n=t.getTime();return t.setMonth(0),t.setDate(1),Math.floor(Math.round((n-t)/864e5)/7)+1}t.showWeeks=i.showWeeks,i.step={months:1},i.element=n;var c=[31,28,31,30,31,30,31,31,30,31,30,31];i._refreshView=function(){var n=i.activeDate.getFullYear(),a=i.activeDate.getMonth(),o=new Date(n,a,1),c=i.startingDay-o.getDay(),s=c>0?7-c:-c,u=new Date(o);s>0&&u.setDate(-s+1);for(var p=r(u,42),d=0;42>d;d++)p[d]=angular.extend(i.createDateObject(p[d],i.formatDay),{secondary:p[d].getMonth()!==a,uid:t.uniqueId+"-"+d});t.labels=new Array(7);for(var f=0;7>f;f++)t.labels[f]={abbr:e(p[f].date,i.formatDayHeader),full:e(p[f].date,"EEEE")};if(t.title=e(i.activeDate,i.formatDayTitle),t.rows=i.split(p,7),t.showWeeks){t.weekNumbers=[];for(var h=l(t.rows[0][0].date),m=t.rows.length;t.weekNumbers.push(h++)<m;);}},i.compare=function(e,t){return new Date(e.getFullYear(),e.getMonth(),e.getDate())-new Date(t.getFullYear(),t.getMonth(),t.getDate())},i.handleKeyDown=function(e){var t=i.activeDate.getDate();if("left"===e)t-=1;else if("up"===e)t-=7;else if("right"===e)t+=1;else if("down"===e)t+=7;else if("pageup"===e||"pagedown"===e){var n=i.activeDate.getMonth()+("pageup"===e?-1:1);i.activeDate.setMonth(n,1),t=Math.min(o(i.activeDate.getFullYear(),i.activeDate.getMonth()),t)}else"home"===e?t=1:"end"===e&&(t=o(i.activeDate.getFullYear(),i.activeDate.getMonth()));i.activeDate.setDate(t)},i.refreshView()}}}]).directive("monthpicker",["dateFilter",function(e){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/month.html",require:"^datepicker",link:function(t,n,a,i){i.step={years:1},i.element=n,i._refreshView=function(){for(var n=new Array(12),a=i.activeDate.getFullYear(),o=0;12>o;o++)n[o]=angular.extend(i.createDateObject(new Date(a,o,1),i.formatMonth),{uid:t.uniqueId+"-"+o});t.title=e(i.activeDate,i.formatMonthTitle),t.rows=i.split(n,3)},i.compare=function(e,t){return new Date(e.getFullYear(),e.getMonth())-new Date(t.getFullYear(),t.getMonth())},i.handleKeyDown=function(e){var t=i.activeDate.getMonth();if("left"===e)t-=1;else if("up"===e)t-=3;else if("right"===e)t+=1;else if("down"===e)t+=3;else if("pageup"===e||"pagedown"===e){var n=i.activeDate.getFullYear()+("pageup"===e?-1:1);i.activeDate.setFullYear(n)}else"home"===e?t=0:"end"===e&&(t=11);i.activeDate.setMonth(t)},i.refreshView()}}}]).directive("yearpicker",["dateFilter",function(){return{restrict:"EA",replace:!0,templateUrl:"template/datepicker/year.html",require:"^datepicker",link:function(e,t,n,a){function i(e){return parseInt((e-1)/o,10)*o+1}var o=a.yearRange;a.step={years:o},a.element=t,a._refreshView=function(){for(var t=new Array(o),n=0,r=i(a.activeDate.getFullYear());o>n;n++)t[n]=angular.extend(a.createDateObject(new Date(r+n,0,1),a.formatYear),{uid:e.uniqueId+"-"+n});e.title=[t[0].label,t[o-1].label].join(" - "),e.rows=a.split(t,5)},a.compare=function(e,t){return e.getFullYear()-t.getFullYear()},a.handleKeyDown=function(e){var t=a.activeDate.getFullYear();"left"===e?t-=1:"up"===e?t-=5:"right"===e?t+=1:"down"===e?t+=5:"pageup"===e||"pagedown"===e?t+=("pageup"===e?-1:1)*a.step.years:"home"===e?t=i(a.activeDate.getFullYear()):"end"===e&&(t=i(a.activeDate.getFullYear())+o-1),a.activeDate.setFullYear(t)},a.refreshView()}}}]).constant("datepickerPopupConfig",{datepickerPopup:"yyyy-MM-dd",currentText:"Today",clearText:"Clear",closeText:"Done",closeOnDateSelection:!0,appendToBody:!1,showButtonBar:!0}).directive("datepickerPopup",["$compile","$parse","$document","$position","dateFilter","dateParser","datepickerPopupConfig",function(e,t,n,a,i,o,r){return{restrict:"EA",require:"ngModel",scope:{isOpen:"=?",currentText:"@",clearText:"@",closeText:"@",dateDisabled:"&"},link:function(l,c,s,u){function p(e){return e.replace(/([A-Z])/g,function(e){return"-"+e.toLowerCase()})}function d(e){if(e){if(angular.isDate(e)&&!isNaN(e))return u.$setValidity("date",!0),e;if(angular.isString(e)){var t=o.parse(e,f)||new Date(e);return isNaN(t)?void u.$setValidity("date",!1):(u.$setValidity("date",!0),t)}return void u.$setValidity("date",!1)}return u.$setValidity("date",!0),null}var f,h=angular.isDefined(s.closeOnDateSelection)?l.$parent.$eval(s.closeOnDateSelection):r.closeOnDateSelection,m=angular.isDefined(s.datepickerAppendToBody)?l.$parent.$eval(s.datepickerAppendToBody):r.appendToBody;l.showButtonBar=angular.isDefined(s.showButtonBar)?l.$parent.$eval(s.showButtonBar):r.showButtonBar,l.getText=function(e){return l[e+"Text"]||r[e+"Text"]},s.$observe("datepickerPopup",function(e){f=e||r.datepickerPopup,u.$render()});var g=angular.element("<div datepicker-popup-wrap><div datepicker></div></div>");g.attr({"ng-model":"date","ng-change":"dateSelection()"});var v=angular.element(g.children()[0]);s.datepickerOptions&&angular.forEach(l.$parent.$eval(s.datepickerOptions),function(e,t){v.attr(p(t),e)}),l.watchData={},angular.forEach(["minDate","maxDate","datepickerMode"],function(e){if(s[e]){var n=t(s[e]);if(l.$parent.$watch(n,function(t){l.watchData[e]=t}),v.attr(p(e),"watchData."+e),"datepickerMode"===e){var a=n.assign;l.$watch("watchData."+e,function(e,t){e!==t&&a(l.$parent,e)})}}}),s.dateDisabled&&v.attr("date-disabled","dateDisabled({ date: date, mode: mode })"),u.$parsers.unshift(d),l.dateSelection=function(e){angular.isDefined(e)&&(l.date=e),u.$setViewValue(l.date),u.$render(),h&&(l.isOpen=!1,c[0].focus())},c.bind("input change keyup",function(){l.$apply(function(){l.date=u.$modelValue})}),u.$render=function(){var e=u.$viewValue?i(u.$viewValue,f):"";c.val(e),l.date=d(u.$modelValue)};var b=function(e){l.isOpen&&e.target!==c[0]&&l.$apply(function(){l.isOpen=!1})},y=function(e){l.keydown(e)};c.bind("keydown",y),l.keydown=function(e){27===e.which?(e.preventDefault(),e.stopPropagation(),l.close()):40!==e.which||l.isOpen||(l.isOpen=!0)},l.$watch("isOpen",function(e){e?(l.$broadcast("datepicker.focus"),l.position=m?a.offset(c):a.position(c),l.position.top=l.position.top+c.prop("offsetHeight"),n.bind("click",b)):n.unbind("click",b)}),l.select=function(e){if("today"===e){var t=new Date;angular.isDate(u.$modelValue)?(e=new Date(u.$modelValue),e.setFullYear(t.getFullYear(),t.getMonth(),t.getDate())):e=new Date(t.setHours(0,0,0,0))}l.dateSelection(e)},l.close=function(){l.isOpen=!1,c[0].focus()};var D=e(g)(l);g.remove(),m?n.find("body").append(D):c.after(D),l.$on("$destroy",function(){D.remove(),c.unbind("keydown",y),n.unbind("click",b)})}}}]).directive("datepickerPopupWrap",function(){return{restrict:"EA",replace:!0,transclude:!0,templateUrl:"template/datepicker/popup.html",link:function(e,t){t.bind("click",function(e){e.preventDefault(),e.stopPropagation()})}}}),angular.module("template/tooltip/tooltip-html-unsafe-popup.html",[]).run(["$templateCache",function(e){e.put("template/tooltip/tooltip-html-unsafe-popup.html",'<div class="tooltip {{placement}}" ng-class="{ in: isOpen(), fade: animation() }">\n  <div class="tooltip-arrow"></div>\n  <div class="tooltip-inner" bind-html-unsafe="content"></div>\n</div>\n')}]),angular.module("template/tooltip/tooltip-popup.html",[]).run(["$templateCache",function(e){e.put("template/tooltip/tooltip-popup.html",'<div class="tooltip {{placement}}" ng-class="{ in: isOpen(), fade: animation() }">\n  <div class="tooltip-arrow"></div>\n  <div class="tooltip-inner" ng-bind="content"></div>\n</div>\n')}]),angular.module("template/datepicker/datepicker.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/datepicker.html",'<div ng-switch="datepickerMode" role="application" ng-keydown="keydown($event)">\n  <daypicker ng-switch-when="day" tabindex="0"></daypicker>\n  <monthpicker ng-switch-when="month" tabindex="0"></monthpicker>\n  <yearpicker ng-switch-when="year" tabindex="0"></yearpicker>\n</div>')}]),angular.module("template/datepicker/day.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/day.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th colspan="{{5 + showWeeks}}"><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n    <tr>\n      <th ng-show="showWeeks" class="text-center"></th>\n      <th ng-repeat="label in labels track by $index" class="text-center"><small aria-label="{{label.full}}">{{label.abbr}}</small></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-show="showWeeks" class="text-center h6"><em>{{ weekNumbers[$index] }}</em></td>\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default btn-sm" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-muted\': dt.secondary, \'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]),angular.module("template/datepicker/month.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/month.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]),angular.module("template/datepicker/popup.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/popup.html",'<ul class="dropdown-menu" ng-style="{display: (isOpen && \'block\') || \'none\', top: position.top+\'px\', left: position.left+\'px\'}" ng-keydown="keydown($event)">\n	<li ng-transclude></li>\n	<li ng-if="showButtonBar" style="padding:10px 9px 2px">\n		<span class="btn-group pull-left">\n			<button type="button" class="btn btn-sm btn-info" ng-click="select(\'today\')">{{ getText(\'current\') }}</button>\n			<button type="button" class="btn btn-sm btn-danger" ng-click="select(null)">{{ getText(\'clear\') }}</button>\n		</span>\n		<button type="button" class="btn btn-sm btn-success pull-right" ng-click="close()">{{ getText(\'close\') }}</button>\n	</li>\n</ul>\n')}]),angular.module("template/datepicker/year.html",[]).run(["$templateCache",function(e){e.put("template/datepicker/year.html",'<table role="grid" aria-labelledby="{{uniqueId}}-title" aria-activedescendant="{{activeDateId}}">\n  <thead>\n    <tr>\n      <th><button type="button" class="btn btn-default btn-sm pull-left" ng-click="move(-1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-left"></i></button></th>\n      <th colspan="3"><button id="{{uniqueId}}-title" role="heading" aria-live="assertive" aria-atomic="true" type="button" class="btn btn-default btn-sm" ng-click="toggleMode()" tabindex="-1" style="width:100%;"><strong>{{title}}</strong></button></th>\n      <th><button type="button" class="btn btn-default btn-sm pull-right" ng-click="move(1)" tabindex="-1"><i class="glyphicon glyphicon-chevron-right"></i></button></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr ng-repeat="row in rows track by $index">\n      <td ng-repeat="dt in row track by dt.date" class="text-center" role="gridcell" id="{{dt.uid}}" aria-disabled="{{!!dt.disabled}}">\n        <button type="button" style="width:100%;" class="btn btn-default" ng-class="{\'btn-info\': dt.selected, active: isActive(dt)}" ng-click="select(dt.date)" ng-disabled="dt.disabled" tabindex="-1"><span ng-class="{\'text-info\': dt.current}">{{dt.label}}</span></button>\n      </td>\n    </tr>\n  </tbody>\n</table>\n')}]);
 })();
