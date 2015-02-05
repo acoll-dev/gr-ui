@@ -1,6 +1,10 @@
 'use strict';
 (function(){
+<<<<<<< HEAD
     angular.module('gr.ui.autofields', ['autofields', 'gr.ui.alert', 'ui.bootstrap'])
+=======
+    angular.module('gr-autofields', ['autofields', 'gr-alert'])
+>>>>>>> 302acd6b67e5e1aa76727e55f56c18d4e401d1d0
         .directive('grAutofields', ['$compile', '$timeout', '$grAlert', function ($compile, $timeout, $grAlert) {
             return {
                 restrict: 'A',
