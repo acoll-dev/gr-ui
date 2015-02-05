@@ -1,0 +1,380 @@
+body{
+
+    $error: #fde9e9;
+    $success: #ebf6e6;
+    $input-bg: #FFFFFF;
+    $input-border: #CCCCCC;
+	
+	.autofields{
+
+		.has-error{
+			.input-group-addon{
+				display: table-cell;
+				background: desaturate(darken($error, 5%), 25%);
+				border-color: darken($error, 10%);
+			}
+			.checkbox,
+			.gr-form-list,
+			.form-control{
+				background: $error;
+				border-color: darken($error, 10%);
+				border-left-color:  darken($error, 12%);
+				.gr-form-list-item{
+					border-color: darken($error, 10%);
+				}
+				&:focus{
+					box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($error, 10%);
+				}
+			}
+		}
+		.has-success{
+			.input-group-addon{
+				display: table-cell;
+				background: desaturate(darken($success, 5%), 25%);
+				border-color: darken($success, 10%);
+			}
+			.checkbox,
+			.gr-form-list,
+			.form-control{
+				background: $success;
+				border-color: darken($success, 10%);
+				border-left-color:  darken($success, 12%);
+				.gr-form-list-item{
+					border-color: darken($success, 10%);
+				}
+				&:focus{
+					box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($success, 10%);
+				}
+			}
+		}
+
+		.date{
+			.input-group{
+				.dropdown-menu{
+					padding: 5px;
+					table{
+						thead{
+							tr{
+								th{
+									padding: 2px;
+									padding-bottom: 5px;
+								}
+							}
+						}
+						tbody{
+							tr{
+								td{
+									padding: 2px;
+								}
+							}
+						}
+						&:focus{
+							outline: 0;
+						}
+					}
+					li:last-child{
+						display: inline-block;
+						width: 100%;
+						margin-bottom: -5px;
+						padding: 5px 0 0 !important;
+					}
+				}
+			}
+		}
+		
+	}
+}
+
+//    .gr-form{
+//        display: table;
+//        width: 100%;
+//        .gr-content{
+//            display: table;
+//            width: 100%;
+//            margin: 0;
+//            div[class*='col-']{
+//                padding: 0 10px;
+//            }
+//			.input-group{
+//				width: 100%;
+//				.form-control{
+//					padding: 6px 12px;
+//				}
+//				.input-group-addon:last-child{
+//					padding: 6px;
+//				}
+//			}
+//            .gr-form-list{
+//                position: relative;
+//            	width: 100%;
+//                padding: 0 !important;
+//                border: solid 1px $input-border;
+//                background: $input-bg;
+//                box-sizing: border-box;
+//				border-radius: 4px;
+//                .gr-form-list-item{
+//                    margin: 0;
+//                    border-bottom: solid 1px $input-border;
+//                    label{
+//                        position: relative;
+//                        width: 100%;
+//                        padding: 6px 12px;
+//                        padding-left: 30px;
+//                    }
+//                    &:last-child{
+//                        border-bottom: none !important;
+//                    }
+//					&:hover{
+//						background: rgba(0,0,0,.025);
+//					}
+//                }
+//				&:not(:last-child){
+//					border-top-right-radius: 0;
+//					border-bottom-right-radius: 0;
+//				}
+//				&:not(:first-child){
+//					border-top-left-radius: 0;
+//					border-bottom-left-radius: 0;
+//				}
+//            }
+//            textarea{
+//                resize: vertical;
+//                min-height: 125px;
+//            }
+//            .checkbox{
+//                display: block;
+//                width: 100%;
+//                margin: 0;
+//                border: solid 1px $input-border;
+//				border-radius: 4px;
+//                background-color: $input-bg;
+//                label{
+//                    position: relative;
+//                    width: 100%;
+//                    padding: 6px 12px;
+//                    padding-left: 30px;
+//					&:hover{
+//						background: rgba(0,0,0,.025);
+//					}
+//                }
+//				&:not(:last-child){
+//					border-top-right-radius: 0;
+//					border-bottom-right-radius: 0;
+//				}
+//				&:not(:first-child){
+//					border-top-left-radius: 0;
+//					border-bottom-left-radius: 0;
+//				}
+//            }
+//            .view-file-name{
+//                display: table;
+//                width: 100%;
+//				padding: 6px 12px;
+//                cursor: pointer;
+//				box-shadow: none;
+//                .view-file-label{
+//                    max-width: 75%;
+//                    height: 100%;
+//                    line-height: 20px;
+//                    float: left;
+//                }
+//                .view-file-size{
+//                    $opacity: .4;
+//                    max-width: 25%;
+//                    height: 100%;
+//                    line-height: 20px;
+//                    float: right;
+//                    text-align: right;
+//                    -webkit-opacity: $opacity;
+//                    -moz-opacity: $opacity;
+//                    -ie-opacity: $opacity;
+//                    -o-opacity: $opacity;
+//                    opacity: $opacity;
+//                }
+//                ul.view-file-list{
+//                    display: table;
+//                    width: 100%;
+//                    margin: 0;
+//                    padding: 0;
+//                    li{
+//                        display:table;
+//                        width: 100%;
+//                        height: 100%;
+//                        line-height: 31px;
+//                        list-style: none;
+//                        &:after{
+//                            clear: both;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//	.input-block-level {
+//		display: block;
+//		width: 100%;
+//		min-height: 30px;
+//		-webkit-box-sizing: border-box;
+//		-moz-box-sizing: border-box;
+//		box-sizing: border-box;
+//	}
+//	.gr-date-picker-wrapper {
+//		position: relative !important;
+//		display: block;
+//		color: #333333;
+//	}
+//	.date-time-append.gr-date-picker {
+//		position: relative;
+//		margin-right: -1000px;
+//		margin-bottom: -1000px;
+//	}
+//	.gr-date-range.gr-date-picker .after.before {
+//		color: #ffffff;
+//		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+//		background-color: #499dcd;
+//		*background-color: #2f6ab4;
+//		background-image: -moz-linear-gradient(top, #5bc0de, #2f6ab4);
+//		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5bc0de), to(#2f6ab4));
+//		background-image: -webkit-linear-gradient(top, #5bc0de, #2f6ab4);
+//		background-image: -o-linear-gradient(top, #5bc0de, #2f6ab4);
+//		background-image: linear-gradient(to bottom, #5bc0de, #2f6ab4);
+//		background-repeat: repeat-x;
+//		border-color: #2f6ab4 #2f6ab4 #1f4677;
+//		border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+//	}
+//	.gr-date-range.gr-date-picker .after.before:hover,
+//	.gr-date-range.gr-date-picker .after.before:active,
+//	.gr-date-range.gr-date-picker .after.before.active,
+//	.gr-date-range.gr-date-picker .after.before.disabled,
+//	.gr-date-range.gr-date-picker .after.before[disabled] {
+//		color: #ffffff;
+//		background-color: #2f6ab4;
+//		*background-color: #2a5ea0;
+//	}
+//	.gr-date-range.gr-date-picker .after.before:active,
+//	.gr-date-range.gr-date-picker .after.before.active {
+//		background-color: #24528c \9;
+//	}
+//	.gr-date-picker {
+//		padding: 4px;
+//		-webkit-border-radius: 4px;
+//		-moz-border-radius: 4px;
+//		border-radius: 4px;
+//		-webkit-user-select: none;
+//		-moz-user-select: none;
+//		-ms-user-select: none;
+//		-o-user-select: none;
+//		user-select: none;
+//	}
+//	.gr-date-picker table {
+//		margin: 0;
+//	}
+//	.gr-date-picker td,
+//	.gr-date-picker th {
+//		width: 20px;
+//		height: 20px;
+//		padding: 4px 5px;
+//		text-align: center;
+//		border: none;
+//		-webkit-border-radius: 4px;
+//		-moz-border-radius: 4px;
+//		border-radius: 4px;
+//	}
+//	.gr-date-picker .switch {
+//		width: 145px;
+//	}
+//	.gr-date-picker span {
+//		display: block;
+//		float: left;
+//		width: 23%;
+//		height: 26px;
+//		margin: 1%;
+//		line-height: 25px;
+//		cursor: pointer;
+//		-webkit-border-radius: 4px;
+//		-moz-border-radius: 4px;
+//		border-radius: 4px;
+//	}
+//	.gr-date-picker span.day {
+//		width: 100%;
+//		padding: 0 5px;
+//	}
+//	.gr-date-picker span:hover {
+//		background: #eeeeee;
+//	}
+//	.gr-date-picker span.disabled,
+//	.gr-date-picker span.disabled:hover {
+//		color: #999999;
+//		cursor: default;
+//		background: none;
+//	}
+//	.gr-date-picker .active,
+//	.gr-date-picker .now {
+//		color: #ffffff;
+//		color: #fff;
+//		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+//		background-color: #0582ef;
+//		border: none;
+//	}
+//	.gr-date-picker .active:hover,
+//	.gr-date-picker .now:hover,
+//	.gr-date-picker .active:active,
+//	.gr-date-picker .now:active,
+//	.gr-date-picker .active.active,
+//	.gr-date-picker .now.active,
+//	.gr-date-picker .active.disabled,
+//	.gr-date-picker .now.disabled,
+//	.gr-date-picker .active[disabled],
+//	.gr-date-picker .now[disabled] {
+//		color: #ffffff;
+//		background-color: #0866b7;
+//	}
+//	.gr-date-picker .active:active,
+//	.gr-date-picker .now:active,
+//	.gr-date-picker .active.active,
+//	.gr-date-picker .now.active {
+//		background-color: #0866b7 \9;
+//	}
+//	.gr-date-picker .now {
+//		color: #ffffff;
+//		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+//		background-color: #ee735b;
+//	}
+//	.gr-date-picker .now:hover,
+//	.gr-date-picker .now:active,
+//	.gr-date-picker .now.active,
+//	.gr-date-picker .now.disabled,
+//	.gr-date-picker .now[disabled] {
+//		color: #ffffff;
+//		background-color: #ee905b;
+//		*background-color: #ec8044;
+//	}
+//	.gr-date-picker .now:active,
+//	.gr-date-picker .now.active {
+//		background-color: #e9712d \9;
+//	}
+//	.gr-date-picker .disabled {
+//		color: #999999 !important;
+//		cursor: default;
+//		background: none;
+//	}
+//	.gr-date-picker[ng-switch-when="year"] span,
+//	.gr-date-picker[ng-switch-when="month"] span,
+//	.gr-date-picker[ng-switch-when="minutes"] span {
+//		height: 54px;
+//		line-height: 54px;
+//	}
+//	.gr-date-picker[ng-switch-when="date"] td {
+//		padding: 0;
+//	}
+//	.gr-date-picker[ng-switch-when="date"] span {
+//		width: 100%;
+//		height: 26px;
+//		line-height: 26px;
+//	}
+//	.gr-date-picker th:hover,
+//	.gr-date-picker[ng-switch-when="date"] td span:hover {
+//		cursor: pointer;
+//		background: #eeeeee;
+//	}

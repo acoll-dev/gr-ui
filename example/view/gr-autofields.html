@@ -1,0 +1,11 @@
+<h2 class="page-header" id="gr-autofields">Form Validation</h2>
+<div class="col-sm-6">
+    <form name="testForm" gr-autofields="form1"></form>
+    <div class="well">
+        <button type="button" class="btn btn-default" ng-click="testForm.submit()" ng-class="{'btn-primary':testForm.$valid}">Submit</button>
+        <button type="button" class="btn btn-danger" ng-click="testForm.reset()">Reset</button>
+    </div>
+</div>
+<div class="col-sm-6">
+    <pre>{{form1.data | json}}</pre>
+</div>
