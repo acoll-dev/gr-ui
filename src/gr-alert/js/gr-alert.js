@@ -1,9 +1,6 @@
+'use strict';
 (function(){
-    angular.module('grAlert', []);
-})();
-
-(function(){
-    angular.module('grAlert')
+    angular.module('gr-alert', [])
         .factory('$grAlert', ['$compile', '$timeout', '$window', function($compile, $timeout, $window){
             var id = 1,
                 defaults = {
@@ -149,10 +146,6 @@
                     replace: true
                 };
             }])
-})();
-
-(function(){
-    angular.module('grAlert')
         .run(['$templateCache', function($templateCache){
             $templateCache.put('gr-alert/alert.html',
                 '<div class="gr-alert" ng-show="message.check()">' +
