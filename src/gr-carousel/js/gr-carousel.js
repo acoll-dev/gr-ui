@@ -215,7 +215,6 @@
                                 carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 3));
                             },
                             go: function(index){
-                                console.debug(index);
                                 if(!carousel.allow.go(index)){ return false; }
                                 carousel.stop();
                                 index = parseInt(index);
@@ -308,16 +307,16 @@
                             $scope.carousel = $public;
                             carousel.ajust();
                             $element.on({
-                                mousedown: carousel.drag.start,
-                                mousemove: carousel.drag.move,
+                                mousedown: function($event){ if($event.button === 0){ carousel.drag.start($event); } },
+                                mousemove: function($event){ if($event.button === 0){ carousel.drag.move($event); } },
                                 touchstart: carousel.drag.start,
                                 touchmove: carousel.drag.move,
                                 mouseenter: function(){ carousel.hover = true; $scope.$apply(); },
                                 mouseleave: function(){ carousel.hover = false; $scope.$apply(); }
                             });
                             angular.element($window).on({
-                                mousemove: function($event){ if(carousel.drag.dragging){ carousel.drag.move($event) } },
-                                mouseup: function($event){ if(carousel.drag.dragging){ carousel.drag.end($event) } },
+                                mousemove: function($event){ if(carousel.drag.dragging && $event.button === 0){ carousel.drag.move($event) } },
+                                mouseup: function($event){ if(carousel.drag.dragging && $event.button === 0){ carousel.drag.end($event) } },
                                 touchmove: function($event){ if(carousel.drag.dragging){ carousel.drag.move($event) } },
                                 touchend: function($event){ if(carousel.drag.dragging){ carousel.drag.end($event) } }
                             });
@@ -355,7 +354,12 @@
                         }
                     });
                     $attrs.$observe('bs', function(args){
-                        carousel.bsCols = $scope.$eval(args);
+                        if(args){
+                            while(args.indexOf('\'') > -1){ args = args.replace('\'',''); }
+                            while(args.indexOf('"') > -1){ args = args.replace('"',''); }
+                            args = angular.fromJson(args.replace('xs', '"xs"').replace('sm', '"sm"').replace('md', '"md"').replace('lg', '"lg"'));
+                            carousel.bsCols = args;
+                        }
                         carousel.ajust();
                         carousel.reset();
                     });
