@@ -1214,12 +1214,21 @@
                             };
                         });
                     });
-                    var carousel = {
-                            id: $attrs.id || 'carousel',
+                    var defaults = {
                             current: 0,
-                            running: true,
+                            running: false,
+                            autoplay: false,
                             hover: false,
                             interval: 4000,
+                            bsCols: {xs:1, sm:1, md:1, lg:1}
+                        },
+                        carousel = {
+                            id: $attrs.id || 'carousel',
+                            current: defaults.current,
+                            running: defaults.running,
+                            hover: defaults.hover,
+                            autoplay: defaults.autoplay,
+                            interval: defaults.interval,
                             scope: $scope,
                             attrs: $attrs,
                             scroller: [],
@@ -1227,7 +1236,7 @@
                             itemWidth: 0,
                             visible: 0,
                             indicators: [],
-                            bsCols: [],
+                            bsCols: defaults.bsCols,
                             animate: function(pos, done, easing){
                                 carousel.scroller.stop(true, false).animate({
                                     left: pos
@@ -1251,11 +1260,8 @@
                                     carousel.reset();
                                 }
                             },
-                            isVisible: function(index, test){
+                            isVisible: function(index){
                                 index = (index !== 0 && index !== '0')? parseInt(index) : 0;
-                                if(test){
-                                    console.debug(index);
-                                }
                                 if(index >= 0){
                                     return index >= carousel.current && index < (carousel.current + carousel.visible);
                                 }else{
@@ -1343,7 +1349,7 @@
                                 timer: ''
                             },
                             checkRun: function(){
-                                return (carousel.items.length > carousel.visible) && carousel.running && !carousel.hover && !carousel.drag.dragging;
+                                return (carousel.items.length > carousel.visible) && carousel.running && !carousel.hover && !carousel.drag.dragging && carousel.autoplay;
                             },
                             invokeRun: function(){
                                 $timeout.cancel(carousel.timeout.timer);
@@ -1375,6 +1381,12 @@
                                 $timeout(function(){ $scope.$apply(); });
                             },
                             allow: {
+                                play: function(){
+                                    return (carousel.items.length > carousel.visible) && !carousel.running && !carousel.hover && !carousel.drag.dragging && carousel.autoplay && carousel.interval > 0;
+                                },
+                                stop: function(){
+                                    return (carousel.items.length > carousel.visible) && carousel.running && !carousel.hover && !carousel.drag.dragging && carousel.autoplay && carousel.interval > 0;
+                                },
                                 prev: function(){                                                  
                                     return (carousel.visible < carousel.items.length) && (carousel.current > 0);
                                 },
@@ -1397,7 +1409,9 @@
                                 }
                                 carousel.animate((carousel.itemWidth * carousel.current) * -1);
                                 $timeout(function(){ $scope.$apply(); });
-                                carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 3));
+                                if(carousel.allow.play()){
+                                    carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 4));
+                                }
                             },
                             next: function(){
                                 if(!carousel.allow.next()){ return false; }
@@ -1409,7 +1423,9 @@
                                 }
                                 carousel.animate((carousel.itemWidth * carousel.current) * -1);
                                 $timeout(function(){ $scope.$apply(); });
-                                carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 3));
+                                if(carousel.allow.play()){
+                                    carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 4));
+                                }
                             },
                             go: function(index){
                                 if(!carousel.allow.go(index)){ return false; }
@@ -1426,12 +1442,18 @@
                                     carousel.animate((carousel.itemWidth * carousel.current) * -1);
                                     $timeout(function(){ $scope.$apply(); });
                                 }
-                                carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 3));
+                                if(carousel.allow.play()){
+                                    carousel.timeout.timer = $timeout(function(){ carousel.play(); }, (carousel.interval * 4));
+                                }
                             },
                             reset: function(){
                                 carousel.current = 0;
                                 carousel.stop();
-                                carousel.animate(0, carousel.play);
+                                carousel.animate(0, function(){
+                                    if(carousel.allow.play()){
+                                        carousel.play();
+                                    }
+                                });
                                 $timeout(function(){ $scope.$apply(); });
                             }
                         },
@@ -1441,6 +1463,7 @@
                             isRunning: carousel.checkRun,
                             isVisible: carousel.isVisible,
                             isCurrent: function(index){ return index ? carousel.current === parseInt(index) : false; },
+                            autoplay: function(){ return carousel.autoplay; },
                             interval: function(){ return carousel.interval; },
                             bsCols: function(){ return carousel.bsCols; },
                             allow: carousel.allow,
@@ -1455,7 +1478,7 @@
                             ajust: carousel.ajust,
                             drag: carousel.drag
                         },
-                        viewPort = function(el) {
+                        viewPort = function(el){
                             var w = el || $window,
                                 d = w.document,
                                 _return = {};
@@ -1483,23 +1506,22 @@
                                 padding = parseFloat(carousel.scroller.css('padding-left')) + parseFloat(carousel.scroller.css('padding-right')),
                                 bs;
                             if(wWidth >= 1200){
-                                bs = carousel.bsCols.lg || 1;
+                                bs = carousel.bsCols.lg || defaults.bsCols.lg;
                             }
                             if(wWidth < 1200){
-                                bs = carousel.bsCols.md || 1;
+                                bs = carousel.bsCols.md || defaults.bsCols.md;
                             }
                             if(wWidth < 991){
-                                bs = carousel.bsCols.sm || 1;
+                                bs = carousel.bsCols.sm || defaults.bsCols.sm;
                             }
                             if(wWidth < 768){
-                                bs = carousel.bsCols.xs || 1;
+                                bs = carousel.bsCols.xs || defaults.bsCols.xs;
                             }
                             carousel.visible = bs;
                             return Math.round((width/bs)-(padding/bs));
                         },
                         init = function(){
                             carousel.scroller = $element.children('.gr-carousel-inner');
-                            angular.element($window).on({ resize: function(){ carousel.ajust(); } });
                             $scope.$parent[carousel.id] = $public;
                             $scope.carousel = $public;
                             carousel.ajust();
@@ -1515,7 +1537,8 @@
                                 mousemove: function($event){ if(carousel.drag.dragging && $event.button === 0){ carousel.drag.move($event) } },
                                 mouseup: function($event){ if(carousel.drag.dragging && $event.button === 0){ carousel.drag.end($event) } },
                                 touchmove: function($event){ if(carousel.drag.dragging){ carousel.drag.move($event) } },
-                                touchend: function($event){ if(carousel.drag.dragging){ carousel.drag.end($event) } }
+                                touchend: function($event){ if(carousel.drag.dragging){ carousel.drag.end($event) } },
+                                resize: function(){ carousel.ajust(); }
                             });
                             carousel.scroller.find('.gr-carousel-indicator').remove();
                         };
@@ -1561,16 +1584,16 @@
                         carousel.reset();
                     });
                     $attrs.$observe('autoplay', function(autoplay){
+                        carousel.autoplay = (autoplay !== false && autoplay !== 'false');
                         if(autoplay > 0){
                             carousel.interval = autoplay;
-                            carousel.running = true;
-                            carousel.invokeRun();
+                            carousel.play();
+                        }else if(autoplay === undefined || autoplay === null || autoplay === '' || autoplay === true || autoplay === 'true'){
+                            carousel.interval = defaults.interval;
+                            carousel.play();
                         }else{
                             carousel.interval = 0;
-                            $timeout(function(){
-                                carousel.running = false;
-                                carousel.reset();
-                            });
+                            carousel.stop();
                         }
                     });
                     init();
