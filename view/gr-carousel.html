@@ -42,10 +42,10 @@
 
     <div class="well" style="display: inline-block; width: 100%; text-align: center;">
         <button type="button" class="btn btn-primary btn-orange pull-left" ng-click="carousel.prev()" ng-disabled="!carousel.allow.prev()"><i class="fa fa-fw fa-lg fa-angle-left"></i></button>
-        <button type="button" class="btn btn-primary" ng-click="carousel.play()" ng-disabled="carousel.isRunning()">
+        <button type="button" class="btn btn-primary" ng-click="carousel.play()" ng-disabled="!carousel.allow.play()">
             <i class="fa fa-fw fa-play"></i>
         </button>
-        <button type="button" class="btn btn-primary" ng-click="carousel.stop()" ng-disabled="!carousel.isRunning()">
+        <button type="button" class="btn btn-primary" ng-click="carousel.stop()" ng-disabled="!carousel.allow.stop()">
             <i class="fa fa-fw fa-stop"></i>
         </button>
         <button type="button" class="btn btn-primary btn-orange pull-right" ng-click="carousel.next()" ng-disabled="!carousel.allow.next()"><i class="fa fa-fw fa-lg fa-angle-right"></i></button>
@@ -55,6 +55,8 @@
     <label>Controls</label>
     <div class="well">
         <dl class="dl-horizontal" style="margin-bottom:0;">
+            <dt>Autoplay &nbsp;</dt>
+            <dd>{{carousel.autoplay()}}</dd>
             <dt>Interval &nbsp;</dt>
             <dd>{{carousel.interval()}}</dd>
             <dt>BS Cols &nbsp;</dt>
