@@ -1,0 +1,204 @@
+{
+    "path": {
+        "*.scss": {
+            "sass.enabled": true,
+            "sass.options": {
+                "outputDir": "../",
+                "imagePath": null,
+                "sourceComments": "map",
+                "outputStyle": "nested"
+            },
+            "brackets-git.gitPath": "git",
+            "linting.collapsed": true,
+            "useTabChar": true,
+            "debug.showErrorsInStatusBar": true,
+            "bracketstoix.prefs": {
+                "version": {
+                    "value": "2.10"
+                },
+                "commands": {
+                    "value": {
+                        "showinmenu": [
+                            "uppercase",
+                            "lowercase",
+                            "capitalize",
+                            "camelcase",
+                            "htmlencode",
+                            "htmldecode",
+                            "urlencode",
+                            "join",
+                            "split",
+                            "number",
+                            "reverse",
+                            "trimleading",
+                            "trimtrailing",
+                            "markdowntrimtrailing",
+                            "sortascending",
+                            "sortdescending",
+                            "removeduplicates",
+                            "removeemptylines",
+                            "unixtowin",
+                            "wintounix",
+                            "singleslashtodouble",
+                            "doubletosingleslash",
+                            "singlequotetodouble",
+                            "doubletosinglequote",
+                            "togglequote",
+                            "tabtospace",
+                            "spacetotab",
+                            "rgb-hex",
+                            "untag",
+                            "tag",
+                            "breaklineat",
+                            "loremipsum",
+                            "functionjsdoc",
+                            "declarejslintglobal",
+                            "extractortoix",
+                            "replacetoix",
+                            "openurl",
+                            "websearch",
+                            "browsefile",
+                            "copyfilename",
+                            "copyfullname",
+                            "regnize",
+                            "htmlreport",
+                            "compiler",
+                            "commands",
+                            "commandsmapper",
+                            "options",
+                            "help",
+                            "about",
+                            "recentfiles"
+                        ],
+                        "showinctxmenu": [],
+                        "hotkeys": {}
+                    }
+                },
+                "splitMarker": {
+                    "value": ","
+                },
+                "splitMarkerExtr": {
+                    "value": "\\t"
+                },
+                "historySize": {
+                    "value": 20
+                },
+                "recentSize": {
+                    "value": 20
+                },
+                "showcxtedit": {
+                    "value": true
+                },
+                "recentFiles": {
+                    "files": [
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-carousel/css/scss/gr-carousel.scss",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.scss",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-filemanager/js/gr-filemanager.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/example/js/controllers/mainCtrl.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/rangy-selectionsaverestore.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/rangy-selectionsaverestore.min.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/rangy-core.min.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/rangy-core.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-carousel/js/gr-carousel.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/gr-autofields.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/koala-config.json",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-table/js/gr-table.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-translate/js/gr-translate.js",
+                        "/media/dados/Htdocs/web/srtruck/website/client/layers/website/templates/default/css/scss/style.scss",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-modal/js/gr-modal.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/README.md",
+                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/view/home.php",
+                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/index.php",
+                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/css/scss/view/_home.scss",
+                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/css/scss/style.scss"
+                    ]
+                },
+                "startNum": {
+                    "value": 1
+                },
+                "numSep": {
+                    "value": ".\\$",
+                    "history": []
+                },
+                "tabSize": {
+                    "value": 2
+                },
+                "findre": {
+                    "value": "",
+                    "history": []
+                },
+                "find": {
+                    "value": "",
+                    "history": []
+                },
+                "replace": {
+                    "value": "",
+                    "history": []
+                },
+                "startValue": {
+                    "value": ""
+                },
+                "stepValue": {
+                    "value": ""
+                },
+                "iswordsonly": {
+                    "value": false
+                },
+                "isregexpr": {
+                    "value": true
+                },
+                "isignorecase": {
+                    "value": false
+                },
+                "isimultiline": {
+                    "value": false
+                },
+                "isall": {
+                    "value": true
+                },
+                "isselonly": {
+                    "value": true
+                },
+                "webSearch": {
+                    "value": "https://www.google.com/search?q="
+                },
+                "js6": {
+                    "value": "traceur --out \"{{out}}\" --script \"{{in}}\"",
+                    "fields": {
+                        "autosave": {
+                            "value": false
+                        }
+                    }
+                },
+                "scss": {
+                    "value": "sass --sourcemap \"{{in}}\" \"{{out}}\"",
+                    "fields": {
+                        "autosave": {
+                            "value": false
+                        }
+                    }
+                },
+                "js": {
+                    "value": "uglifyjs \"{{in}}\" -o \"{{out}}\""
+                },
+                "linrparagraphs": {
+                    "value": "3"
+                },
+                "limaxcharsperline": {
+                    "value": "0"
+                },
+                "lihtmlparawrap": {
+                    "value": ""
+                },
+                "maxcharsperline": {
+                    "value": "80"
+                },
+                "tobreakwords": {
+                    "value": false
+                }
+            }
+        }
+    }
+}
