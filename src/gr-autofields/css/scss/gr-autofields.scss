@@ -85,6 +85,27 @@ Version 1.3.0
 See README.md or https://github.com/fraywing/textAngular/wiki for requirements and use.
 */
 
+.ta-hidden-input {
+	width: 1px;
+	height: 1px;
+	border: none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: -10000px;
+	left: -10000px;
+	opacity: 0;
+	overflow: hidden;
+}
+
+.ta-toolbar{
+	margin: -10px -5px 0;
+	padding: 5px 0;
+	.btn-group{
+		margin: 5px;
+	}
+}
+
 .ta-root{
 	position: relative;
 	display: table;
@@ -93,18 +114,6 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 	background: #F6F6F6;
 	border: solid 1px #E9E9E9;
 	border-radius: 4px;
-	.ta-hidden-input {
-		width: 1px;
-		height: 1px;
-		border: none;
-		margin: 0;
-		padding: 0;
-		position: absolute;
-		top: -10000px;
-		left: -10000px;
-		opacity: 0;
-		overflow: hidden;
-	}
 	&.focussed{
 		> .ta-scroll-window.form-control {
 			border-color: #66afe9;
@@ -280,13 +289,6 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 					border-bottom-color: #fff;
 				}
 			}
-		}
-	}
-	.ta-toolbar{
-		margin: -10px -5px 0;
-		padding: 5px 0;
-		.btn-group{
-			margin: 5px;
 		}
 	}
 }
