@@ -110,6 +110,16 @@
                         required: '[Bio] Campo obrigatório'
                     }
                 },{
+                    property: 'html',
+                    type: 'html',
+                    placeholder: 'A bit about yourself...',
+                    attr:{
+                        required:true
+                    },
+                    msgs: {
+                        required: '[HTML] Campo obrigatório'
+                    }
+                },{
                     type:'multiple',
                     fields: [
                         {
@@ -169,7 +179,7 @@
                 if($scope.form1.$invalid) return;
                 $log.debug(data);
             }
-        }
+        };
         if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); }
     }]).run(['$anchorScroll', function($anchorScroll) { $anchorScroll.yOffset = 110; }]);
 })();
