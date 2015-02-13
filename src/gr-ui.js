@@ -2194,7 +2194,7 @@
             return function(value){
                 if(angular.isString(value)){
                     if($injector.has('$translate')){
-                        var $filter = $injector('$filter');
+                        var $filter = $injector.get('$filter');
                         value = $filter('translate')(value);
                     }
                 }
