@@ -141,34 +141,11 @@
             }
         }])
         .config(['$provide', '$autofieldsProvider', function($provide, $autofieldsProvider){
-            var makeTa = function(){
-                $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function(taRegisterTool, taOptions){
-                    taOptions.toolbar = [
-                        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
-                        ['bold', 'italics', 'underline', 'ul', 'ol', 'redo', 'undo', 'clear'],
-                        ['justifyLeft','justifyCenter','justifyRight','indent','outdent'],
-                        ['html', 'insertImage', 'insertVideo', 'insertLink']
-                    ];
-                    taOptions.classes = {
-                        focussed: 'focussed',
-                        toolbar: 'btn-toolbar',
-                        toolbarGroup: 'btn-group',
-                        toolbarButton: 'btn btn-default',
-                        toolbarButtonActive: 'active',
-                        disabled: 'disabled',
-                        textEditor: 'form-control',
-                        htmlEditor: 'form-control'
-                    };
-                    return taOptions;
-                }]);
-                
-            };
             $autofieldsProvider.registerHandler('html', function(directive, field, index){
                 var fieldElements = $autofieldsProvider.field(directive, field, '<text-angular/>');
                 fieldElements.fieldContainer.append(toolbar);
                 fieldElements.fieldContainer.append(fieldElements.input);
                 fieldElements.input.removeClass('form-control');
-                makeTa();
                 return fieldElements.fieldContainer;
             });
         }]);
