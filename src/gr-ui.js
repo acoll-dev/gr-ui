@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.html', 'gr.ui.modal', 'gr.ui.table']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.table']);
 })();
 
 /*
