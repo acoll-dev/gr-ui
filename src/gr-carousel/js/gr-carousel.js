@@ -55,6 +55,7 @@
                             },
                             ajust: function(){
                                 if(carousel.items.length > 0){
+                                    carousel.drag.enable = carousel.items.length > carousel.visible;
                                     var width = relativeWidth(carousel);
                                     $element.find('img').on('dragstart', function(e){ e.preventDefault() });
                                     carousel.items.outerWidth(width);
@@ -78,19 +79,22 @@
                                 }
                             },
                             drag: {
+                                enable: true,
                                 dragging: false,
                                 start: function($event){
-                                    carousel.drag.dragging = true;
-                                    var coords = {
-                                            x: ($event.clientX || $event.originalEvent.touches[0].clientX) - $element.offset().left,
-                                            y: ($event.clientY || $event.originalEvent.touches[0].clientY) - $element.offset().top
-                                        };
-                                    drgW = carousel.scroller.outerWidth();
-                                    posX = parseFloat(carousel.scroller.css('left')) + drgW - coords.x;
-                                    sCoords = angular.copy(coords);
+                                    if(carousel.drag.enable === true){
+                                        carousel.drag.dragging = true;
+                                        var coords = {
+                                                x: ($event.clientX || $event.originalEvent.touches[0].clientX) - $element.offset().left,
+                                                y: ($event.clientY || $event.originalEvent.touches[0].clientY) - $element.offset().top
+                                            };
+                                        drgW = carousel.scroller.outerWidth();
+                                        posX = parseFloat(carousel.scroller.css('left')) + drgW - coords.x;
+                                        sCoords = angular.copy(coords);
+                                    }
                                 },
                                 move: function($event){
-                                    if(carousel.drag.dragging === true){
+                                    if(carousel.drag.dragging === true && carousel.drag.enable === true){
                                         var coords = {
                                                 x: ($event.clientX || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientX : false)) - $element.offset().left,
                                                 y: ($event.clientY || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientY : false)) - $element.offset().top
@@ -123,28 +127,30 @@
                                     }
                                 },
                                 end: function(){
-                                    carousel.drag.dragging = false;
-                                    var left = parseFloat(carousel.scroller.css('left')),
-                                        elWidth = $element.innerWidth(),
-                                        index = 0,
-                                        map = [],
-                                        aux = 0;
-                                    if(left > 0){
-                                        left = 0;
-                                    }else if(left < ((drgW - elWidth) * -1)){
-                                        left = (drgW - elWidth) * -1;
-                                    }
-                                    angular.forEach(carousel.items, function(){
-                                        map.push(aux + (carousel.itemWidth/2));
-                                        aux += carousel.itemWidth;
-                                    });
-                                    angular.forEach(map, function(pos, id){
-                                        if((left * -1) >= pos){
-                                            index = id + 1;
+                                    if(carousel.drag.enable === true){
+                                        carousel.drag.dragging = false;
+                                        var left = parseFloat(carousel.scroller.css('left')),
+                                            elWidth = $element.innerWidth(),
+                                            index = 0,
+                                            map = [],
+                                            aux = 0;
+                                        if(left > 0){
+                                            left = 0;
+                                        }else if(left < ((drgW - elWidth) * -1)){
+                                            left = (drgW - elWidth) * -1;
                                         }
-                                    });
-                                    carousel.stop();
-                                    carousel.go(index);
+                                        angular.forEach(carousel.items, function(){
+                                            map.push(aux + (carousel.itemWidth/2));
+                                            aux += carousel.itemWidth;
+                                        });
+                                        angular.forEach(map, function(pos, id){
+                                            if((left * -1) >= pos){
+                                                index = id + 1;
+                                            }
+                                        });
+                                        carousel.stop();
+                                        carousel.go(index);
+                                    }
                                 }
                             },
                             timeout: {

@@ -1,10 +1,11 @@
 'use strict';
 (function(){
-    angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template']);
+    angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template', 'gr.ui.translate']);
 })();
+
 (function(){
     angular.module('gr.ui.modal.provider', [])
-        .provider('$grModal', function(){
+        .provider('$grModal', function () {
             var setup,
                 $injector,
                 $modal,
@@ -60,7 +61,7 @@
                         }];
                         id++;
                         return {
-                            'open': function(){
+                            'open': function () {
                                 var options = {
                                     'title': element.title,
                                     'name': element.name,
@@ -147,8 +148,8 @@
 					alert.open();
 				},
                 'events': {
-                    'onOpen': function(){},
-                    'onClose': function(){}
+                    'onOpen': function () {},
+                    'onClose': function () {}
                 }
             };
             this.config = function (config) {
@@ -184,7 +185,7 @@
                     };
             }];
         })
-        .provider('$grModal.ui', function(){
+        .provider('$grModal.ui', function () {
             var $modalProvider = {
                 options: {
                     backdrop: true, //can be also false or 'static'
@@ -285,9 +286,9 @@
                                 modalResultDeferred.reject(reason);
                             });
 
-                            templateAndResolvePromise.then(function(){
+                            templateAndResolvePromise.then(function () {
                                 modalOpenedDeferred.resolve(true);
-                            }, function(){
+                            }, function () {
                                 modalOpenedDeferred.reject(false);
                             });
 
@@ -301,11 +302,12 @@
             return $modalProvider;
         });
 })();
+
 (function(){
     angular.module('gr.ui.modal.factory', [])
-        .factory('$$grStackedMap', function(){
+        .factory('$$grStackedMap', function () {
             return {
-                createNew: function(){
+                createNew: function () {
                     var stack = [];
 
                     return {
@@ -322,14 +324,14 @@
                                 }
                             }
                         },
-                        keys: function(){
+                        keys: function () {
                             var keys = [];
                             for (var i = 0; i < stack.length; i++) {
                                 keys.push(stack[i].key);
                             }
                             return keys;
                         },
-                        top: function(){
+                        top: function () {
                             return stack[stack.length - 1];
                         },
                         remove: function (key) {
@@ -342,18 +344,17 @@
                             }
                             return stack.splice(idx, 1)[0];
                         },
-                        removeTop: function(){
+                        removeTop: function () {
                             return stack.splice(stack.length - 1, 1)[0];
                         },
-                        length: function(){
+                        length: function () {
                             return stack.length;
                         }
                     };
                 }
             };
         })
-        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap',
-            function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
+        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap', function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
 
                 var OPENED_MODAL_CLASS = 'modal-open';
 
@@ -387,7 +388,7 @@
                     openedWindows.remove(modalInstance);
 
                     //remove window DOM element
-                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function(){
+                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function () {
                         grModalWindow.modalScope.$destroy();
                         body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
                         checkRemoveBackdrop();
@@ -398,7 +399,7 @@
                     //remove backdrop if no longer needed
                     if (backdropDomEl && backdropIndex() == -1) {
                         var backdropScopeRef = backdropScope;
-                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function(){
+                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function () {
                             backdropScopeRef.$destroy();
                             backdropScopeRef = null;
                         });
@@ -416,7 +417,7 @@
                         // transition out
                         var timeout = $timeout(afterAnimating, emulateTime);
 
-                        domEl.bind(transitionEndEventName, function(){
+                        domEl.bind(transitionEndEventName, function () {
                             $timeout.cancel(timeout);
                             afterAnimating();
                             scope.$apply();
@@ -440,21 +441,22 @@
                 }
 
                 $document.bind('keydown', function (evt) {
-                    var modal;
-
-                    if (evt.which === 27) {
-                        modal = openedWindows.top();
-                        if (modal && modal.value.keyboard) {
-                            evt.preventDefault();
-                            $rootScope.$apply(function(){
-                                $grModalStack.dismiss(modal.key, 'escape key press');
-                            });
-                        }
-                    }else if(evt.which === 13) {
-                        modal = angular.element(openedWindows.top().value.modalDomEl);
-                        var enterBind = modal.find('[gr-enter-bind]');
-                        if(enterBind.length > 0){
-                            enterBind.click();
+                    if(openedWindows.length()){
+                        var modal;
+                        if (evt.which === 27) {
+                            modal = openedWindows.top();
+                            if (modal && modal.value.keyboard) {
+                                evt.preventDefault();
+                                $rootScope.$apply(function () {
+                                    $grModalStack.dismiss(modal.key, 'escape key press');
+                                });
+                            }
+                        }else if(evt.which === 13) {
+                            modal = angular.element(openedWindows.top().value.modalDomEl);
+                            var enterBind = modal.find('[gr-enter-bind]');
+                            if(enterBind.length > 0){
+                                enterBind.click();
+                            }
                         }
                     }
                 });
@@ -494,7 +496,6 @@
                         'z-index': modal.zIndex,
                         'animate': 'animate'
                     }).html(modal.content);
-
                     var modalDomEl = $compile(angularDomEl)(modal.scope);
                     openedWindows.top().value.modalDomEl = modalDomEl;
                     modalInstance.element = angular.element(modalDomEl);
@@ -526,21 +527,20 @@
                     }
                 };
 
-                $grModalStack.getTop = function(){
+                $grModalStack.getTop = function () {
                     return openedWindows.top();
                 };
 
                 return $grModalStack;
         }])
-        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope',
-            function ($q, $timeout, $rootScope) {
+        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope', function ($q, $timeout, $rootScope) {
                 var $transition = function (element, trigger, options) {
                     options = options || {};
                     var deferred = $q.defer();
                     var endEventName = $transition[options.animation ? 'animationEndEventName' : 'transitionEndEventName'];
 
                     var transitionEndHandler = function (event) {
-                        $rootScope.$apply(function(){
+                        $rootScope.$apply(function () {
                             element.unbind(endEventName, transitionEndHandler);
                             deferred.resolve(element);
                         });
@@ -551,7 +551,7 @@
                     }
 
                     // Wrap in a timeout to allow the browser time to update the DOM before the transition is to occur
-                    $timeout(function(){
+                    $timeout(function () {
                         if (angular.isString(trigger)) {
                             element.addClass(trigger);
                         } else if (angular.isFunction(trigger)) {
@@ -568,7 +568,7 @@
                     // Add our custom cancel function to the promise that is returned
                     // We can call this if we are about to run a new transition, which we know will prevent this transition from ending,
                     // i.e. it will therefore never raise a transitionEnd event for that transition
-                    deferred.promise.cancel = function(){
+                    deferred.promise.cancel = function () {
                         if (endEventName) {
                             element.unbind(endEventName, transitionEndHandler);
                         }
@@ -605,10 +605,10 @@
                 return $transition;
         }]);
 })();
+
 (function(){
     angular.module('gr.ui.modal.directive', [])
-        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout',
-            function (MODAL, $templateCache, $timeout) {
+        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout', function (MODAL, $templateCache, $timeout) {
                 return {
                     restrict: 'EA',
                     replace: true,
@@ -619,14 +619,13 @@
                         scope.animate = false;
 
                         //trigger CSS transitions
-                        $timeout(function(){
+                        $timeout(function () {
                             scope.animate = true;
                         });
                     }
                 };
-        }])
-        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile',
-            function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
+          }])
+        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile', function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
                 return {
                     restrict: 'EA',
                     scope: {
@@ -636,7 +635,7 @@
                     replace: true,
                     transclude: true,
                     template: $templateCache.get('grModal/window.html'),
-                    link: function (scope, element, attrs, ctrl, $transclude) {
+                    link: function (scope, element, attrs, ctrl) {
                         element.addClass(attrs.windowClass || '');
 
                         scope.size = attrs.size;
@@ -651,19 +650,19 @@
                             fn(scope.$parent, element, modal.key);
                         };
 
-                        modal.key.result.then(function(){
+                        modal.key.result.then(function () {
                             modal.value.events.onClose(element);
-                        }, function(){
+                        }, function () {
                             modal.value.events.onClose(element);
                         })
 
-                        modal.key.opened.then(function(){
+                        modal.key.opened.then(function () {
                             modal.value.events.onOpen(element);
-                        }, function(){
+                        }, function () {
                             modal.value.events.onOpen(element);
                         });
 
-                        $timeout(function(){
+                        $timeout(function () {
                             // trigger CSS transitions
                             scope.animate = true;
                             // focus a freshly-opened modal
@@ -681,7 +680,7 @@
                         }
                     }
                 };
-        }])
+      }])
         .directive('grModalButton', ['$compile', '$timeout', '$templateCache', function($compile, $timeout, $templateCache){
             return{
                     restrict: 'EA',
@@ -713,7 +712,7 @@
                     }
             }
         }])
-        .directive('grModalTransclude', function(){
+        .directive('grModalTransclude', function () {
             return {
                 link: function ($scope, $element, $attrs, controller, $transclude) {
                     $transclude($scope.$parent, function (clone) {
@@ -722,8 +721,19 @@
                     });
                 }
             };
-        });
+        })
+        .directive('autofocus', ['$timeout', function ($timeout) {
+            return {
+                restrict: 'A',
+                link: function($scope, $element){
+                    $timeout(function(){
+                        $element.focus();
+                    }, 100);
+                }
+            }
+        }]);
 })();
+
 (function(){
     angular.module('gr.ui.modal.template', [])
         .run(['$templateCache', function($templaceCache){
@@ -732,9 +742,9 @@
                     '<div class="modal-dialog" ng-class="{\'modal-sm\': size == \'sm\', \'modal-lg\': size == \'lg\', \'modal-responsive\': size == \'responsive\'}">' +
                         '<div class="modal-content">' +
                             '<div class="modal-header" ng-if="title">' +
-                                '<button type="button" class="close" ng-click="close()" title="{{\'Close\' | translate}}"><span aria-hidden="true">&times;</span><span class="sr-only">{{\'Close\' | translate}}</span>' +
+                                '<button type="button" class="close" ng-click="close()" title="{{\'Close\' | grTranslate}}"><span aria-hidden="true">&times;</span><span class="sr-only">{{\'Close\' | grTranslate}}</span>' +
                                 '</button>' +
-                                '<h4 class="modal-title">{{title | translate}}</h4>' +
+                                '<h4 class="modal-title">{{title | grTranslate}}</h4>' +
                             '</div>' +
                             '<div class="modal-body" gr-modal-transclude></div>' +
                             '<div class="modal-footer">' +
@@ -744,7 +754,7 @@
                     '</div>' +
                 '</div>');
             $templaceCache.put('grModal/backdrop.html', '<div class="modal-backdrop fade {{ backdropClass }}" ng-class="{in: animate}" ng-style="{\'z-index\': (zIndex && zIndex > 0 ? zIndex : (100040 + (index && 1 || 0) + index*10))}" ></div>');
-            $templaceCache.put('grModal/alert.html', '<p>{{alert.text | translate}}</p>');
+            $templaceCache.put('grModal/alert.html', '<p>{{alert.text | grTranslate}}</p>');
             $templaceCache.put('grModal/button.html', '<button type="button" class="btn"></button>');
         }]);
 })();

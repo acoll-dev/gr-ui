@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('mainApp').controller('mainCtrl', ['$scope', '$timeout', '$location', '$anchorScroll', function($scope, $timeout, $location, $anchorScroll){
+    angular.module('mainApp').controller('mainCtrl', ['$scope', '$filter', '$timeout', '$location', '$anchorScroll', function($scope, $filter, $timeout, $location, $anchorScroll){
         $scope.goTo = function(id){
             $location.path('/');
             $location.hash(id);
@@ -110,6 +110,16 @@
                         required: '[Bio] Campo obrigatório'
                     }
                 },{
+                    property: 'html',
+                    type: 'html',
+                    placeholder: 'A bit about yourself...',
+                    attr:{
+                        required:true
+                    },
+                    msgs: {
+                        required: '[HTML] Campo obrigatório'
+                    }
+                },{
                     type:'multiple',
                     fields: [
                         {
@@ -169,7 +179,7 @@
                 if($scope.form1.$invalid) return;
                 $log.debug(data);
             }
-        }
-        if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); }
+        };
+        if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); };
     }]).run(['$anchorScroll', function($anchorScroll) { $anchorScroll.yOffset = 110; }]);
 })();
