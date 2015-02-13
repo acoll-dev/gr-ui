@@ -1,0 +1,56 @@
+.gr-carousel {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; }
+  .gr-carousel .gr-carousel-inner {
+    position: relative;
+    display: table; }
+    .gr-carousel .gr-carousel-inner .gr-carousel-item {
+      position: relative;
+      float: left;
+      box-sizing: border-box; }
+      .gr-carousel .gr-carousel-inner .gr-carousel-item h1 {
+        position: absolute;
+        bottom: 30px;
+        left: 50%;
+        color: #FFFFFF;
+        -webkit-transform: translateX(-50%);
+        -moz-transform: translateX(-50%);
+        -ie-transform: translateX(-50%);
+        -o-transform: translateX(-50%);
+        transform: translateX(-50%); }
+
+.gr-carousel-indicator {
+  position: absolute;
+  display: inline-block;
+  bottom: 0;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ie-transform: translateX(-50%);
+  -o-transform: translateX(-50%);
+  transform: translateX(-50%);
+  padding: 0;
+  margin: 0; }
+  .gr-carousel-indicator .gr-carousel-indicator-item {
+    position: relative;
+    float: left;
+    width: 10px;
+    height: 10px;
+    padding: 0;
+    margin: 2px;
+    list-style: none;
+    border-radius: 50%;
+    background-color: #FFFFFF;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+    cursor: pointer; }
+    .gr-carousel-indicator .gr-carousel-indicator-item.active {
+      width: 12px;
+      height: 12px;
+      background-color: #2c61b5; }
+    .gr-carousel-indicator .gr-carousel-indicator-item:hover:not(.active) {
+      background-color: #CCCCCC; }
+
+/*# sourceMappingURL=gr-carousel.css.map */

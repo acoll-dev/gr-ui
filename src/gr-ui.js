@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.table']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.table', 'gr.ui.translate']);
 })();
 
 /*
@@ -2188,7 +2188,6 @@
 (function(){
     angular.module('gr.ui.translate', []);
 })();
-
 (function(){
     angular.module('gr.ui.translate')
         .filter('grTranslate', ['$injector', function($injector){
