@@ -228,6 +228,30 @@
                 name: 'John',
                 lastname: 'Silva',
                 age: 25
+            },
+            {
+                id: 8,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 9,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 10,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 11,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
             }
         ];
         if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); };

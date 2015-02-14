@@ -2052,9 +2052,486 @@
  * ngTable v0.4.3 by Vitalii Savchuk(esvit666@gmail.com)
  * https://github.com/esvit/ng-table - New BSD License
  */
-    
+
 (function(){
-    !function(a,b){"use strict";return"function"==typeof define&&define.amd?void define(["angular"],function(a){return b(a)}):b(a)}(angular||null,function(a){"use strict";var b=a.module("ngTable",[]);b.value("ngTableDefaults",{params:{},settings:{}}),b.factory("ngTableParams",["$q","$log","ngTableDefaults",function(b,c,d){var e=function(a){return!isNaN(parseFloat(a))&&isFinite(a)},f=function(f,g){var h=this,i=function(){k.debugMode&&c.debug&&c.debug.apply(this,arguments)};this.data=[],this.parameters=function(b,c){if(c=c||!1,a.isDefined(b)){for(var d in b){var f=b[d];if(c&&d.indexOf("[")>=0){for(var g=d.split(/\[(.*)\]/).reverse(),h="",k=0,l=g.length;l>k;k++){var m=g[k];if(""!==m){var n=f;f={},f[h=m]=e(n)?parseFloat(n):n}}"sorting"===h&&(j[h]={}),j[h]=a.extend(j[h]||{},f[h])}else j[d]=e(b[d])?parseFloat(b[d]):b[d]}return i("ngTable: set parameters",j),this}return j},this.settings=function(b){return a.isDefined(b)?(a.isArray(b.data)&&(b.total=b.data.length),k=a.extend(k,b),i("ngTable: set settings",k),this):k},this.page=function(b){return a.isDefined(b)?this.parameters({page:b}):j.page},this.total=function(b){return a.isDefined(b)?this.settings({total:b}):k.total},this.count=function(b){return a.isDefined(b)?this.parameters({count:b,page:1}):j.count},this.filter=function(b){return a.isDefined(b)?this.parameters({filter:b,page:1}):j.filter},this.sorting=function(b){if(2==arguments.length){var c={};return c[b]=arguments[1],this.parameters({sorting:c}),this}return a.isDefined(b)?this.parameters({sorting:b}):j.sorting},this.isSortBy=function(b,c){return a.isDefined(j.sorting[b])&&a.equals(j.sorting[b],c)},this.orderBy=function(){var a=[];for(var b in j.sorting)a.push(("asc"===j.sorting[b]?"+":"-")+b);return a},this.getData=function(b,c){return b.resolve(a.isArray(this.data)&&a.isObject(c)?this.data.slice((c.page()-1)*c.count(),c.page()*c.count()):[]),b.promise},this.getGroups=function(c,d){var e=b.defer();return e.promise.then(function(b){var e={};a.forEach(b,function(b){var c=a.isFunction(d)?d(b):b[d];e[c]=e[c]||{data:[]},e[c].value=c,e[c].data.push(b)});var f=[];for(var g in e)f.push(e[g]);i("ngTable: refresh groups",f),c.resolve(f)}),this.getData(e,h)},this.generatePagesArray=function(a,b,c){var d,e,f,g,h,i;if(d=11,i=[],h=Math.ceil(b/c),h>1){i.push({type:"prev",number:Math.max(1,a-1),active:a>1}),i.push({type:"first",number:1,active:a>1,current:1===a}),f=Math.round((d-5)/2),g=Math.max(2,a-f),e=Math.min(h-1,a+2*f-(a-g)),g=Math.max(2,g-(2*f-(e-g)));for(var j=g;e>=j;)i.push(j===g&&2!==j||j===e&&j!==h-1?{type:"more",active:!1}:{type:"page",number:j,active:a!==j,current:a===j}),j++;i.push({type:"last",number:h,active:a!==h,current:a===h}),i.push({type:"next",number:Math.min(h,a+1),active:h>a})}return i},this.url=function(b){b=b||!1;var c=b?[]:{};for(var d in j)if(j.hasOwnProperty(d)){var e=j[d],f=encodeURIComponent(d);if("object"==typeof e){for(var g in e)if(!a.isUndefined(e[g])&&""!==e[g]){var h=f+"["+encodeURIComponent(g)+"]";b?c.push(h+"="+e[g]):c[h]=e[g]}}else a.isFunction(e)||a.isUndefined(e)||""===e||(b?c.push(f+"="+encodeURIComponent(e)):c[f]=encodeURIComponent(e))}return c},this.reload=function(){var a=b.defer(),c=this,d=null;if(k.$scope)return k.$loading=!0,d=k.groupBy?k.getGroups(a,k.groupBy,this):k.getData(a,this),i("ngTable: reload data"),d||(d=a.promise),d.then(function(a){return k.$loading=!1,i("ngTable: current scope",k.$scope),k.groupBy?(c.data=a,k.$scope&&(k.$scope.$groups=a)):(c.data=a,k.$scope&&(k.$scope.$data=a)),k.$scope&&(k.$scope.pages=c.generatePagesArray(c.page(),c.total(),c.count())),k.$scope.$emit("ngTableAfterReloadData"),a})},this.reloadPages=function(){var a=this;k.$scope.pages=a.generatePagesArray(a.page(),a.total(),a.count())};var j=this.$params={page:1,count:1,filter:{},sorting:{},group:{},groupBy:null};a.extend(j,d.params);var k={$scope:null,$loading:!1,data:null,total:0,defaultSort:"desc",filterDelay:750,counts:[10,25,50,100],getGroups:this.getGroups,getData:this.getData};return a.extend(k,d.settings),this.settings(g),this.parameters(f,!0),this};return f}]);var c=["$scope","ngTableParams","$timeout",function(b,c,d){function e(){b.params.$params.page=1}var f=!0;b.$loading=!1,b.hasOwnProperty("params")||(b.params=new c,b.params.isNullInstance=!0),b.params.settings().$scope=b;var g=function(){var a=0;return function(b,c){d.cancel(a),a=d(b,c)}}();b.$watch("params.$params",function(c,d){if(c!==d){if(b.params.settings().$scope=b,a.equals(c.filter,d.filter))b.params.reload();else{var h=f?a.noop:e;g(function(){h(),b.params.reload()},b.params.settings().filterDelay)}b.params.isNullInstance||(f=!1)}},!0),b.sortBy=function(a,c){var d=b.parse(a.sortable);if(d){var e=b.params.settings().defaultSort,f="asc"===e?"desc":"asc",g=b.params.sorting()&&b.params.sorting()[d]&&b.params.sorting()[d]===e,h=c.ctrlKey||c.metaKey?b.params.sorting():{};h[d]=g?f:e,b.params.parameters({sorting:h})}}}];return b.directive("ngTable",["$compile","$q","$parse",function(b,d,e){return{restrict:"A",priority:1001,scope:!0,controller:c,compile:function(c){var d=[],f=0,g=null,h=c.find("thead");return a.forEach(a.element(c.find("tr")),function(b){b=a.element(b),b.hasClass("ng-table-group")||g||(g=b)}),g?(a.forEach(g.find("td"),function(b){var c=a.element(b);if(!c.attr("ignore-cell")||"true"!==c.attr("ignore-cell")){var g=function(a,b){return function(f){return e(c.attr("x-data-"+a)||c.attr("data-"+a)||c.attr(a))(f,{$columns:d})||b}},h=g("title"," "),i=g("header",!1),j=g("filter",!1)(),k=!1,l=!1;j&&j.$$name&&(l=j.$$name,delete j.$$name),j&&j.templateURL&&(k=j.templateURL,delete j.templateURL),c.attr("data-title-text",h()),d.push({id:f++,title:h,sortable:g("sortable",!1),"class":c.attr("x-data-header-class")||c.attr("data-header-class")||c.attr("header-class"),filter:j,filterTemplateURL:k,filterName:l,headerTemplateURL:i,filterData:c.attr("filter-data")?c.attr("filter-data"):null,show:c.attr("ng-show")?function(a){return e(c.attr("ng-show"))(a)}:function(){return!0}})}}),function(c,f,g){if(c.$loading=!1,c.$columns=d,c.$filterRow={},c.$watch(g.ngTable,function(b){a.isUndefined(b)||(c.paramsModel=e(g.ngTable),c.params=b)},!0),c.parse=function(b){return a.isDefined(b)?b(c):""},g.showFilter&&c.$parent.$watch(g.showFilter,function(a){c.show_filter=a}),g.disableFilter&&c.$parent.$watch(g.disableFilter,function(a){c.$filterRow.disabled=a}),a.forEach(d,function(b){var d;if(b.filterData)return d=e(b.filterData)(c,{$column:b}),a.isObject(d)&&a.isObject(d.promise)?(delete b.filterData,d.promise.then(function(c){a.isArray(c)||a.isFunction(c)||a.isObject(c)?a.isArray(c)&&c.unshift({title:"-",id:""}):c=[],b.data=c})):b.data=d}),!f.hasClass("ng-table")){c.templates={header:g.templateHeader?g.templateHeader:"ng-table/header.html",pagination:g.templatePagination?g.templatePagination:"ng-table/pager.html"};var i=h.length>0?h:a.element(document.createElement("thead")).attr("ng-include","templates.header"),j=a.element(document.createElement("div")).attr({"ng-table-pagination":"params","template-url":"templates.pagination"});f.find("thead").remove(),f.addClass("ng-table").prepend(i).after(j),b(i)(c),b(j)(c)}}):void 0}}}]),b.directive("ngTablePagination",["$compile",function(b){return{restrict:"A",scope:{params:"=ngTablePagination",templateUrl:"="},replace:!1,link:function(c,d){c.params.settings().$scope.$on("ngTableAfterReloadData",function(){c.pages=c.params.generatePagesArray(c.params.page(),c.params.total(),c.params.count())},!0),c.$watch("templateUrl",function(e){if(!a.isUndefined(e)){var f=a.element(document.createElement("div"));f.attr({"ng-include":"templateUrl"}),d.append(f),b(f)(c)}})}}}]),a.module("ngTable").run(["$templateCache",function(a){a.put("ng-table/filters/select-multiple.html",'<select ng-options="data.id as data.title for data in column.data" ng-disabled="$filterRow.disabled" multiple ng-multiple="true" ng-model="params.filter()[name]" ng-show="filter==\'select-multiple\'" class="filter filter-select-multiple form-control" name="{{column.filterName}}"> </select>'),a.put("ng-table/filters/select.html",'<select ng-options="data.id as data.title for data in column.data" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" ng-show="filter==\'select\'" class="filter filter-select form-control" name="{{column.filterName}}"> </select>'),a.put("ng-table/filters/text.html",'<input type="text" name="{{column.filterName}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" ng-if="filter==\'text\'" class="input-filter form-control"/>'),a.put("ng-table/header.html",'<tr> <th ng-repeat="column in $columns" ng-class="{ \'sortable\': parse(column.sortable), \'sort-asc\': params.sorting()[parse(column.sortable)]==\'asc\', \'sort-desc\': params.sorting()[parse(column.sortable)]==\'desc\' }" ng-click="sortBy(column, $event)" ng-show="column.show(this)" ng-init="template=column.headerTemplateURL(this)" class="header {{column.class}}"> <div ng-if="!template" ng-show="!template" ng-bind="parse(column.title)"></div> <div ng-if="template" ng-show="template" ng-include="template"></div> </th> </tr> <tr ng-show="show_filter" class="ng-table-filters"> <th ng-repeat="column in $columns" ng-show="column.show(this)" class="filter"> <div ng-repeat="(name, filter) in column.filter"> <div ng-if="column.filterTemplateURL" ng-show="column.filterTemplateURL"> <div ng-include="column.filterTemplateURL"></div> </div> <div ng-if="!column.filterTemplateURL" ng-show="!column.filterTemplateURL"> <div ng-include="\'ng-table/filters/\' + filter + \'.html\'"></div> </div> </div> </th> </tr> '),a.put("ng-table/pager.html",'<div class="ng-cloak ng-table-pager"> <div ng-if="params.settings().counts.length" class="ng-table-counts btn-group pull-right"> <button ng-repeat="count in params.settings().counts" type="button" ng-class="{\'active\':params.count()==count}" ng-click="params.count(count)" class="btn btn-default"> <span ng-bind="count"></span> </button> </div> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active && !page.current, \'active\': page.current}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo;</a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href="">&raquo;</a> </li> </ul> </div> ')}]),b});
+    angular.module('ngTable', [])
+        .factory('ngTableParams', ['$q', '$log',
+            function ($q, $log) {
+                var isNumber = function (n) {
+                    return !isNaN(parseFloat(n)) && isFinite(n);
+                };
+                var ngTableParams = function (baseParameters, baseSettings) {
+                    var self = this,
+                        log = function(){
+                            if (settings.debugMode && $log.debug) {
+                                $log.debug.apply(this, arguments);
+                            }
+                        };
+                    this.data = [];
+                    this.filterData = [];
+                    this.parameters = function (newParameters, parseParamsFromUrl) {
+                        parseParamsFromUrl = parseParamsFromUrl || false;
+                        if (angular.isDefined(newParameters)) {
+                            for (var key in newParameters) {
+                                var value = newParameters[key];
+                                if (parseParamsFromUrl && key.indexOf('[') >= 0) {
+                                    var keys = key.split(/\[(.*)\]/).reverse()
+                                    var lastKey = '';
+                                    for (var i = 0, len = keys.length; i < len; i++) {
+                                        var name = keys[i];
+                                        if (name !== '') {
+                                            var v = value;
+                                            value = {};
+                                            value[lastKey = name] = (isNumber(v) ? parseFloat(v) : v);
+                                        }
+                                    }
+                                    if (lastKey === 'sorting') {
+                                        params[lastKey] = {};
+                                    }
+                                    params[lastKey] = angular.extend(params[lastKey] || {}, value[lastKey]);
+                                } else {
+                                    params[key] = (isNumber(newParameters[key]) ? parseFloat(newParameters[key]) : newParameters[key]);
+                                }
+                            }
+                            log('ngTable: set parameters', params);
+                            return this;
+                        }
+                        return params;
+                    };
+                    this.settings = function (newSettings) {
+                        if (angular.isDefined(newSettings)) {
+                            if (angular.isArray(newSettings.data)) {
+                                //auto-set the total from passed in data
+                                newSettings.total = newSettings.data.length;
+                            }
+                            settings = angular.extend(settings, newSettings);
+                            log('ngTable: set settings', settings);
+                            return this;
+                        }
+                        return settings;
+                    };
+                    this.page = function (page) {
+                        return angular.isDefined(page) ? this.parameters({
+                            'page': page
+                        }) : params.page;
+                    };
+                    this.total = function (total) {
+                        return angular.isDefined(total) ? this.settings({
+                            'total': total
+                        }) : settings.total;
+                    };
+                    this.count = function (count) {
+                        return angular.isDefined(count) ? this.parameters({
+                            'count': count,
+                            'page': 1
+                        }) : params.count;
+                    };
+                    this.filter = function (filter) {
+                        return angular.isDefined(filter) ? this.parameters({
+                            'filter': filter
+                        }) : params.filter;
+                    };
+                    this.sorting = function (sorting) {
+                        if (arguments.length == 2) {
+                            var sortArray = {};
+                            sortArray[sorting] = arguments[1];
+                            this.parameters({
+                                'sorting': sortArray
+                            });
+                            return this;
+                        }
+                        return angular.isDefined(sorting) ? this.parameters({
+                            'sorting': sorting
+                        }) : params.sorting;
+                    };
+                    this.isSortBy = function (field, direction) {
+                        return angular.isDefined(params.sorting[field]) && params.sorting[field] == direction;
+                    };
+                    this.orderBy = function(){
+                        var sorting = [];
+                        for (var column in params.sorting) {
+                            sorting.push((params.sorting[column] === "asc" ? "+" : "-") + column);
+                        }
+                        return sorting;
+                    };
+                    this.getData = function ($defer, params) {
+                        if (angular.isArray(this.data) && angular.isObject(params)) {
+                            $defer.resolve(this.data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                        } else {
+                            $defer.resolve([]);
+                        }
+                    };
+                    this.getFilterData = function ($defer, params) {
+                        if (angular.isArray(this.filterData) && angular.isObject(params)) {
+                            $defer.resolve(this.filterData);
+                        } else {
+                            $defer.resolve([]);
+                        }
+                    };
+                    this.getGroups = function ($defer, column) {
+                        var defer = $q.defer();
+                        defer.promise.then(function (data) {
+                            var groups = {};
+                            angular.forEach(data, function (item) {
+                                var groupName = angular.isFunction(column) ? column(item) : item[column];
+
+                                groups[groupName] = groups[groupName] || {
+                                    data: []
+                                };
+                                groups[groupName]['value'] = groupName;
+                                groups[groupName].data.push(item);
+                            });
+                            var result = [];
+                            for (var i in groups) {
+                                result.push(groups[i]);
+                            }
+                            log('ngTable: refresh groups', result);
+                            $defer.resolve(result);
+                        });
+                        this.getData(defer, self);
+                    };
+                    this.generatePagesArray = function (currentPage, totalItems, pageSize) {
+                        var maxBlocks, maxPage, maxPivotPages, minPage, numPages, pages;
+                        maxBlocks = 11;
+                        pages = [];
+                        numPages = Math.ceil(totalItems / pageSize);
+                        if (numPages > 1) {
+                            pages.push({
+                                type: 'prev',
+                                number: Math.max(1, currentPage - 1),
+                                active: currentPage > 1
+                            });
+                            pages.push({
+                                type: 'first',
+                                number: 1,
+                                active: currentPage > 1
+                            });
+                            maxPivotPages = Math.round((maxBlocks - 5) / 2);
+                            minPage = Math.max(2, currentPage - maxPivotPages);
+                            maxPage = Math.min(numPages - 1, currentPage + maxPivotPages * 2 - (currentPage - minPage));
+                            minPage = Math.max(2, minPage - (maxPivotPages * 2 - (maxPage - minPage)));
+                            var i = minPage;
+                            while (i <= maxPage) {
+                                if ((i === minPage && i !== 2) || (i === maxPage && i !== numPages - 1)) {
+                                    pages.push({
+                                        type: 'more',
+                                        active: false
+                                    });
+                                } else {
+                                    pages.push({
+                                        type: 'page',
+                                        number: i,
+                                        active: currentPage !== i
+                                    });
+                                }
+                                i++;
+                            }
+                            pages.push({
+                                type: 'last',
+                                number: numPages,
+                                active: currentPage !== numPages
+                            });
+                            pages.push({
+                                type: 'next',
+                                number: Math.min(numPages, currentPage + 1),
+                                active: currentPage < numPages
+                            });
+                        }
+                        return pages;
+                    };
+                    this.url = function (asString) {
+                        asString = asString || false;
+                        var pairs = (asString ? [] : {});
+                        for (var key in params) {
+                            if (params.hasOwnProperty(key)) {
+                                var item = params[key],
+                                    name = encodeURIComponent(key);
+                                if (typeof item === "object") {
+                                    for (var subkey in item) {
+                                        if (!angular.isUndefined(item[subkey]) && item[subkey] !== "") {
+                                            var pname = name + "[" + encodeURIComponent(subkey) + "]";
+                                            if (asString) {
+                                                pairs.push(pname + "=" + item[subkey]);
+                                            } else {
+                                                pairs[pname] = item[subkey];
+                                            }
+                                        }
+                                    }
+                                } else if (!angular.isFunction(item) && !angular.isUndefined(item) && item !== "") {
+                                    if (asString) {
+                                        pairs.push(name + "=" + encodeURIComponent(item));
+                                    } else {
+                                        pairs[name] = encodeURIComponent(item);
+                                    }
+                                }
+                            }
+                        }
+                        return pairs;
+                    };
+                    this.reload = function(){
+                        var $deferColumns = $q.defer();
+                        var $deferData = $q.defer(),
+                            self = this;
+                        settings.$loading = true;
+                        if (settings.groupBy) {
+                            settings.getGroups($deferData, settings.groupBy, this);
+                        } else {
+                            settings.getData($deferData, this);
+                        }
+                        settings.getFilterData($deferColumns, this);
+                        log('ngTable: reload data');
+                        $q.all([$deferData.promise, $deferColumns.promise]).then(function (data) {
+                            settings.$loading = false;
+                            log('ngTable: current scope', settings.$scope);
+                            if (settings.groupBy) {
+                                self.data = settings.$scope.$groups = data[0];
+                            } else {
+                                self.data = settings.$scope.$data = data[0];
+                            }
+                            self.filterData = data[1];
+                            settings.$scope.pages = self.generatePagesArray(self.page(), self.total(), self.count());
+                            settings.$scope.$emit('ngTableAfterReloadData');
+                        });
+                    };
+                    this.reloadPages = function(){
+                        var self = this;
+                        settings.$scope.pages = self.generatePagesArray(self.page(), self.total(), self.count());
+                    };
+                    var params = this.$params = {
+                        page: 1,
+                        count: 1,
+                        filter: {},
+                        sorting: {},
+                        group: {},
+                        groupBy: null
+                    };
+                    var settings = {
+                        $scope: null,
+                        $loading: false,
+                        data: null,
+                        total: 0,
+                        defaultSort: 'desc',
+                        filterDelay: 750,
+                        counts: [10, 25, 50, 100],
+                        getFilterData: this.getFilterData,
+                        getGroups: this.getGroups,
+                        getData: this.getData
+                    };
+                    this.settings(baseSettings);
+                    this.parameters(baseParameters, true);
+                    return this;
+                };
+                return ngTableParams;
+        }])
+        .directive('ngTable', ['$compile', '$q', '$parse',
+            function ($compile, $q, $parse) {
+                'use strict';
+                return {
+                    restrict: 'A',
+                    priority: 1001,
+                    scope: true,
+                    controller: ['$scope', 'ngTableParams', '$timeout',
+                        function ($scope, ngTableParams, $timeout) {
+
+                            $scope.$loading = false;
+
+                            if (!$scope.params) {
+                                $scope.params = new ngTableParams();
+                            }
+                            $scope.params.settings().$scope = $scope;
+
+                            var delayFilter = (function(){
+                                var timer = 0;
+                                return function (callback, ms) {
+                                    $timeout.cancel(timer);
+                                    timer = $timeout(callback, ms);
+                                };
+                            })();
+
+                            $scope.$watch('params.$params', function (newParams, oldParams) {
+                                $scope.params.settings().$scope = $scope;
+
+                                if (!angular.equals(newParams.filter, oldParams.filter)) {
+                                    delayFilter(function(){
+                                        $scope.params.$params.page = 1;
+                                        $scope.params.reload();
+                                    }, $scope.params.settings().filterDelay);
+                                } else {
+                                    $scope.params.reload();
+                                }
+                            }, true);
+
+                            $scope.sortBy = function (column, event) {
+                                var parsedSortable = $scope.parse(column.sortable);
+                                if (!parsedSortable) {
+                                    return;
+                                }
+                                var defaultSort = $scope.params.settings().defaultSort;
+                                var inverseSort = (defaultSort === 'asc' ? 'desc' : 'asc');
+                                var sorting = $scope.params.sorting() && $scope.params.sorting()[parsedSortable] && ($scope.params.sorting()[parsedSortable] === defaultSort);
+                                var sortingParams = (event.ctrlKey || event.metaKey) ? $scope.params.sorting() : {};
+                                sortingParams[parsedSortable] = (sorting ? inverseSort : defaultSort);
+                                $scope.params.parameters({
+                                    sorting: sortingParams
+                                });
+                            };
+                    }],
+                    compile: function (element) {
+                        var columns = [],
+                            i = 0,
+                            row = null,
+                            filters = 0;
+
+                        // custom header
+                        var thead = element.find('thead');
+
+                        // IE 8 fix :not(.ng-table-group) selector
+                        angular.forEach(angular.element(element.find('tr')), function (tr) {
+                            tr = angular.element(tr);
+                            if (!tr.hasClass('ng-table-group') && !row) {
+                                row = tr;
+                            }
+                        });
+                        if (!row) {
+                            return;
+                        }
+                        angular.forEach(row.find('td'), function (item) {
+                            var el = angular.element(item);
+                            if (el.attr('ignore-cell') && 'true' === el.attr('ignore-cell')) {
+                                return;
+                            }
+                            var parsedAttribute = function (attr, defaultValue) {
+                                return function (scope) {
+                                    var _attr = (el.attr('x-data-' + attr) || el.attr('data-' + attr) || el.attr(attr));
+//                                        _attr = _attr ? ('\'' + _attr + '\'') : '';
+                                    return $parse(_attr)(scope, { $columns: columns }) || defaultValue;
+                                };
+                            };
+
+                            var parsedTitle = parsedAttribute('title', ' '),
+                                headerTemplateURL = parsedAttribute('header', false),
+                                filter = parsedAttribute('filter', false)(),
+                                filterPlaceholder = parsedAttribute('filter-placeholder', false)() || parsedTitle(),
+                                filterTemplateURL = false,
+                                filterName = false;
+
+                            if (filter && filter.$$name) {
+                                filterName = filter.$$name;
+                                delete filter.$$name;
+                            }
+                            if (filter && filter.templateURL) {
+                                filterTemplateURL = filter.templateURL;
+                                delete filter.templateURL;
+                            }
+
+                            el.attr('data-title-text', parsedTitle()); // this used in responsive table
+                            columns.push({
+                                id: i++,
+                                title: parsedTitle,
+                                sortable: parsedAttribute('sortable', false),
+                                'class': el.attr('x-data-header-class') || el.attr('data-header-class') || el.attr('header-class'),
+                                filter: filter,
+                                filterTemplateURL: filterTemplateURL,
+                                filterName: filterName,
+                                filterPlaceholder: filterPlaceholder,
+                                headerTemplateURL: headerTemplateURL,
+                                filterData: (el.attr("filter-data") ? el.attr("filter-data") : null),
+                                show: (el.attr("ng-show") ? function (scope) {
+                                    return $parse(el.attr("ng-show"))(scope);
+                                } : function(){
+                                    return true;
+                                })
+                            });
+                            for(var aux in filter){ filters++; }
+                        });
+                        return function (scope, element, attrs) {
+                            scope.$loading = false;
+                            scope.$columns = columns;
+                            if(filters > 0){
+                                scope.show_filter = true;
+                            }else{
+                                scope.show_filter = false;
+                            }
+                            scope.$watch(attrs.ngTable, (function (params) {
+                                if (angular.isUndefined(params)) {
+                                    return;
+                                }
+                                scope.paramsModel = $parse(attrs.ngTable);
+                                scope.params = params;
+                            }), true);
+                            scope.parse = function (text) {
+                                return angular.isDefined(text) ? text(scope) : '';
+                            };
+//                            if (attrs.showFilter) {
+//                                scope.$parent.$watch(attrs.showFilter, function (value) {
+//                                    scope.show_filter = value;
+//                                });
+//                            }
+                            if (!element.hasClass('ng-table')) {
+                                scope.templates = {
+                                    header: (attrs.templateHeader ? attrs.templateHeader : 'ng-table/header.html'),
+                                    pagination: (attrs.templatePagination ? attrs.templatePagination : 'ng-table/pager.html')
+                                };
+                                var headerTemplate = thead.length > 0 ? thead : angular.element(document.createElement('thead')).attr('ng-include', 'templates.header');
+                                var paginationRow = angular.element(document.createElement('tr'))
+                                    .append(angular.element(document.createElement('td'))
+                                        .attr({
+                                            //'ng-table-pagination': 'params',
+                                            'template-url': 'templates.pagination',
+                                            'colspan': columns.length
+                                        })),
+                                    paginationTemplate = angular.element(document.createElement('tfoot')).append(paginationRow);
+
+                                element.find('thead').remove();
+
+                                element.addClass('ng-table')
+                                    .prepend(headerTemplate)
+                                    .append(paginationTemplate);
+
+                                $compile(headerTemplate)(scope);
+                                $compile(paginationTemplate)(scope);
+                            }
+                        };
+                    }
+                }
+        }])
+        .directive('ngTablePagination', ['$compile',
+            function ($compile) {
+                'use strict';
+                return {
+                    restrict: 'A',
+                    scope: {
+                        'params': '=ngTablePagination',
+                        'templateUrl': '='
+                    },
+                    replace: false,
+                    link: function (scope, element, attrs) {
+                        scope.params.settings().$scope.$on('ngTableAfterReloadData', function(){
+                            scope.pages = scope.params.generatePagesArray(scope.params.page(), scope.params.total(), scope.params.count());
+                        }, true);
+                        scope.$watch('templateUrl', function (templateUrl) {
+                            if (angular.isUndefined(templateUrl)) {
+                                return;
+                            }
+                            var template = angular.element(document.createElement('div'))
+                            template.attr({
+                                'ng-include': 'templateUrl'
+                            });
+                            element.append(template);
+                            $compile(template)(scope);
+                        });
+                    }
+                };
+        }])
+        .run(['$templateCache',
+            function ($templateCache) {
+                $templateCache.put('ng-table/filters/select-multiple.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" multiple ng-multiple="true" ng-model="params.filter()[name]" ng-show="filter==\'select-multiple\'" class="filter filter-select-multiple form-control" name="{{column.filterName}}"> </select>');
+                $templateCache.put('ng-table/filters/select.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" ng-model="params.filter()[name]" ng-show="filter==\'select\'" class="filter filter-select form-control" name="{{column.filterName}}"> </select>');
+                $templateCache.put('ng-table/filters/text.html', '<input type="text" name="{{column.filterName}}" ng-model="params.filter()[name]" ng-if="filter==\'text\'" class="input-filter form-control" placeholder="{{column.filterPlaceholder | grTranslate}}"/>');
+                $templateCache.put('ng-table/header.html', '<tr> <th ng-repeat="column in $columns" ng-class="{ \'sortable\': parse(column.sortable), \'sort-asc\': params.sorting()[parse(column.sortable)]==\'asc\', \'sort-desc\': params.sorting()[parse(column.sortable)]==\'desc\' }" ng-click="sortBy(column, $event)" ng-show="column.show(this)" ng-init="template=column.headerTemplateURL(this)" class="header {{column.class}}"> <div ng-if="!template" ng-show="!template" ng-bind="parse(column.title)"></div> <div ng-if="template" ng-show="template"><div ng-include="template"></div></div> </th> </tr> <tr ng-show="show_filter" class="ng-table-filters"> <th ng-repeat="column in $columns" ng-show="column.show(this)" class="filter"> <div ng-repeat="(name, filter) in column.filter"> <div ng-if="column.filterTemplateURL" ng-show="column.filterTemplateURL"> <div ng-include="column.filterTemplateURL"></div> </div> <div ng-if="!column.filterTemplateURL" ng-show="!column.filterTemplateURL"> <div ng-include="\'ng-table/filters/\' + filter + \'.html\'"></div> </div> </div> </th> </tr>');
+                $templateCache.put('ng-table/pager.html', '<div class="ng-cloak ng-table-pager"> <div ng-if="params.settings().counts.length" class="ng-table-counts btn-group pull-right"> <button ng-repeat="count in params.settings().counts" type="button" ng-class="{\'active\':params.count()==count}" ng-click="params.count(count)" class="btn btn-default"> <span ng-bind="count"></span> </button> </div> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-left"></i></a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-right"></i></a> </li> </ul> </div> ');
+                $templateCache.put('ng-table/pager-nav.html', '<ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-left"></i></a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-right"></i></a> </li> </ul>');
+        }]);
 })();
 
 /**
@@ -2063,7 +2540,56 @@
  */
 
 (function(){
-    angular.module("ngTableExport",[]).config(["$compileProvider",function(a){a.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/)}]).directive("exportCsv",["$parse",function(a){return{restrict:"A",scope:!1,link:function(b,c,d){var e="",f={stringify:function(a){return'"'+a.replace(/^\s\s*/,"").replace(/\s*\s$/,"").replace(/"/g,'""')+'"'},generate:function(){e="";var a=c.find("tr");angular.forEach(a,function(a,b){var c=angular.element(a),d=c.find("th"),g="";c.hasClass("ng-table-filters")||(0==d.length&&(d=c.find("td")),1!=b&&(angular.forEach(d,function(a){g+=f.stringify(angular.element(a).text())+";"}),g=g.slice(0,g.length-1)),e+=g+"\n")})},link:function(){return"data:text/csv;charset=UTF-8,"+encodeURIComponent(e)}};a(d.exportCsv).assign(b.$parent,f)}}}]);
+    angular.module('ngTableExport', [])
+        .config(['$compileProvider', function ($compileProvider){
+                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
+        }])
+        .directive('grTableExportCsv', ['$parse', function(){
+                return {
+                    restrict: 'E',
+                    scope: false,
+                    transclude: true,
+                    template: '<a class="gr-table-export-csv" ng-mousedown="grTable.csv.generate()" ng-href="{{grTable.csv.link()}}" download="{{grTable.csv.name + \'.csv\'}}" ng-show="grTable.csv && grTable.csv.name" ng-disabled="grTable.data.length <= 0" ng-transclude></a>',
+                    replace: true,
+                    link: function ($scope, $element, $attrs) {
+                        var init = function init(name){
+                            var data = '';
+                            $scope.grTable.csv = {
+                                name: name !== '' ? name : undefined,
+                                stringify: function (str) {
+                                    return '"' +
+                                        str.replace(/^\s\s*/, '').replace(/\s*\s$/, '')
+                                        .replace(/"/g, '""') +
+                                        '"';
+                                },
+                                generate: function(){
+                                    var element = angular.element('table.gr-table.ng-table[export-csv="' + name + '"]'),
+                                        rows = element.find('tr').not('tfoot tr');
+                                    data = '';
+                                    angular.forEach(rows, function (row, i) {
+                                        var tr = angular.element(row),
+                                            tds = tr.find('th'),
+                                            rowData = '';
+                                        if (tr.hasClass('ng-table-filters')) { return; }
+                                        if (tds.length == 0) { tds = tr.find('td'); }
+                                        if (i != 1) {
+                                            angular.forEach(tds, function (td, i) {
+                                                rowData += $scope.grTable.csv.stringify(angular.element(td).text()) + ';';
+                                            });
+                                            rowData = rowData.slice(0, rowData.length - 1);
+                                        }
+                                        data += rowData + "\n";
+                                    });
+                                },
+                                link: function(){
+                                    return 'data:text/csv;charset=utf-8,' + encodeURIComponent(data);
+                                }
+                            };
+                        };
+                        $scope.$watch('grTable.csv', function(csv){ if(csv && csv !== '' && !angular.isObject(csv)){ init(csv); } }, true);
+                    }
+                };
+        }]);
 })();
 
 /**
