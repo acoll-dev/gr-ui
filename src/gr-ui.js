@@ -1715,114 +1715,97 @@
  */
  
 (function(){
-    angular.module('gr.ui.table', ['ngTable', 'ngTableExport', 'gr.ui.modal'])
-        .value('grTableDefaults', {
-            tag: {
-                'gr-col': 'grCol'
-            },
-            attr: {
-                'gr-csv-name': 'csvName',
-                'gr-data-source': 'dataSource',
-                'gr-export-csv': 'csv',
-                'gr-filter': 'filter',
-                'gr-group': 'group',
-                'gr-label': 'label',
-                'gr-name': 'name',
-                'gr-no-translate': 'noTranslate',
-                'gr-show-filter': 'filter',
-                'gr-sortable': 'sortable',
-                'gr-class': 'ng-class'
-            }
-        })
-        .directive('grTable', ['$injector',
-            function ($injector) {
-                var grTableDefaults = $injector.get('grTableDefaults'),
-                    $templateCache = $injector.get('$templateCache'),
-                    $http = $injector.get('$http'),
-                    $compile = $injector.get('$compile'),
-                    $filter = $injector.get('$filter'),
-                    $timeout = $injector.get('$timeout'),
-                    $window = $injector.get('$window'),
-                    ngTableParams = $injector.get('ngTableParams'),
-                    grTableConfig = $injector.get('$grTable.config'),
-                    REST = $injector.get('$grRestful'),
-                    MODAL = $injector.get('$grModal'),
-                    grTable = [],
-                    grGroupBy = {
-                        _firstLetter: function (item) {
-                            return $filter('translate')('First letter') + ' "' + item.name[0] + '"';
-                        }
+    angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport'])
+        .directive('grTable', ['ngTableParams', '$grAlert', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, ALERT, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+            var init = function init($scope, $element, $attrs){
+                var defaultSorting = {},
+                    getData = function(src) {
+                        var alert = ALERT.new();
+                        $http.get(src).success(function(r){
+                            if(r.response){
+                                var response = r.response;
+                                $scope.grTable.dataSet = response;
+                            }else{
+                                console.debug(r);
+                            }
+                        }).error(function(e){
+                            var title = angular.element(angular.element(e.data)[0]).text(),
+                                content = angular.element(angular.element(e.data)[3]).text();
+                            alert.show(e.status, title + ' - ' + content, 'md');
+                        });
                     },
-                    grTableController = ['$scope', '$element',
-                        function ($scope, $element) {
-                            var defaultSorting = {};
-                            defaultSorting["id" + GRIFFO.module] = 'asc';
-                            var getData = function(){
-                                    return $scope.grTable.dataSet || false;
-                                },
-                                ngTable = {
-                                    data: [],
-                                    defaults: {
-                                        page: 1,
-                                        count: 10,
-                                        //filter: { text: '', select: '', textarea: '', radio: '' },
-                                        sorting: defaultSorting
-                                    },
-                                    settings: {
-                                        $scope: $scope,
-                                        orderBy: '',
-                                        //total: 0,
-                                        counts: [5, 10, 25, 50, 100],
-                                        getFilterData: function ($defer, params) {
-                                            var grFormData = getData(),
-                                                arr = [],
-                                                data = [];
-                                            angular.forEach(grFormData, function (item, id) {
-                                                angular.forEach(item, function (_item, _id) {
-                                                    if (!arr[_id]) {
-                                                        arr[_id] = [];
-                                                        arr.length++;
-                                                    }
-                                                    if (!data[_id]) {
-                                                        data[_id] = [];
-                                                        data.length++;
-                                                    }
-                                                    if (inArray(_item, arr[_id]) === -1) {
-                                                        arr[_id].push(_item);
-                                                        data[_id].push({
-                                                            'id': _item,
-                                                            'title': _item
-                                                        });
-                                                        if (data[_id][0].title !== '-') {
-                                                            data[_id].unshift({
-                                                                id: '',
-                                                                title: '-'
-                                                            });
-                                                        }
-                                                    }
-                                                });
+                    grTable = {
+                        data: [],
+                        dataSet: [],
+                        dataSource: '',
+                        defaults: {
+                            page: 1,
+                            count: 10,
+                            sorting: $attrs.sortby ? $parse($attrs.sortby)($scope) : defaultSorting
+                        },
+                        settings: {
+                            $scope: $scope,
+                            orderBy: '',
+                            counts: [5, 10, 25, 50, 100],
+                            getFilterData: function ($defer, params) {
+                                var grFormData = $scope.grTable.dataSet,
+                                    arr = [],
+                                    data = [];
+                                angular.forEach(grFormData, function (item, id) {
+                                    angular.forEach(item, function (_item, _id) {
+                                        if (!arr[_id]) {
+                                            arr[_id] = [];
+                                            arr.length++;
+                                        }
+                                        if (!data[_id]) {
+                                            data[_id] = [];
+                                            data.length++;
+                                        }
+                                        if (inArray(_item, arr[_id]) === -1) {
+                                            arr[_id].push(_item);
+                                            data[_id].push({
+                                                'id': _item,
+                                                'title': _item
                                             });
-                                            $defer.resolve(data);
-                                            return $defer;
-                                        },
-                                        getData: function ($defer, params) {
-                                            var data = getData();
-                                            if (data) {
-                                                var filteredData = $filter('filter')(data, params.filter()),
-                                                    orderedData = params.filter() ? (params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData) : data,
-                                                    newData = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
-                                                $scope.grTable.data = newData;
-												$scope.grTable.allData = data;
-                                                params.total(data.length);
-                                                $defer.resolve(newData);
-                                                $timeout(function(){
-                                                    angular.element($window).trigger('resize');
+                                            if (data[_id][0].title !== '-') {
+                                                data[_id].unshift({
+                                                    id: '',
+                                                    title: '-'
                                                 });
                                             }
                                         }
-                                    }
-                                },
-                                inArray = Array.prototype.indexOf ? function (val, arr) {
+                                    });
+                                });
+                                $defer.resolve(data);
+                                return $defer;
+                            },
+                            getData: function ($defer, params) {
+                                var data = $scope.grTable.dataSet;
+                                if (data) {
+                                    var filteredData = $filter('filter')(data, params.filter());
+                                    var orderedData = params.filter() ? (params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData) : data,
+                                        newData = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
+                                    $scope.grTable.data = newData;
+                                    $scope.grTable.allData = data;
+                                    var aux = false;
+                                    angular.forEach(newData[0], function(el, id){
+                                        if(!aux){
+                                            defaultSorting[id] = 'asc';
+                                            aux = true;
+                                        }
+                                    });
+                                    params.total(data.length);
+                                    $defer.resolve(newData);
+                                    $timeout(function(){
+                                        angular.element($window).trigger('resize');
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    grTableConfig,
+                    inArray = Array.prototype.indexOf ?
+                                function (val, arr) {
                                     return arr.indexOf(val);
                                 } : function (val, arr) {
                                     var i = arr.length;
@@ -1833,291 +1816,93 @@
                                     }
                                     return -1;
                                 };
-                            $scope.grTable = new ngTableParams(ngTable.defaults, ngTable.settings);
-                            $scope.grTable.reloadData = function(){
-                                grDataSource($scope, $element);
-                            }
-                            $scope.$watch('grTable.dataSet', function (v) {
-                                $scope.grTable.reload();
-                            });
-                    }],
-                    grDataSource = function ($scope, $element) {
-                        if(!grTable.attrs.dataSource){
-                            REST.all({
-                                module: GRIFFO.module,
-                                action: 'get'
-                            }).then(function (d) {
-                                var response = d.response;
-                                $scope.grTable.dataSet = response;
-                            }, function (e) {
-                                var title = angular.element(angular.element(e.data)[0]).text(),
-                                    content = angular.element(angular.element(e.data)[3]).text();
-                                MODAL.alert(title + ' - ' + content, 'md');
-                            });
-                        }else{
-                            $http.get($scope.$eval(grTable.attrs.dataSource)).success(function(r){
-                                if(r.response){
-                                    var response = r.response;
-                                    $scope.grTable.dataSet = response;
-                                }else{
-                                    console.debug(r);
-                                }
-                            }).error(function(e){
-                                var title = angular.element(angular.element(e.data)[0]).text(),
-                                    content = angular.element(angular.element(e.data)[3]).text();
-                                MODAL.alert(title + ' - ' + content, 'md');
-                            });
+                $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
+                $scope.grTable.defaults = grTable.defaults;
+                $attrs.$observe('grDataSource', function(source){
+                    if(source && angular.isDefined(source)){
+                        var src = $parse(source)($scope);
+                        if(angular.isString(src)){
+                            getData(src);
+                        }else if(angular.isObject(src) || angulr.isArray(src)){
+                            $scope.grTable.dataSet = src;
                         }
-                    },
-                    grTableLink = function ($scope, $element, $attrs) {
-                        $element.addClass('col-xs-12 col-sm-12 col-md-12 col-lg-12 gr-table').removeAttr('ng-transclude');
-
-                        if($element.children('gr-row').length > 0){
-                            var grTr = {
-                                attrs: {}
-                            }
-                            angular.forEach($element.children('gr-row')[0].attributes, function (attr) {
-                                if (grTableDefaults.attr.hasOwnProperty(attr.name)) {
-                                    grTr.attrs[grTableDefaults.attr[attr.name]] = attr.value;
-                                    grTr.attrs.length++;
-                                } else {
-                                    grTr.attrs[attr.name] = attr.value;
-                                    grTr.attrs.length++;
-                                }
-                            });
-
-                            $element.html($element.children('gr-row').html());
-
-                            $compile($element)($scope);
-
-                            grTable = generateElementArray($element);
-
-                            grTable.grRow = grTr;
-                        }else{
-                            grTable = generateElementArray($element);
+                    }
+                });
+                $attrs.$observe('exportCsv', function(name){ $scope.grTable.csv = angular.copy(name); });
+                $attrs.$observe('sortby', function(sort){
+                    if(sort){
+                        var sortArr = $parse(sort)($scope);
+                        if(angular.isObject(sortArr)){
+                            $scope.grTable.sorting(sortArr);
                         }
-
-                        grTableRender($element);
-
-                        $compile($element)($scope);
-
-                        if (grTable.attrs.group) {
-                            if (grGroupBy.hasOwnProperty(grTable.attrs.group)) {
-                                $scope.grTable.settings().groupBy = grGroupBy[grTable.attrs.group];
-                            } else {
-                                $scope.grTable.settings().groupBy = grTable.attrs.group;
-                            }
+                    }
+                });
+                $attrs.$observe('filterby', function(filter){
+                    if(filter){
+                        var filterArr = $parse(filter)($scope);
+                        if(angular.isObject(filterArr)){
+                            $scope.grTable.filter(filterArr);
                         }
-
-                        if (grTable.attrs.hasOwnProperty('csvName') && grTable.attrs.csvName !== '') {
-                            $scope.csv.name = grTable.attrs.csvName;
-                        }
-
-                        grDataSource($scope, $element);
-
-                        angular.forEach(grTableConfig, function (fn, id) {
-                            $scope.grTable[id] = function(){
-                                var args = [].slice.apply(arguments);
-                                args.unshift($scope.grTable);
-                                fn.apply(null, args);
-                            }
-                        });
-                    },
-                    grTableRender = function ($element) {
-                        var template = $templateCache.get('grTable/table.html'),
-                            table = grTableCompile('table', template);
-
-                        if (grTable.children.length > 0) {
-                            var tbody = grTableCompile('tbody', template),
-                                tr = grTableCompile('tr', template),
-                                td = grTableCompile('td', template);
-
-                            tr.append(td);
-                            tbody.append(tr).append(angular.element('<tr ng-if="$data.length === 0"><td colspan="{{$columns.length}}" class="ng-table-no-results">{{\'No data found...\' | grTranslate}}</td></tr>'));
-                            table.html(tbody);
-                        }
-                        $element.html('').append(table);
-                        return $element;
-                    },
-                    grTableCompile = function (element, template) {
-                        var compile = {
-                                table: function(){
-                                    var filter = '',
-                                        csv = '';
-                                    html = template.table.element;
-                                    if (grTable.attrs.hasOwnProperty('filter') && grTable.attrs.filter) {
-                                        if (grTable.attrs.filter === 'true' || grTable.attrs.filter === 'false') {
-                                            filter = template.table.filter.replace('%filter%', grTable.attrs.filter);
-                                        }
-                                    }
-                                    html = html.replace('%filter%', filter);
-                                    if (grTable.attrs.hasOwnProperty('csv') && grTable.attrs.csv) {
-                                        if (grTable.attrs.csv === 'true' || grTable.attrs.csv === 'false') {
-                                            csv = template.table.csv.replace('%csv%', 'csv');
-                                        }
-                                    }
-                                    html = html.replace('%csv%', csv);
-                                    return angular.element(html);
-                                },
-                                tbody: function(){
-                                    html = template.tbody.element;
-                                    if (grTable.attrs.hasOwnProperty('group') && grTable.attrs.group) {
-                                        if (grTable.attrs.group) {
-                                            html = template.tbody.element_group;
-                                        }
-                                    }
-                                    return angular.element(html);
-                                },
-                                tr: function(){
-                                    html = template.tr.element;
-                                    if (grTable.attrs.hasOwnProperty('group') && grTable.attrs.group) {
-                                        if (grTable.attrs.group) {
-                                            html = template.tr.element_group;
-                                        }
-                                    }
-                                    if(grTable.grRow && angular.isDefined(grTable.grRow.attrs)){
-                                        var attrs = '';
-                                        angular.forEach(grTable.grRow.attrs, function(a, id){
-                                            if(id === 'class'){
-                                                a = a.replace('ng-scope','');
-                                            }
-                                            if(a !== '' && angular.isDefined(a)){
-                                                attrs += id + '="' + a + '" ';
-                                            }
-                                        });
-                                        html = html.replace('%attrs%', attrs);
-                                    }else{
-                                        html = html.replace('%attrs%', '');
-                                    }
-                                    return angular.element(html);
-                                },
-                                td: function(){
-                                    angular.forEach(grTable.children, function (element, id) {
-                                        if (element.attrs.hasOwnProperty('name') && element.attrs.name) {
-                                            var td = template.td.element_start.replace('%label%', element.attrs.label || ''),
-                                                filter = '',
-                                                sortable = '',
-                                                other = '';
-                                            angular.forEach(element.attrs, function (attr, id) {
-                                                if (id === 'filter' && attr) {
-                                                    filter = template.td.filter.replace('%filter%', attr).replace('%name%', element.attrs.name || '').replace('%label%', element.attrs.label || '');
-                                                } else if (id === 'sortable' && attr === '') {
-                                                    sortable = template.td.sortable.replace('%name%', element.attrs.name || '');
-                                                } else if (typeof attr === 'string' && id !== 'noTranslate') {
-                                                    other += ' ' + id + '="' + attr + '"';
-                                                }
-                                            });
-                                            td = td.replace('%filter%', filter).replace('%sortable%', sortable).replace('%other%', other);
-                                            if (element.content.length > 0) {
-                                                td += element.content;
-                                            } else {
-                                                if (element.attrs.hasOwnProperty('noTranslate')) {
-                                                    td += template.td.content_no_translate.replace('%name%', element.attrs.name);
-                                                } else {
-                                                    td += template.td.content.replace('%name%', element.attrs.name);
-                                                }
-                                            };
-                                            td += template.td.element_end;
-                                            html += td;
-                                        } else {
-                                            var td = template.td.element_start.replace('%label%', element.attrs.label || ''),
-                                                other = '';
-                                            angular.forEach(element.attrs, function (attr, id) {
-                                                if (typeof attr === 'string' && id !== 'noTranslate') {
-                                                    other += ' ' + id + '="' + attr + '"';
-                                                }
-                                            });
-                                            td = td.replace('%other%', other);
-                                            if (element.content.length > 0) {
-                                                td += element.content;
-                                            }
-                                            td += template.td.element_end;
-                                            html += td;
-                                        }
-                                    });
-                                    return angular.element(html);
-                                }
-                            },
-                            html = '';
-                        if (typeof compile[element] === 'function') {
-                            return compile[element]() || template;
-                        }
-                        return;
-                    },
-                    generateElementArray = function ($element) {
-                        var childs = $element.children();
-                        grTable['attrs'] = [];
-                        grTable['children'] = [];
-                        grTable.length += 2;
-
-                        angular.forEach($element[0].attributes, function (attr) {
-                            if (grTableDefaults.attr.hasOwnProperty(attr.name)) {
-                                grTable.attrs[grTableDefaults.attr[attr.name]] = attr.value;
-                                grTable.attrs.length++;
-                            }
-                        });
-
-                        angular.forEach(childs, function (c, id) {
-                            var tmp = angular.element(c),
-                                child = {
-                                    element: tmp,
-                                    tag: tmp[0].localName,
-                                    attrs: {},
-                                    name: ''
-                                };
-                            angular.forEach(child.element[0].attributes, function (attr) {
-                                if (grTableDefaults.attr.hasOwnProperty(attr.name)) {
-                                    child.attrs[grTableDefaults.attr[attr.name]] = attr.value;
-                                    child.attrs.length++;
-                                } else {
-                                    child.attrs[attr.name] = attr.value;
-                                    child.attrs.length++;
-                                }
-                            });
-                            child.name = child.attrs.name;
-                            if (child.name) {
-                                if (!grTable.children[child.name]) {
-                                    grTable.children.push({
-                                        'name': child.name,
-                                        'attrs': child.attrs,
-                                        'content': child.element.html()
-                                    });
-                                }
-                            } else {
-                                grTable.children.push({
-                                    'attrs': child.attrs,
-                                    'content': child.element.html()
-                                });
-                            }
-                        });
-
-                        return grTable;
-                    };
-                return {
-                    restrict: 'E',
-                    transclude: true,
-                    scope: false,
-                    template: '<div ng-transclude></div>',
-                    replace: true,
-                    controller: grTableController,
-                    link: grTableLink
+                    }
+                });
+                $scope.$watch('grTable.dataSet', function(){ $scope.grTable.reload(); }, true);
+                setFunctions($scope, $element, $attrs);
+            },
+            setFunctions= function($scope, $element, $attrs){
+                $scope.grTable.fn = {};
+                var fns = {};
+                if($injector.has('$grTable.config')){
+                    fns = $injector.get('$grTable.config');//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
                 }
-        }])
-        .directive('grTableExportCsv', function(){
+                angular.forEach(fns, function(fn, key){
+                    $scope.grTable.fn[key] = function(){
+                        var injector, i = [], _fn = fn($scope);
+                        if(_fn.inject){ injector = angular.injector(_fn.inject); }else{ injector = $injector; }
+                        if(angular.isArray(_fn.fn)){
+                            var f = _fn.fn.pop();
+                            angular.forEach(_fn.fn, function(o, key){
+                                i.push(injector.get(o));
+                            });
+                            angular.forEach(arguments, function(arg){ i.push(arg); });
+                            f.apply(null, i);
+                        }else{
+                            i.push(arguments[0]);
+                            _fn.fn.apply(null, i);
+                        }
+                    }
+                });
+            };
             return {
-                restrict: 'E',
-                transclude: true,
-                scope: false,
-                template: '<a class="gr-table-export-csv" ng-mousedown="csv.generate()" ng-href="{{ csv.link() }}" download="{{csv.name ? csv.name + \'.csv\' : \'tabela.csv\'}}" ng-transclude></a>',
-                replace: true
+                restrict: 'A',
+                priority: 1002,
+                compile: function($element){
+                    return function($scope, $element, $attrs){
+                        $attrs.$set('ngTable', 'grTable');
+                        $element.addClass('gr-table table table-bordered table-striped');
+                        $element.removeAttr($attrs.$attr.grTable);
+                        $element.append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length}}">{{\'No data found...\' | grTranslate}}</td></tr>');
+                        init($scope, $element, $attrs);
+                        $compile($element)($scope);
+                    }
+                }
             }
-        })
+        }])
+        .directive('grRepeat', ['$compile', function($compile){
+            return {
+                priority: 1001,
+                scope: false,
+                compile: function($element, $attrs){
+                    $element.removeAttr($attrs.$attr.grRepeat);
+                    $attrs.$set('ngRepeat', $attrs.grRepeat);
+                }
+            }
+        }])
         .directive('grTableClearSorting', function(){
                 return {
                     restrict: 'E',
                     transclude: true,
                     scope: false,
-                    template: '<button class="gr-table-clear-sorting" ng-click="grTable.sorting({\'id' + GRIFFO.module + '\': \'asc\'})" ng-transclude></button>',
+                    template: '<button class="gr-table-clear-sorting" ng-click="grTable.sorting(grTable.defaults.sorting)" ng-transclude></button>',
                     replace: true
                 }
         })
@@ -2148,35 +1933,30 @@
                 replace: true
             }
         })
-        .run(['$templateCache',
-            function ($templateCache) {
-                var table = {
-                    default: {
-                        table: {
-                            element: '<table ng-table="grTable" %csv% %filter% class="table table-bordered table-striped table-hover table-no-pager ng-table-responsive ng-table-resizable-columns"></table>',
-                            filter: 'show-filter="%filter%"',
-                            csv: 'export-csv="csv"'
-                        },
-                        tbody: {
-                            element: '<tbody></tbody>',
-                            element_group: '<tbody ng-repeat="group in $groups"><tr class="ng-table-group"><td colspan="{{$columns.length}}"><a href="" ng-click="group.$hideRows = !group.$hideRows"><span class="fa fa-fw" ng-class="{ \'fa-angle-right\': group.$hideRows, \'fa-angle-down\': !group.$hideRows }"></span><strong>{{ group.value }}</strong></a></td></tr></tbody>'
-                        },
-                        tr: {
-                            element: '<tr ng-repeat="data in $data" %attrs%></tr>',
-                            element_group: '<tr ng-hide="group.$hideRows" ng-repeat="data in group.data" %attrs%>'
-                        },
-                        td: {
-                            element_start: '<td data-title="\'%label%\' | grTranslate" %filter% %sortable% %other%>',
-                            element_end: '</td>',
-                            content: '{{data.%name% | grTranslate}}',
-                            content_no_translate: '{{data.%name%}}',
-                            filter: 'filter="{ \'%name%\': \'%filter%\' }" filter-placeholder="%label%"',
-                            sortable: 'sortable="\'%name%\'"'
+        .directive('grChange', ['$parse', '$timeout', function ($parse, $timeout) {
+            return {
+                restrict: 'A',
+                scope: false,
+                require: 'ngModel',
+                link: function($scope, $element, $attrs, $controller){
+                    var firstTime = true;
+                    $scope.$watch(function(){
+                        return $controller.$viewValue;
+                    }, function(newValue){
+                        if(!firstTime){
+                            $timeout(function(){
+                                $scope.$apply($attrs.grChange);
+                            });
+                        }else{
+                            firstTime = false;
                         }
-                    }
-                };
-                $templateCache.put('grTable/table.html', table.default);
+                    });
+                }
+            }
         }]);
+})();
+(function(){
+    angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
 })();
 
 /*

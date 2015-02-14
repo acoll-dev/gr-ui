@@ -180,6 +180,56 @@
                 $log.debug(data);
             }
         };
+        $scope.tableContents = [
+            {
+                id: 0,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 1,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 2,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 3,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 4,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 5,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 6,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            },
+            {
+                id: 7,
+                name: 'John',
+                lastname: 'Silva',
+                age: 25
+            }
+        ];
         if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); };
     }]).run(['$anchorScroll', function($anchorScroll) { $anchorScroll.yOffset = 110; }]);
 })();

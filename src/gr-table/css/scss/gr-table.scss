@@ -3,9 +3,10 @@
     width: 100%;
     padding: 15px;
     margin: 0;
-    .ng-table{
+    &.ng-table,
+	.ng-table{
         min-width: 500px;
-        display: none;
+        //display: none;
         margin: 0;
         padding: 0;
         thead{
