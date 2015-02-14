@@ -1,6 +1,6 @@
 <h2 class="page-header" id="gr-table">Table</h2>
 <div class="col-md-6">
-    <table gr-table gr-data-source="{{tableContents}}" export-csv="GRIFFO_UserList">
+    <table gr-table gr-data-source="{{tableContents}}" export-csv="table">
         <tr gr-repeat="(key, data) in $data">
             <td data-title="'#'" sortable="'id'" filter="{'id': 'text'}" header-class="col-1" class="col-1 text-center">
                 {{data.id}}
@@ -22,6 +22,15 @@
             </td>
         </tr>
     </table>
+    
+    <gr-table-pager></gr-table-pager>
+    <gr-table-count></gr-table-count>
+    <gr-table-clear-sorting class="btn btn-warning" title="{{'Clear sorting' | grTranslate}}"><i class="fa fa-fw fa-unsorted"></i><span class="hidden-xs hidden-sm">  {{'Clear sorting' | grTranslate}}</span>
+    </gr-table-clear-sorting>
+    <gr-table-clear-filter class="btn btn-warning" title="{{'Clear filter' | grTranslate}}"><i class="fa fa-fw fa-filter"></i><span class="hidden-xs hidden-sm">  {{'Clear filter' | grTranslate}}</span>
+    </gr-table-clear-filter>
+    <gr-table-export-csv class="btn btn-primary" title="{{'Export table to CSV' | grTranslate}}"><i class="fa fa-fw fa-download"></i><span class="hidden-xs hidden-sm"> {{'Export table to CSV' | grTranslate}}</span>
+    </gr-table-export-csv>
 </div>
 <div class="col-md-6">
     
