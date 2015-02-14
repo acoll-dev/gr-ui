@@ -2,7 +2,7 @@
 
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport'])
-        .directive('grTable', ['$grScriptbind', '$grTable.config', 'ngTableParams', '$grAlert', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(grScriptBind, grTableConfig, ngTableParams, ALERT, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+        .directive('grTable', ['ngTableParams', '$grAlert', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, ALERT, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
                 var defaultSorting = {},
                     getData = function(src) {
@@ -73,6 +73,13 @@
                                         newData = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
                                     $scope.grTable.data = newData;
                                     $scope.grTable.allData = data;
+                                    var aux = false;
+                                    angular.forEach(newData[0], function(el, id){
+                                        if(!aux){
+                                            defaultSorting[id] = 'asc';
+                                            aux = true;
+                                        }
+                                    });
                                     params.total(data.length);
                                     $defer.resolve(newData);
                                     $timeout(function(){
@@ -82,6 +89,7 @@
                             }
                         }
                     },
+                    grTableConfig,
                     inArray = Array.prototype.indexOf ?
                                 function (val, arr) {
                                     return arr.indexOf(val);
@@ -94,7 +102,6 @@
                                     }
                                     return -1;
                                 };
-                defaultSorting['id' + GRIFFO.module] = 'asc';
                 $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope.grTable.defaults = grTable.defaults;
                 $attrs.$observe('grDataSource', function(source){
@@ -103,7 +110,7 @@
                         if(angular.isString(src)){
                             getData(src);
                         }else if(angular.isObject(src) || angulr.isArray(src)){
-                            $scope.grTable.dataSet = newData;
+                            $scope.grTable.dataSet = src;
                         }
                     }
                 });
@@ -129,7 +136,10 @@
             },
             setFunctions= function($scope, $element, $attrs){
                 $scope.grTable.fn = {};
-                var fns = grTableConfig;//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
+                var fns = {};
+                if($injector.has('$grTable.config')){
+                    fns = $injector.get('$grTable.config');//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
+                }
                 angular.forEach(fns, function(fn, key){
                     $scope.grTable.fn[key] = function(){
                         var injector, i = [], _fn = fn($scope);
@@ -229,113 +239,11 @@
                     });
                 }
             }
-        }])
-        .config(['$grScriptbindProvider', function($scriptBind){
-            $scriptBind.new('grTable/function');
         }]);
 })();
 
 (function(){
     angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
-    angular.module('gr.ui.table.config')
-        .factory('$grTable.config', ['$grRestful', '$grModal', '$grAlert', '$grValidation', '$timeout', function (REST, MODAL, ALERT, VALIDATOR, $timeout) {
-            return {
-                'edit': function($scope){
-                    return {
-                        fn: ['$grModal', function(MODAL, grTable, id, templatePath, label){
-                            var modal = MODAL.new({
-                                    name: 'edit',
-                                    title: 'Edit ' + (label ? label : GRIFFO.module),
-                                    size: 'lg',
-                                    model: GRIFFO.baseUrl + GRIFFO.modulePath + templatePath,
-                                    define: {
-                                        grTableImport:{
-                                            id: id,
-                                            grTable: grTable
-                                        }
-                                    },
-                                    buttons: [{
-                                        type: 'success',
-                                        label: 'Save',
-                                        onClick: function(scope, element, controller){
-                                            var form = element.find('form[gr-name]').eq(0),
-                                                name = form.attr('gr-name');
-                                            form = VALIDATOR.get(name);
-                                            form.submit();
-                                        }
-                                    },
-                                    {
-                                        type: 'default',
-                                        label: 'Reset',
-                                        onClick: function(scope, element, controller){
-                                            var form = element.find('form[gr-name]').eq(0),
-                                                name = form.attr('gr-name');
-                                            form = VALIDATOR.get(name);
-                                            form.reset();
-                                        }
-                                    },
-                                    {
-                                        type: 'danger',
-                                        label: 'Close',
-                                        onClick: function(scope, element, controller){
-                                            controller.close();
-                                        }
-                                    }]
-                                });
-                            modal.open();
-                        }]
-                    }
-                },
-                'delete': function($scope){
-                    return {
-                        fn: ['$grModal', function(MODAL, grTable, id, label, module){
-                            var modal = MODAL.new({
-                                    name: 'delete',
-                                    title: 'Delete' + (label ? ' ' + label : ''),
-                                    size: 'sm',
-                                    text: label ? 'Essa ação não poderá ser desfeita, tem certeza que deseja exclur ' + label + '?' : 'Essa ação não poderá ser desfeita, tem certeza que deseja excluir?',
-                                    define: {
-                                        grTableImport:{
-                                            id: id,
-                                            grTable: grTable
-                                        }
-                                    },
-                                    buttons: [{
-                                        type: 'danger',
-                                        label: 'Confirm',
-                                        onClick: function(scope, element, controller){
-                                            REST.delete({
-                                                module: (module ? module : GRIFFO.module),
-                                                id: id
-                                            }).then(function(data){
-                                                var grAlert = ALERT.new();
-                                                if(data.response){
-                                                    controller.close();
-                                                    grAlert.show('success', [data.message]);
-                                                    scope.grTableImport.grTable.reloadData();
-                                                }else{
-                                                    controller.close();
-                                                    grAlert.show('danger', [data.message]);
-                                                }
-                                            }, function(e){
-                                                var grAlert = ALERT.new();
-                                                grAlert.show('success', [e]);
-                                            });
-                                        }
-                                    },{
-                                        type: 'default',
-                                        label: 'Cancel',
-                                        onClick: function(scope, element, controller){
-                                            controller.close();
-                                        }
-                                    }]
-                                });
-                            modal.open();
-                        }]
-                     }
-                }
-            }
-        }]);
 })();
 
 (function(){
