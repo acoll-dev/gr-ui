@@ -959,11 +959,11 @@
  */
 
 (function(){
-    angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template']);
+    angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template', 'gr.ui.translate']);
 })();
 (function(){
     angular.module('gr.ui.modal.provider', [])
-        .provider('$grModal', function(){
+        .provider('$grModal', function () {
             var setup,
                 $injector,
                 $modal,
@@ -1019,7 +1019,7 @@
                         }];
                         id++;
                         return {
-                            'open': function(){
+                            'open': function () {
                                 var options = {
                                     'title': element.title,
                                     'name': element.name,
@@ -1106,8 +1106,8 @@
 					alert.open();
 				},
                 'events': {
-                    'onOpen': function(){},
-                    'onClose': function(){}
+                    'onOpen': function () {},
+                    'onClose': function () {}
                 }
             };
             this.config = function (config) {
@@ -1143,7 +1143,7 @@
                     };
             }];
         })
-        .provider('$grModal.ui', function(){
+        .provider('$grModal.ui', function () {
             var $modalProvider = {
                 options: {
                     backdrop: true, //can be also false or 'static'
@@ -1244,9 +1244,9 @@
                                 modalResultDeferred.reject(reason);
                             });
 
-                            templateAndResolvePromise.then(function(){
+                            templateAndResolvePromise.then(function () {
                                 modalOpenedDeferred.resolve(true);
-                            }, function(){
+                            }, function () {
                                 modalOpenedDeferred.reject(false);
                             });
 
@@ -1262,9 +1262,9 @@
 })();
 (function(){
     angular.module('gr.ui.modal.factory', [])
-        .factory('$$grStackedMap', function(){
+        .factory('$$grStackedMap', function () {
             return {
-                createNew: function(){
+                createNew: function () {
                     var stack = [];
 
                     return {
@@ -1281,14 +1281,14 @@
                                 }
                             }
                         },
-                        keys: function(){
+                        keys: function () {
                             var keys = [];
                             for (var i = 0; i < stack.length; i++) {
                                 keys.push(stack[i].key);
                             }
                             return keys;
                         },
-                        top: function(){
+                        top: function () {
                             return stack[stack.length - 1];
                         },
                         remove: function (key) {
@@ -1301,18 +1301,17 @@
                             }
                             return stack.splice(idx, 1)[0];
                         },
-                        removeTop: function(){
+                        removeTop: function () {
                             return stack.splice(stack.length - 1, 1)[0];
                         },
-                        length: function(){
+                        length: function () {
                             return stack.length;
                         }
                     };
                 }
             };
         })
-        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap',
-            function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
+        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap', function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
 
                 var OPENED_MODAL_CLASS = 'modal-open';
 
@@ -1346,7 +1345,7 @@
                     openedWindows.remove(modalInstance);
 
                     //remove window DOM element
-                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function(){
+                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function () {
                         grModalWindow.modalScope.$destroy();
                         body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
                         checkRemoveBackdrop();
@@ -1357,7 +1356,7 @@
                     //remove backdrop if no longer needed
                     if (backdropDomEl && backdropIndex() == -1) {
                         var backdropScopeRef = backdropScope;
-                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function(){
+                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function () {
                             backdropScopeRef.$destroy();
                             backdropScopeRef = null;
                         });
@@ -1375,7 +1374,7 @@
                         // transition out
                         var timeout = $timeout(afterAnimating, emulateTime);
 
-                        domEl.bind(transitionEndEventName, function(){
+                        domEl.bind(transitionEndEventName, function () {
                             $timeout.cancel(timeout);
                             afterAnimating();
                             scope.$apply();
@@ -1399,21 +1398,22 @@
                 }
 
                 $document.bind('keydown', function (evt) {
-                    var modal;
-
-                    if (evt.which === 27) {
-                        modal = openedWindows.top();
-                        if (modal && modal.value.keyboard) {
-                            evt.preventDefault();
-                            $rootScope.$apply(function(){
-                                $grModalStack.dismiss(modal.key, 'escape key press');
-                            });
-                        }
-                    }else if(evt.which === 13) {
-                        modal = angular.element(openedWindows.top().value.modalDomEl);
-                        var enterBind = modal.find('[gr-enter-bind]');
-                        if(enterBind.length > 0){
-                            enterBind.click();
+                    if(openedWindows.length()){
+                        var modal;
+                        if (evt.which === 27) {
+                            modal = openedWindows.top();
+                            if (modal && modal.value.keyboard) {
+                                evt.preventDefault();
+                                $rootScope.$apply(function () {
+                                    $grModalStack.dismiss(modal.key, 'escape key press');
+                                });
+                            }
+                        }else if(evt.which === 13) {
+                            modal = angular.element(openedWindows.top().value.modalDomEl);
+                            var enterBind = modal.find('[gr-enter-bind]');
+                            if(enterBind.length > 0){
+                                enterBind.click();
+                            }
                         }
                     }
                 });
@@ -1453,7 +1453,6 @@
                         'z-index': modal.zIndex,
                         'animate': 'animate'
                     }).html(modal.content);
-
                     var modalDomEl = $compile(angularDomEl)(modal.scope);
                     openedWindows.top().value.modalDomEl = modalDomEl;
                     modalInstance.element = angular.element(modalDomEl);
@@ -1485,21 +1484,20 @@
                     }
                 };
 
-                $grModalStack.getTop = function(){
+                $grModalStack.getTop = function () {
                     return openedWindows.top();
                 };
 
                 return $grModalStack;
         }])
-        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope',
-            function ($q, $timeout, $rootScope) {
+        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope', function ($q, $timeout, $rootScope) {
                 var $transition = function (element, trigger, options) {
                     options = options || {};
                     var deferred = $q.defer();
                     var endEventName = $transition[options.animation ? 'animationEndEventName' : 'transitionEndEventName'];
 
                     var transitionEndHandler = function (event) {
-                        $rootScope.$apply(function(){
+                        $rootScope.$apply(function () {
                             element.unbind(endEventName, transitionEndHandler);
                             deferred.resolve(element);
                         });
@@ -1510,7 +1508,7 @@
                     }
 
                     // Wrap in a timeout to allow the browser time to update the DOM before the transition is to occur
-                    $timeout(function(){
+                    $timeout(function () {
                         if (angular.isString(trigger)) {
                             element.addClass(trigger);
                         } else if (angular.isFunction(trigger)) {
@@ -1527,7 +1525,7 @@
                     // Add our custom cancel function to the promise that is returned
                     // We can call this if we are about to run a new transition, which we know will prevent this transition from ending,
                     // i.e. it will therefore never raise a transitionEnd event for that transition
-                    deferred.promise.cancel = function(){
+                    deferred.promise.cancel = function () {
                         if (endEventName) {
                             element.unbind(endEventName, transitionEndHandler);
                         }
@@ -1566,8 +1564,7 @@
 })();
 (function(){
     angular.module('gr.ui.modal.directive', [])
-        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout',
-            function (MODAL, $templateCache, $timeout) {
+        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout', function (MODAL, $templateCache, $timeout) {
                 return {
                     restrict: 'EA',
                     replace: true,
@@ -1578,14 +1575,13 @@
                         scope.animate = false;
 
                         //trigger CSS transitions
-                        $timeout(function(){
+                        $timeout(function () {
                             scope.animate = true;
                         });
                     }
                 };
-        }])
-        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile',
-            function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
+          }])
+        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile', function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
                 return {
                     restrict: 'EA',
                     scope: {
@@ -1595,7 +1591,7 @@
                     replace: true,
                     transclude: true,
                     template: $templateCache.get('grModal/window.html'),
-                    link: function (scope, element, attrs, ctrl, $transclude) {
+                    link: function (scope, element, attrs, ctrl) {
                         element.addClass(attrs.windowClass || '');
 
                         scope.size = attrs.size;
@@ -1610,19 +1606,19 @@
                             fn(scope.$parent, element, modal.key);
                         };
 
-                        modal.key.result.then(function(){
+                        modal.key.result.then(function () {
                             modal.value.events.onClose(element);
-                        }, function(){
+                        }, function () {
                             modal.value.events.onClose(element);
                         })
 
-                        modal.key.opened.then(function(){
+                        modal.key.opened.then(function () {
                             modal.value.events.onOpen(element);
-                        }, function(){
+                        }, function () {
                             modal.value.events.onOpen(element);
                         });
 
-                        $timeout(function(){
+                        $timeout(function () {
                             // trigger CSS transitions
                             scope.animate = true;
                             // focus a freshly-opened modal
@@ -1672,7 +1668,7 @@
                     }
             }
         }])
-        .directive('grModalTransclude', function(){
+        .directive('grModalTransclude', function () {
             return {
                 link: function ($scope, $element, $attrs, controller, $transclude) {
                     $transclude($scope.$parent, function (clone) {
@@ -1681,7 +1677,17 @@
                     });
                 }
             };
-        });
+        })
+        .directive('autofocus', ['$timeout', function ($timeout) {
+            return {
+                restrict: 'A',
+                link: function($scope, $element){
+                    $timeout(function(){
+                        $element.focus();
+                    }, 100);
+                }
+            }
+        }]);
 })();
 (function(){
     angular.module('gr.ui.modal.template', [])
@@ -2036,7 +2042,7 @@
      * Version: 1.2.3
      * Build date: 26 February 2012
      */
-    rangy.createModule("SaveRestore",function(a,b){function c(a,b){return(b||document).getElementById(a)}function d(a,b){var c,d="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),e=k.getDocument(a.startContainer),f=a.cloneRange();return f.collapse(b),c=e.createElement("span"),c.id=d,c.style.lineHeight="0",c.style.display="none",c.className="rangySelectionBoundary",c.appendChild(e.createTextNode(l)),f.insertNode(c),f.detach(),c}function e(a,d,e,f){var g=c(e,a);g?(d[f?"setStartBefore":"setEndBefore"](g),g.parentNode.removeChild(g)):b.warn("Marker element has been removed. Cannot restore selection.")}function f(a,b){return b.compareBoundaryPoints(a.START_TO_START,a)}function g(e){e=e||window;var g=e.document;if(!a.isSelectionValid(e))return void b.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus.");var h,i,j,k=a.getSelection(e),l=k.getAllRanges(),m=[];l.sort(f);for(var n=0,o=l.length;o>n;++n)j=l[n],j.collapsed?(i=d(j,!1),m.push({markerId:i.id,collapsed:!0})):(i=d(j,!1),h=d(j,!0),m[n]={startMarkerId:h.id,endMarkerId:i.id,collapsed:!1,backwards:1==l.length&&k.isBackwards()});for(n=o-1;n>=0;--n)j=l[n],j.collapsed?j.collapseBefore(c(m[n].markerId,g)):(j.setEndBefore(c(m[n].endMarkerId,g)),j.setStartAfter(c(m[n].startMarkerId,g)));return k.setRanges(l),{win:e,doc:g,rangeInfos:m,restored:!1}}function h(d,f){if(!d.restored){for(var g,h,i=d.rangeInfos,j=a.getSelection(d.win),k=[],l=i.length,m=l-1;m>=0;--m){if(g=i[m],h=a.createRange(d.doc),g.collapsed){var n=c(g.markerId,d.doc);if(n){n.style.display="inline";var o=n.previousSibling;o&&3==o.nodeType?(n.parentNode.removeChild(n),h.collapseToPoint(o,o.length)):(h.collapseBefore(n),n.parentNode.removeChild(n))}else b.warn("Marker element has been removed. Cannot restore selection.")}else e(d.doc,h,g.startMarkerId,!0),e(d.doc,h,g.endMarkerId,!1);1==l&&h.normalizeBoundaries(),k[m]=h}1==l&&f&&a.features.selectionHasExtend&&i[0].backwards?(j.removeAllRanges(),j.addRange(k[0],!0)):j.setRanges(k),d.restored=!0}}function i(a,b){var d=c(b,a);d&&d.parentNode.removeChild(d)}function j(a){for(var b,c=a.rangeInfos,d=0,e=c.length;e>d;++d)b=c[d],b.collapsed?i(a.doc,b.markerId):(i(a.doc,b.startMarkerId),i(a.doc,b.endMarkerId))}a.requireModules(["DomUtil","DomRange","WrappedRange"]);var k=a.dom,l="﻿";a.saveSelection=g,a.restoreSelection=h,a.removeMarkerElement=i,a.removeMarkers=j})}({},function(){return this}());
+    rangy.createModule("SaveRestore",function(a,b){function c(a,b){return(b||document).getElementById(a)}function d(a,b){var c,d="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),e=k.getDocument(a.startContainer),f=a.cloneRange();return f.collapse(b),c=e.createElement("span"),c.id=d,c.style.lineHeight="0",c.style.display="none",c.className="rangySelectionBoundary",c.appendChild(e.createTextNode(l)),f.insertNode(c),f.detach(),c}function e(a,d,e,f){var g=c(e,a);g?(d[f?"setStartBefore":"setEndBefore"](g),g.parentNode.removeChild(g)):b.warn("Marker element has been removed. Cannot restore selection.")}function f(a,b){return b.compareBoundaryPoints(a.START_TO_START,a)}function g(e){e=e||window;var g=e.document;if(!a.isSelectionValid(e))return void b.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus.");var h,i,j,k=a.getSelection(e),l=k.getAllRanges(),m=[];l.sort(f);for(var n=0,o=l.length;o>n;++n)j=l[n],j.collapsed?(i=d(j,!1),m.push({markerId:i.id,collapsed:!0})):(i=d(j,!1),h=d(j,!0),m[n]={startMarkerId:h.id,endMarkerId:i.id,collapsed:!1,backwards:1==l.length&&k.isBackwards()});for(n=o-1;n>=0;--n)j=l[n],j.collapsed?j.collapseBefore(c(m[n].markerId,g)):(j.setEndBefore(c(m[n].endMarkerId,g)),j.setStartAfter(c(m[n].startMarkerId,g)));return k.setRanges(l),{win:e,doc:g,rangeInfos:m,restored:!1}}function h(d,f){if(!d.restored){for(var g,h,i=d.rangeInfos,j=a.getSelection(d.win),k=[],l=i.length,m=l-1;m>=0;--m){if(g=i[m],h=a.createRange(d.doc),g.collapsed){var n=c(g.markerId,d.doc);if(n){n.style.display="inline";var o=n.previousSibling;o&&3==o.nodeType?(n.parentNode.removeChild(n),h.collapseToPoint(o,o.length)):(h.collapseBefore(n),n.parentNode.removeChild(n))}else b.warn("Marker element has been removed. Cannot restore selection.")}else e(d.doc,h,g.startMarkerId,!0),e(d.doc,h,g.endMarkerId,!1);1==l&&h.normalizeBoundaries(),k[m]=h}1==l&&f&&a.features.selectionHasExtend&&i[0].backwards?(j.removeAllRanges(),j.addRange(k[0],!0)):j.setRanges(k),d.restored=!0}}function i(a,b){var d=c(b,a);d&&d.parentNode.removeChild(d)}function j(a){for(var b,c=a.rangeInfos,d=0,e=c.length;e>d;++d)b=c[d],b.collapsed?i(a.doc,b.markerId):(i(a.doc,b.startMarkerId),i(a.doc,b.endMarkerId))}a.requireModules(["DomUtil","DomRange","WrappedRange"]);var k=a.dom,l="";a.saveSelection=g,a.restoreSelection=h,a.removeMarkerElement=i,a.removeMarkers=j})}({},function(){return this}());
 
 /**
  * @license AngularJS v1.3.10
@@ -3350,5 +3356,5 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
  */
 
 !function(e,r){
-    "function"==typeof define&&define.amd?define(["./rangy-core"],e):"undefined"!=typeof module&&"object"==typeof exports?module.exports=e(require("rangy")):e(r.rangy)}(function(e){return e.createModule("SaveRestore",["WrappedRange"],function(e,r){function a(e,r){return(r||document).getElementById(e)}function o(e,r){var o,a="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),s=n.getDocument(e.startContainer),l=e.cloneRange();return l.collapse(r),o=s.createElement("span"),o.id=a,o.style.lineHeight="0",o.style.display="none",o.className="rangySelectionBoundary",o.appendChild(s.createTextNode(t)),l.insertNode(o),o}function s(e,n,t,o){var s=a(t,e);s?(n[o?"setStartBefore":"setEndBefore"](s),s.parentNode.removeChild(s)):r.warn("Marker element has been removed. Cannot restore selection.")}function l(e,r){return r.compareBoundaryPoints(e.START_TO_START,e)}function i(r,n){var t,a,s=e.DomRange.getRangeDocument(r),l=r.toString();return r.collapsed?(a=o(r,!1),{document:s,markerId:a.id,collapsed:!0}):(a=o(r,!1),t=o(r,!0),{document:s,startMarkerId:t.id,endMarkerId:a.id,collapsed:!1,backward:n,toString:function(){return"original text: '"+l+"', new text: '"+r.toString()+"'"}})}function d(n,t){var o=n.document;"undefined"==typeof t&&(t=!0);var l=e.createRange(o);if(n.collapsed){var i=a(n.markerId,o);if(i){i.style.display="inline";var d=i.previousSibling;d&&3==d.nodeType?(i.parentNode.removeChild(i),l.collapseToPoint(d,d.length)):(l.collapseBefore(i),i.parentNode.removeChild(i))}else r.warn("Marker element has been removed. Cannot restore selection.")}else s(o,l,n.startMarkerId,!0),s(o,l,n.endMarkerId,!1);return t&&l.normalizeBoundaries(),l}function c(r,n){var o,s,t=[];r=r.slice(0),r.sort(l);for(var d=0,c=r.length;c>d;++d)t[d]=i(r[d],n);for(d=c-1;d>=0;--d)o=r[d],s=e.DomRange.getRangeDocument(o),o.collapsed?o.collapseAfter(a(t[d].markerId,s)):(o.setEndBefore(a(t[d].endMarkerId,s)),o.setStartAfter(a(t[d].startMarkerId,s)));return t}function f(n){if(!e.isSelectionValid(n))return r.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus."),null;var t=e.getSelection(n),a=t.getAllRanges(),o=1==a.length&&t.isBackward(),s=c(a,o);return o?t.setSingleRange(a[0],"backward"):t.setRanges(a),{win:n,rangeInfos:s,restored:!1}}function u(e){for(var r=[],n=e.length,t=n-1;t>=0;t--)r[t]=d(e[t],!0);return r}function g(r,n){if(!r.restored){var t=r.rangeInfos,a=e.getSelection(r.win),o=u(t),s=t.length;1==s&&n&&e.features.selectionHasExtend&&t[0].backward?(a.removeAllRanges(),a.addRange(o[0],!0)):a.setRanges(o),r.restored=!0}}function v(e,r){var n=a(r,e);n&&n.parentNode.removeChild(n)}function m(e){for(var a,r=e.rangeInfos,n=0,t=r.length;t>n;++n)a=r[n],a.collapsed?v(e.doc,a.markerId):(v(e.doc,a.startMarkerId),v(e.doc,a.endMarkerId))}var n=e.dom,t="﻿";e.util.extend(e,{saveRange:i,restoreRange:d,saveRanges:c,restoreRanges:u,saveSelection:f,restoreSelection:g,removeMarkerElement:v,removeMarkers:m})}),e
+    "function"==typeof define&&define.amd?define(["./rangy-core"],e):"undefined"!=typeof module&&"object"==typeof exports?module.exports=e(require("rangy")):e(r.rangy)}(function(e){return e.createModule("SaveRestore",["WrappedRange"],function(e,r){function a(e,r){return(r||document).getElementById(e)}function o(e,r){var o,a="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),s=n.getDocument(e.startContainer),l=e.cloneRange();return l.collapse(r),o=s.createElement("span"),o.id=a,o.style.lineHeight="0",o.style.display="none",o.className="rangySelectionBoundary",o.appendChild(s.createTextNode(t)),l.insertNode(o),o}function s(e,n,t,o){var s=a(t,e);s?(n[o?"setStartBefore":"setEndBefore"](s),s.parentNode.removeChild(s)):r.warn("Marker element has been removed. Cannot restore selection.")}function l(e,r){return r.compareBoundaryPoints(e.START_TO_START,e)}function i(r,n){var t,a,s=e.DomRange.getRangeDocument(r),l=r.toString();return r.collapsed?(a=o(r,!1),{document:s,markerId:a.id,collapsed:!0}):(a=o(r,!1),t=o(r,!0),{document:s,startMarkerId:t.id,endMarkerId:a.id,collapsed:!1,backward:n,toString:function(){return"original text: '"+l+"', new text: '"+r.toString()+"'"}})}function d(n,t){var o=n.document;"undefined"==typeof t&&(t=!0);var l=e.createRange(o);if(n.collapsed){var i=a(n.markerId,o);if(i){i.style.display="inline";var d=i.previousSibling;d&&3==d.nodeType?(i.parentNode.removeChild(i),l.collapseToPoint(d,d.length)):(l.collapseBefore(i),i.parentNode.removeChild(i))}else r.warn("Marker element has been removed. Cannot restore selection.")}else s(o,l,n.startMarkerId,!0),s(o,l,n.endMarkerId,!1);return t&&l.normalizeBoundaries(),l}function c(r,n){var o,s,t=[];r=r.slice(0),r.sort(l);for(var d=0,c=r.length;c>d;++d)t[d]=i(r[d],n);for(d=c-1;d>=0;--d)o=r[d],s=e.DomRange.getRangeDocument(o),o.collapsed?o.collapseAfter(a(t[d].markerId,s)):(o.setEndBefore(a(t[d].endMarkerId,s)),o.setStartAfter(a(t[d].startMarkerId,s)));return t}function f(n){if(!e.isSelectionValid(n))return r.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus."),null;var t=e.getSelection(n),a=t.getAllRanges(),o=1==a.length&&t.isBackward(),s=c(a,o);return o?t.setSingleRange(a[0],"backward"):t.setRanges(a),{win:n,rangeInfos:s,restored:!1}}function u(e){for(var r=[],n=e.length,t=n-1;t>=0;t--)r[t]=d(e[t],!0);return r}function g(r,n){if(!r.restored){var t=r.rangeInfos,a=e.getSelection(r.win),o=u(t),s=t.length;1==s&&n&&e.features.selectionHasExtend&&t[0].backward?(a.removeAllRanges(),a.addRange(o[0],!0)):a.setRanges(o),r.restored=!0}}function v(e,r){var n=a(r,e);n&&n.parentNode.removeChild(n)}function m(e){for(var a,r=e.rangeInfos,n=0,t=r.length;t>n;++n)a=r[n],a.collapsed?v(e.doc,a.markerId):(v(e.doc,a.startMarkerId),v(e.doc,a.endMarkerId))}var n=e.dom,t="";e.util.extend(e,{saveRange:i,restoreRange:d,saveRanges:c,restoreRanges:u,saveSelection:f,restoreSelection:g,removeMarkerElement:v,removeMarkers:m})}),e
 },this);
