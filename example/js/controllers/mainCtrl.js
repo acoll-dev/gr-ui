@@ -158,13 +158,7 @@
             ],
             options: {
                 validation: {
-                    enabled: false,
                     showMessages: false
-                },
-                layout: {
-                    type: 'basic',
-                    labelSize: 3,
-                    inputSize: 9
                 }
             },
             genders: {
