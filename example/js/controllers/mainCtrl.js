@@ -30,7 +30,8 @@
                     type: 'text',
                     attr: {
                         ngMinlength: 4,
-                        required: true
+                        required: true,
+                        autofocus: true
                     },
                     msgs: {
                         required: '[Username] Campo obrigatório',
