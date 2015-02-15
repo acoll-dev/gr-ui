@@ -92,25 +92,25 @@
                 "recentFiles": {
                     "files": [
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/main.scss",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/example/js/controllers/mainCtrl.js",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/example/view/gr-autofields.html",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.scss",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.js",
-                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/gr-autofields.js",
                         "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-ui.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/list.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/list.php",
-                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/new.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/config.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/config.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/new.php",
                         "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/js/gr-autofields.js",
                         "/media/dados/Htdocs/web/griffo/.gitignore",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-modal/js/gr-modal.js",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-translate/js/gr-translate.js"
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-modal/js/gr-modal.js"
                     ]
                 },
                 "startNum": {
