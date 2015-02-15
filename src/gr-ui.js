@@ -329,6 +329,7 @@
             }
         }])
         .config(['$provide', '$autofieldsProvider', function($provide, $autofieldsProvider){
+            $autofieldsProvider.settings.attributes.container.ngClass='{\'has-error\':$form.$property_clean.$invalid && $options.validation.enabled, \'has-success\':$form.$property_clean.$valid && $options.validation.enabled, \'required\': $required}';
             $autofieldsProvider.registerHandler('html', function(directive, field, index){
                 var fieldElements = $autofieldsProvider.field(directive, field, '<text-angular/>');
                 fieldElements.fieldContainer.append(toolbar);
