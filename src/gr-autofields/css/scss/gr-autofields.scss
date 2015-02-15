@@ -2,44 +2,80 @@ $error: #fde9e9;
 $success: #ebf6e6;
 $input-bg: #FFFFFF;
 $input-border: #CCCCCC;
+.gr-form-required-label{
+	height: 34px;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.42857143;
+	color: #555;
+	border: 1px solid #ccc;
+	box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+}
 .autofields{
-	.has-error{
-		.input-group-addon{
-			display: table-cell;
-			background: desaturate(darken($error, 5%), 25%);
-			border-color: darken($error, 10%);
+	.form-group{
+		.btn{
+			border-radius: 0;
 		}
-		.checkbox,
-		.gr-form-list,
 		.form-control{
-			background: $error;
-			border-color: darken($error, 10%);
-			border-left-color:  darken($error, 12%);
-			.gr-form-list-item{
+			border-radius: 0;
+			box-shadow: none !important;
+		}
+		&.required{
+			.form-control{
+				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+			}
+			.input-group{
+				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+			}
+		}
+		&.has-error{
+			.input-group-addon{
+				display: table-cell;
+				background: desaturate(darken($error, 5%), 25%);
 				border-color: darken($error, 10%);
 			}
-			&:focus{
-				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($error, 10%);
+			.checkbox,
+			.gr-form-list,
+			.form-control{
+				background: $error;
+				border-color: darken($error, 10%);
+				border-left-color:  darken($error, 12%);
+				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+				.gr-form-list-item{
+					border-color: darken($error, 10%);
+				}
+				&:focus{
+					border-color: darken($error, 30%);
+					box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($error, 10%);
+				}
+			}
+			.input-group{
+				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
 			}
 		}
-	}
-	.has-success{
-		.input-group-addon{
-			display: table-cell;
-			background: desaturate(darken($success, 5%), 25%);
-			border-color: darken($success, 10%);
-		}
-		.checkbox,
-		.gr-form-list,
-		.form-control{
-			background: $success;
-			border-color: darken($success, 10%);
-			border-left-color:  darken($success, 12%);
-			.gr-form-list-item{
+		&.has-success{
+			.input-group-addon{
+				display: table-cell;
+				background: desaturate(darken($success, 5%), 25%);
 				border-color: darken($success, 10%);
 			}
-			&:focus{
-				box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($success, 10%);
+			.checkbox,
+			.gr-form-list,
+			.form-control{
+				background: $success;
+				border-color: darken($success, 10%);
+				border-left-color:  darken($success, 12%);
+				box-shadow: -4px 0 0 0 darken($success, 64.5%) !important;
+				.gr-form-list-item{
+					border-color: darken($success, 10%);
+				}
+				&:focus{
+					border-color: darken($success, 30%);
+					box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 6px darken($success, 10%);
+				}
+			}
+			.input-group{
+				box-shadow: -4px 0 0 0 darken($success, 64.5%) !important;
 			}
 		}
 	}
@@ -47,11 +83,12 @@ $input-border: #CCCCCC;
 		.input-group{
 			.dropdown-menu{
 				padding: 5px;
+				border-radius: 0;
 				table{
 					thead{
 						tr{
 							th{
-								padding: 2px;
+								padding: 2.5px;
 								padding-bottom: 5px;
 							}
 						}
@@ -71,7 +108,7 @@ $input-border: #CCCCCC;
 					display: inline-block;
 					width: 100%;
 					margin-bottom: -5px;
-					padding: 5px 0 0 !important;
+					padding: 5px 2.5px 2.5px !important;
 				}
 			}
 		}
