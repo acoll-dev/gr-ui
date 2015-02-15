@@ -21,20 +21,14 @@
                                         type: 'success',
                                         label: 'Save',
                                         onClick: function(scope, element, controller){
-                                            var form = element.find('form[gr-name]').eq(0),
-                                                name = form.attr('gr-name');
-                                            form = VALIDATOR.get(name);
-                                            form.submit();
+                                            scope.form.submit();
                                         }
                                     },
                                     {
                                         type: 'default',
                                         label: 'Reset',
                                         onClick: function(scope, element, controller){
-                                            var form = element.find('form[gr-name]').eq(0),
-                                                name = form.attr('gr-name');
-                                            form = VALIDATOR.get(name);
-                                            form.reset();
+                                            scope.form.reset();
                                         }
                                     },
                                     {
