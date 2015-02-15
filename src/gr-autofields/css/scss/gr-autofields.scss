@@ -13,12 +13,19 @@ $input-border: #CCCCCC;
 }
 .autofields{
 	.form-group{
-		.btn{
+		.btn,
+		.input-group-addon{
 			border-radius: 0;
 		}
 		.form-control{
 			border-radius: 0;
 			box-shadow: none !important;
+			transition: border-color ease-in-out .15s;
+		}
+		.input-group{
+			.form-control{
+				box-shadow: none !important;
+			}
 		}
 		&.required{
 			.form-control{

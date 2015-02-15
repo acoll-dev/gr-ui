@@ -28,6 +28,10 @@
                 {
                     property: 'username',
                     type: 'text',
+                    addons: [{
+                        icon: 'fa fa-fw fa-user',
+                        before: true
+                    }],
                     attr: {
                         ngMinlength: 4,
                         required: true,
