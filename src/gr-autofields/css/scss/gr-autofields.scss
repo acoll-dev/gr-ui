@@ -26,6 +26,9 @@ $input-border: #CCCCCC;
 			}
 			.input-group{
 				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+				.form-control{
+					box-shadow: none !important;
+				}
 			}
 		}
 		&.has-error{
@@ -51,6 +54,9 @@ $input-border: #CCCCCC;
 			}
 			.input-group{
 				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
+				.form-control{
+					box-shadow: none !important;
+				}
 			}
 		}
 		&.has-success{
@@ -76,6 +82,9 @@ $input-border: #CCCCCC;
 			}
 			.input-group{
 				box-shadow: -4px 0 0 0 darken($success, 64.5%) !important;
+				.form-control{
+					box-shadow: none !important;
+				}
 			}
 		}
 	}
