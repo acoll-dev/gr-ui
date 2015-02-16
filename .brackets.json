@@ -14,7 +14,7 @@
             "debug.showErrorsInStatusBar": true,
             "bracketstoix.prefs": {
                 "version": {
-                    "value": "2.10"
+                    "value": "2.11"
                 },
                 "commands": {
                     "value": {
@@ -92,25 +92,25 @@
                 "recentFiles": {
                     "files": [
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/new.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/js/new.js",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/js/gr-autofields.js",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/example/view/gr-autofields.html",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.scss",
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-table/js/gr-table.config.js",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/admin-main.scss",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/griffo.js",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-ui.scss",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-filemanager/js/gr-filemanager.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/new.php",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/view/navbar.php",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/_navbar.scss",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/view/profile-menu.php",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/view/sidebar-menu.php",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/view/modal/edit-profile.php",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/js/gr-autofields.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/category.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/new.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/list.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/edit.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/list.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/js/category.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Module/view/admin/new.php"
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/js/list.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/js/config.js",
+                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-ui.scss",
+                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.min.css",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css.map",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/list.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/category.php",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/admin-main.scss"
                     ]
                 },
                 "startNum": {
@@ -195,6 +195,20 @@
                 },
                 "tobreakwords": {
                     "value": false
+                },
+                "beforesave": {
+                    "value": [
+                        {
+                            "name": "def",
+                            "exts": [
+                                ".txt"
+                            ],
+                            "cmds": [
+                                "uppercase",
+                                "trimleading"
+                            ]
+                        }
+                    ]
                 }
             }
         }
