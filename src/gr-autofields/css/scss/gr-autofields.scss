@@ -13,6 +13,9 @@ $input-border: #CCCCCC;
 }
 .autofields{
 	.form-group{
+		> .btn{
+			border-radius: 0;
+		}
 		.form-control{
 			border-radius: 0;
 			box-shadow: none !important;
@@ -28,11 +31,6 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.required{
-			> .btn:first-of-type,
-		  	> .input-group-addon:first-of-type{
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
 			.form-control{
 				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
 			}
@@ -44,11 +42,6 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-error{
-			> .btn:first-of-type,
-		  	> .input-group-addon:first-of-type{
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
 			.input-group-addon{
 				display: table-cell;
 				background: desaturate(darken($error, 5%), 25%);
@@ -77,11 +70,6 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-success{
-			> .btn:first-of-type,
-		  	> .input-group-addon:first-of-type{
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-			}
 			.input-group-addon{
 				display: table-cell;
 				background: desaturate(darken($success, 5%), 25%);
