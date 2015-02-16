@@ -92,8 +92,9 @@
                 "recentFiles": {
                     "files": [
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/new.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/main.scss",
                         "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/new.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
@@ -109,8 +110,7 @@
                         "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.min.css",
                         "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css.map",
                         "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/list.php",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/category.php",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/admin-main.scss"
+                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/Specialist/view/admin/category.php"
                     ]
                 },
                 "startNum": {
