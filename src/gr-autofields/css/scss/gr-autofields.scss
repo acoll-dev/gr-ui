@@ -28,8 +28,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.required{
-			> .btn:firt-child,
-		  	> .input-group-addon:firt-child{
+			> .btn:first-of-type,
+		  	> .input-group-addon:first-of-type{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
@@ -44,8 +44,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-error{
-			> .btn:firt-child,
-		  	> .input-group-addon:firt-child{
+			> .btn:first-of-type,
+		  	> .input-group-addon:first-of-type{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
@@ -77,8 +77,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-success{
-			> .btn:firt-child,
-		  	> .input-group-addon:firt-child{
+			> .btn:first-of-type,
+		  	> .input-group-addon:first-of-type{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
