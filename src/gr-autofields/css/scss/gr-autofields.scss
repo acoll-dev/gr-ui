@@ -28,8 +28,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.required{
-			.btn,
-		  	.input-group-addon{
+			> .btn,
+		  	> .input-group-addon{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
@@ -44,8 +44,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-error{
-			.btn,
-		  	.input-group-addon{
+			> .btn,
+		  	> .input-group-addon{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
@@ -77,8 +77,8 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-success{
-			.btn,
-		  	.input-group-addon{
+			> .btn,
+		  	> .input-group-addon{
 				border-top-left-radius: 0;
 				border-bottom-left-radius: 0;
 			}
