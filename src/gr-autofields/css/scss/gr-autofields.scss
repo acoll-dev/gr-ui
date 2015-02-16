@@ -28,6 +28,11 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.required{
+			.btn,
+		  	.input-group-addon{
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 			.form-control{
 				box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
 			}
@@ -39,6 +44,11 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-error{
+			.btn,
+		  	.input-group-addon{
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 			.input-group-addon{
 				display: table-cell;
 				background: desaturate(darken($error, 5%), 25%);
@@ -67,6 +77,11 @@ $input-border: #CCCCCC;
 			}
 		}
 		&.has-success{
+			.btn,
+		  	.input-group-addon{
+				border-top-left-radius: 0;
+				border-bottom-left-radius: 0;
+			}
 			.input-group-addon{
 				display: table-cell;
 				background: desaturate(darken($success, 5%), 25%);
