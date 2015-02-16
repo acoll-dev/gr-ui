@@ -16,6 +16,12 @@ $input-border: #CCCCCC;
 		> .btn{
 			border-radius: 0;
 		}
+		>.input-group{
+			>.input-group-btn,
+			>.input-group-addon{
+				border-radius: 0;
+			}
+		}
 		.form-control{
 			border-radius: 0;
 			box-shadow: none !important;
