@@ -138,7 +138,6 @@
             $autofieldsProvider.registerHandler('html', function(directive, field, index){
                 var fieldElements = $autofieldsProvider.field(directive, field, '<text-angular/>');
                 fieldElements.fieldContainer.append(toolbar);
-                fieldElements.fieldContainer.append(fieldElements.input);
                 fieldElements.input.removeClass('form-control');
                 return fieldElements.fieldContainer;
             });
