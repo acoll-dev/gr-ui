@@ -13,18 +13,21 @@ $input-border: #CCCCCC;
 }
 .autofields{
 	.form-group{
-		> .btn{
-			border-radius: 0;
-		}
-		>.input-group{
-			> .input-group-btn,
-			> .input-group-addon{
-				border-radius: 0;
-				> .btn{
-					border-radius: 0;
-				}
-			}
-		}
+        &,
+        > [class*="col-"]{
+            > .btn{
+                border-radius: 0;
+            }
+            >.input-group{
+                > .input-group-btn,
+                > .input-group-addon{
+                    border-radius: 0;
+                    > .btn{
+                        border-radius: 0;
+                    }
+                }
+            }
+        }
 		.form-control{
 			border-radius: 0;
 			box-shadow: none !important;
@@ -107,6 +110,28 @@ $input-border: #CCCCCC;
 			}
 		}
 	}
+    .form-control{
+        &:hover{
+            background: #F9F9F9;
+        }
+        &:focus,
+        &:active{
+            background: #FFFFFF;
+        }
+    }
+    .checkbox{
+        .form-control{
+            padding-left: 30px;
+        }
+    }
+    >.row{
+        >[class*="col-"]{
+            .checkbox{
+                margin-bottom: 10px;
+                margin-top: 25px;
+            }
+        }
+    }
 	.date{
 		position: relative;
 		.input-group{
@@ -141,7 +166,15 @@ $input-border: #CCCCCC;
 				}
 			}
 		}
-	}	
+	}
+    &.form-horizontal{
+        .checkbox{
+            padding: 0;
+            .control-label{
+                text-align: left;
+            }
+        }
+    }
 }
 /*
 @license textAngular
@@ -180,6 +213,9 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 	background: #F6F6F6;
 	border: solid 1px #E9E9E9;
 	&.focussed{
+        .form-control{
+            background: #FFFFFF;
+        }
 		> .ta-scroll-window.form-control {
 			border-color: #66afe9;
 			outline: 0;
