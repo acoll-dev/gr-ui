@@ -306,9 +306,17 @@
                             $alert.hide();
                         });
                     };
+                    function updateDefaults() {
+                        defaults = angular.copy($scope[autofields.name]);
+                    };
+                    function hasChange(){
+                        return !angular.equals(defaults.data, $scope[autofields.name].data);
+                    };
                     $timeout(function(){
                         $scope[$attrs.name].submit = submit;
                         $scope[$attrs.name].reset = reset;
+                        $scope[$attrs.name].updateDefaults = updateDefaults;
+                        $scope[$attrs.name].hasChange = hasChange;
                     });
                     $compile($element)($scope);
                 }
