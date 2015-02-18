@@ -1,0 +1,9 @@
+Para resolver um problema com a renderização do valor inicial da data que era passada para a view do model, fiz a seguinte alteração no arquivo JS na função "ngModel.$render":
+
+    Foi alterado a linha #1700 ou #1701:
+
+        var date = ngModel.$viewValue ? dateFilter(ngModel.$viewValue, dateFormat) : '';
+
+    Para:
+
+        var date = ngModel.$viewValue ? dateFilter(ngModel.$modelValue, dateFormat) : '';
