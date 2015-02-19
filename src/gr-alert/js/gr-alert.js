@@ -43,20 +43,9 @@
                                         return instance.message.content.length > 0;
                                     }
                                 },
-                                isShown: false,
-                                update: function(type, obj, timeout){
-                                    if(angular.isArray(obj)){
-                                        $timeout.cancel(instance.timeoutFn);
-                                        instance.message.content = obj;
-                                        instance.timeout = angular.isDefined(timeout) ? timeout : defaults.timeout;
-                                        instance.setTimeout();
-                                        $timeout(function(){
-                                            instance.scope.$apply();
-                                        });
-                                    }
-                                },
                                 show: function(type, obj, timeout){
-                                    if(angular.isString(type) && angular.isArray(obj) && !instance.isShown){
+                                    if(angular.isString(type) && angular.isArray(obj)){
+                                        instance.message.content = [];
                                         instance.hide();
                                         $timeout.cancel(instance.timeoutFn);
                                         instance.message.type = type;
@@ -64,14 +53,12 @@
                                         instance.message.visible = true;
                                         instance.timeout = angular.isDefined(timeout) ? timeout : defaults.timeout;
                                         instance.setTimeout();
-                                        instance.isShown = true;
                                         $timeout(function(){
                                             instance.scope.$apply();
                                         });
                                     }
                                 },
                                 hide: function(){
-                                    instance.isShown = false;
                                     $timeout.cancel(instance.timeoutFn);
                                     instance.message.visible = false;
                                     $timeout(function(){
@@ -79,7 +66,6 @@
                                     });
                                 },
                                 destroy: function(){
-                                    instance.isShown = false;
                                     $timeout.cancel(instance.timeoutFn);
                                     instance.message.visible = false;
                                     $timeout(function(){
@@ -137,8 +123,7 @@
                 new: grAlert.new
             }
         }])
-        .directive('grAlert', ['$templateCache', '$timeout',
-            function ($templateCache, $timeout) {
+        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout) {
                 return {
                     restrict: 'E',
                     scope: true,
@@ -159,7 +144,7 @@
                             '<i class="fa fa-fw fa-exclamation-circle" ng-if="message.type === \'warning\'"></i>' +
                             '<i class="fa fa-fw fa-info-circle" ng-if="message.type === \'info\'"></i>' +
                             '<i class="fa fa-fw fa-check-circle" ng-if="message.type === \'success\'"></i>' +
-                            '<i class="fa fa-fw fa-refresh" ng-if="message.type === \'loading\'"></i>' +
+                            '<i class="fa fa-fw fa-refresh fa-spin" ng-if="message.type === \'loading\'"></i>' +
                         '</div>' +
                         '<ul>' +
                             '<li ng-repeat="msg in message.content track by $index">' +

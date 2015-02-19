@@ -53,20 +53,9 @@
                                         return instance.message.content.length > 0;
                                     }
                                 },
-                                isShown: false,
-                                update: function(type, obj, timeout){
-                                    if(angular.isArray(obj)){
-                                        $timeout.cancel(instance.timeoutFn);
-                                        instance.message.content = obj;
-                                        instance.timeout = angular.isDefined(timeout) ? timeout : defaults.timeout;
-                                        instance.setTimeout();
-                                        $timeout(function(){
-                                            instance.scope.$apply();
-                                        });
-                                    }
-                                },
                                 show: function(type, obj, timeout){
-                                    if(angular.isString(type) && angular.isArray(obj) && !instance.isShown){
+                                    if(angular.isString(type) && angular.isArray(obj)){
+                                        instance.message.content = [];
                                         instance.hide();
                                         $timeout.cancel(instance.timeoutFn);
                                         instance.message.type = type;
@@ -74,14 +63,12 @@
                                         instance.message.visible = true;
                                         instance.timeout = angular.isDefined(timeout) ? timeout : defaults.timeout;
                                         instance.setTimeout();
-                                        instance.isShown = true;
                                         $timeout(function(){
                                             instance.scope.$apply();
                                         });
                                     }
                                 },
                                 hide: function(){
-                                    instance.isShown = false;
                                     $timeout.cancel(instance.timeoutFn);
                                     instance.message.visible = false;
                                     $timeout(function(){
@@ -89,7 +76,6 @@
                                     });
                                 },
                                 destroy: function(){
-                                    instance.isShown = false;
                                     $timeout.cancel(instance.timeoutFn);
                                     instance.message.visible = false;
                                     $timeout(function(){
@@ -147,8 +133,7 @@
                 new: grAlert.new
             }
         }])
-        .directive('grAlert', ['$templateCache', '$timeout',
-            function ($templateCache, $timeout) {
+        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout) {
                 return {
                     restrict: 'E',
                     scope: true,
@@ -169,7 +154,7 @@
                             '<i class="fa fa-fw fa-exclamation-circle" ng-if="message.type === \'warning\'"></i>' +
                             '<i class="fa fa-fw fa-info-circle" ng-if="message.type === \'info\'"></i>' +
                             '<i class="fa fa-fw fa-check-circle" ng-if="message.type === \'success\'"></i>' +
-                            '<i class="fa fa-fw fa-refresh" ng-if="message.type === \'loading\'"></i>' +
+                            '<i class="fa fa-fw fa-refresh fa-spin" ng-if="message.type === \'loading\'"></i>' +
                         '</div>' +
                         '<ul>' +
                             '<li ng-repeat="msg in message.content track by $index">' +
@@ -296,7 +281,7 @@
                         if ($scope[$attrs.name].$invalid) {
                             checkError($scope[$attrs.name].autofields.$error);
                         } else {
-                            $scope[autofields.name].submit(autofields.data);
+                            $scope[autofields.name].submit($scope[autofields.name].data);
                         }
                     };
                     function reset() {
@@ -1899,20 +1884,31 @@
  */
  
 (function(){
-    angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport'])
-        .directive('grTable', ['ngTableParams', '$grAlert', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, ALERT, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+    angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
+        .directive('grTable', ['ngTableParams', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
-                var defaultSorting = {},
-                    getData = function(src) {
-                        var alert = ALERT.new();
-                        $http.get(src).success(function(r){
-                            if(r.response){
-                                var response = r.response;
-                                $scope.grTable.dataSet = response;
+                var alert = $grAlert.new(),
+                    defaultSorting = {},
+                    dataSource = '',
+                    getData = function(src, reload) {
+                        if(!reload){
+                            alert.show('loading', ['Loading table data...'], 0);
+                        }else{
+                            alert.show('loading', ['Reloading table data...'], 0);
+                        }
+                        $http.get(src).then(function(r){
+                            if(r.status === 200 && r.data.response){
+                                $scope.grTable.dataSet = r.data.response;
+                                if(!reload){
+                                    alert.hide();
+                                }else{
+                                    alert.show('success', ['Table data is reloaded!'], 2000);
+                                }
                             }else{
                                 console.debug(r);
+                                alert.show('danger', ['A error occurred when reloading table data, please, try reload page!']);
                             }
-                        }).error(function(e){
+                        }, function(e){
                             var title = angular.element(angular.element(e.data)[0]).text(),
                                 content = angular.element(angular.element(e.data)[3]).text();
                             alert.show(e.status, title + ' - ' + content, 'md');
@@ -2002,11 +1998,19 @@
                                 };
                 $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope.grTable.defaults = grTable.defaults;
+                $scope.grTable.reloadData = function(src){
+                    if((!src || src === '') && dataSource !== ''){
+                        getData(dataSource, true);
+                    }else if(src && src !== ''){
+                        getData(src, true);
+                    }
+                };
                 $attrs.$observe('grDataSource', function(source){
                     if(source && angular.isDefined(source)){
                         var src = $parse(source)($scope);
                         if(angular.isString(src)){
-                            getData(src);
+                            dataSource = src;
+                            getData(dataSource);
                         }else if(angular.isObject(src) || angulr.isArray(src)){
                             $scope.grTable.dataSet = src;
                         }

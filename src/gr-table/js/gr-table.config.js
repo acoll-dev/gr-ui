@@ -1,12 +1,12 @@
 'use strict';
 (function(){
     angular.module('gr.ui.table.config')
-        .factory('$grTable.config', ['$grRestful', '$grModal', '$grAlert', '$timeout', function (REST, MODAL, ALERT, $timeout) {
+        .factory('$grTable.config', ['$grRestful', '$grModal', '$grAlert', '$timeout', function ($grRestful, $grModal, $grAlert, $timeout) {
             return {
                 'edit': function($scope){
                     return {
-                        fn: ['$grModal', function(MODAL, grTable, id, templatePath, label){
-                            var modal = MODAL.new({
+                        fn: ['$grModal', function($grModal, grTable, id, templatePath, label){
+                            var modal = $grModal.new({
                                     name: 'edit',
                                     title: 'Edit ' + (label ? label : GRIFFO.module),
                                     size: 'lg',
@@ -45,8 +45,8 @@
                 },
                 'delete': function($scope){
                     return {
-                        fn: ['$grModal', function(MODAL, grTable, id, label, module){
-                            var modal = MODAL.new({
+                        fn: ['$grModal', '$grAlert', function($grModal, $grAlert, grTable, id, label, module){
+                            var modal = $grModal.new({
                                     name: 'delete',
                                     title: 'Delete' + (label ? ' ' + label : ''),
                                     size: 'sm',
@@ -61,22 +61,22 @@
                                         type: 'danger',
                                         label: 'Confirm',
                                         onClick: function(scope, element, controller){
-                                            REST.delete({
+                                            $grRestful.delete({
                                                 module: (module ? module : GRIFFO.module),
                                                 id: id
                                             }).then(function(data){
-                                                var grAlert = ALERT.new();
+                                                var alert = $grAlert.new();
                                                 if(data.response){
                                                     controller.close();
-                                                    grAlert.show('success', [data.message]);
+                                                    alert.show('success', [data.message]);
                                                     scope.grTableImport.grTable.reloadData();
                                                 }else{
                                                     controller.close();
-                                                    grAlert.show('danger', [data.message]);
+                                                    alert.show('danger', [data.message]);
                                                 }
                                             }, function(e){
-                                                var grAlert = ALERT.new();
-                                                grAlert.show('success', [e]);
+                                                var grAlert = $grAlert.new();
+                                                alert.show('success', [e]);
                                             });
                                         }
                                     },{

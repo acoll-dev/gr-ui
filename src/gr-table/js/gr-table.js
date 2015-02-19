@@ -1,20 +1,31 @@
 'use strict';
 
 (function(){
-    angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport'])
-        .directive('grTable', ['ngTableParams', '$grAlert', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, ALERT, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+    angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
+        .directive('grTable', ['ngTableParams', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
-                var defaultSorting = {},
-                    getData = function(src) {
-                        var alert = ALERT.new();
-                        $http.get(src).success(function(r){
-                            if(r.response){
-                                var response = r.response;
-                                $scope.grTable.dataSet = response;
+                var alert = $grAlert.new(),
+                    defaultSorting = {},
+                    dataSource = '',
+                    getData = function(src, reload) {
+                        if(!reload){
+                            alert.show('loading', ['Loading table data...'], 0);
+                        }else{
+                            alert.show('loading', ['Reloading table data...'], 0);
+                        }
+                        $http.get(src).then(function(r){
+                            if(r.status === 200 && r.data.response){
+                                $scope.grTable.dataSet = r.data.response;
+                                if(!reload){
+                                    alert.hide();
+                                }else{
+                                    alert.show('success', ['Table data is reloaded!'], 2000);
+                                }
                             }else{
                                 console.debug(r);
+                                alert.show('danger', ['A error occurred when reloading table data, please, try reload page!']);
                             }
-                        }).error(function(e){
+                        }, function(e){
                             var title = angular.element(angular.element(e.data)[0]).text(),
                                 content = angular.element(angular.element(e.data)[3]).text();
                             alert.show(e.status, title + ' - ' + content, 'md');
@@ -104,11 +115,19 @@
                                 };
                 $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope.grTable.defaults = grTable.defaults;
+                $scope.grTable.reloadData = function(src){
+                    if((!src || src === '') && dataSource !== ''){
+                        getData(dataSource, true);
+                    }else if(src && src !== ''){
+                        getData(src, true);
+                    }
+                };
                 $attrs.$observe('grDataSource', function(source){
                     if(source && angular.isDefined(source)){
                         var src = $parse(source)($scope);
                         if(angular.isString(src)){
-                            getData(src);
+                            dataSource = src;
+                            getData(dataSource);
                         }else if(angular.isObject(src) || angulr.isArray(src)){
                             $scope.grTable.dataSet = src;
                         }

@@ -11,7 +11,7 @@
                     var $input = angular.element('<auto:fields/>'),
                         $alert = $grAlert.new(),
                         $errors = [],
-                        defaults = $attrs.grAutofields ? angular.copy($scope.$eval($attrs.grAutofields)) : {},
+                        defaults = $attrs.grAutofields ? angular.copy($scope.$eval($attrs.grAutofields)) : false,
                         autofields = $attrs.grAutofields ? $scope.$eval($attrs.grAutofields) : false;
                     if (!autofields) {
                         return false;
@@ -108,7 +108,7 @@
                         if ($scope[$attrs.name].$invalid) {
                             checkError($scope[$attrs.name].autofields.$error);
                         } else {
-                            $scope[autofields.name].submit(autofields.data);
+                            $scope[autofields.name].submit($scope[autofields.name].data);
                         }
                     };
                     function reset() {
@@ -377,6 +377,8 @@
                 return fieldElements;
             }, {require:'validation', override:true});
         }]);
+})();
+(function(){
     angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap','gr.ui.autofields.bootstrap.validation']);
 })();
 
