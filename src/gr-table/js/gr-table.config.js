@@ -46,7 +46,8 @@
                 'delete': function($scope){
                     return {
                         fn: ['$grModal', '$grAlert', function($grModal, $grAlert, grTable, id, label, module){
-                            var modal = $grModal.new({
+                            var alert = $grAlert.new(),
+                                modal = $grModal.new({
                                     name: 'delete',
                                     title: 'Delete' + (label ? ' ' + label : ''),
                                     size: 'sm',
@@ -65,7 +66,6 @@
                                                 module: (module ? module : GRIFFO.module),
                                                 id: id
                                             }).then(function(data){
-                                                var alert = $grAlert.new();
                                                 if(data.response){
                                                     controller.close();
                                                     scope.grTableImport.grTable.reloadData();
@@ -74,7 +74,6 @@
                                                     alert.show('danger', [data.message]);
                                                 }
                                             }, function(e){
-                                                var grAlert = $grAlert.new();
                                                 alert.show('success', [e]);
                                             });
                                         }
