@@ -68,7 +68,6 @@
                                                 var alert = $grAlert.new();
                                                 if(data.response){
                                                     controller.close();
-                                                    alert.show('success', [data.message]);
                                                     scope.grTableImport.grTable.reloadData();
                                                 }else{
                                                     controller.close();
