@@ -91,10 +91,12 @@
                 },
                 "recentFiles": {
                     "files": [
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
                         "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.scss",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
-                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/list.js",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/list.js",
+                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
+                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/new.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
                         "/media/dados/Htdocs/web/griffo/server/database/current_db.sql",
@@ -105,12 +107,10 @@
                         "/media/dados/Htdocs/web/groenlandia/website/.gitignore",
                         "/media/dados/Htdocs/web/groenlandia/website/server/modules/griffo/Page/view/website/page.php",
                         "/media/dados/Htdocs/web/groenlandia/website/server/modules/griffo/Page/view/website/js/page.js",
-                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
                         "/media/dados/Htdocs/web/griffo/server/modules/griffo/Gallery/controller/GalleryController.php",
                         "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css.map",
                         "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css",
-                        "/media/dados/Htdocs/web/stara/website/server/modules/griffo/Gallery/controller/GalleryController.php",
-                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/js/controllers/servicesCtrl.js"
+                        "/media/dados/Htdocs/web/stara/website/server/modules/griffo/Gallery/controller/GalleryController.php"
                     ]
                 },
                 "startNum": {
