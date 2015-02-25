@@ -14,7 +14,7 @@
             "debug.showErrorsInStatusBar": true,
             "bracketstoix.prefs": {
                 "version": {
-                    "value": "2.11"
+                    "value": "2.12"
                 },
                 "commands": {
                     "value": {
@@ -91,26 +91,26 @@
                 },
                 "recentFiles": {
                     "files": [
-                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/js/gr-autofields.js",
-                        "/home/miller/Documentos/signature/odoo/joao.html",
-                        "/home/miller/Documentos/signature/miller.html",
-                        "/home/miller/Documentos/signature/odoo/miller.html",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-ui.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/github/griffo/gr-ui/src/gr-ui.scss",
                         "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/css/scss/gr-autofields.scss",
-                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/scss/main.scss",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-autofields/css/gr-autofields.css",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/griffo.js",
-                        "/media/dados/Htdocs/web/griffo/server/modules/complementary/News/view/admin/new.php",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/gr-ui/src/gr-ui.scss",
-                        "/media/dados/Htdocs/web/griffo/server/application/template/footer.php",
-                        "/media/dados/Htdocs/web/griffo/server/application/language/pt_br.json",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/ui-bootstrap-custom-build/ui-bootstrap-custom-tpls-0.12.0.js",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/ui-bootstrap-custom-build/ui-bootstrap-custom-0.12.0.js",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/ui-bootstrap-custom-build/custom fix to initial date view value.txt",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/ui-bootstrap-custom-build/Custom Change.txt",
-                        "/media/dados/Htdocs/web/griffo/server/libraries/angular/ui-bootstrap-custom-build/ui-bootstrap-custom-0.12.0.min.js"
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/list.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Page/view/admin/new.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/View/view/admin/js/new.js",
+                        "/media/dados/Htdocs/web/griffo/server/database/current_db.sql",
+                        "/media/dados/Htdocs/web/griffo/client/config.json",
+                        "/media/dados/Htdocs/web/griffo/server/application/template/header.php",
+                        "/media/dados/Htdocs/web/groenlandia/website/server/application/template/header.php",
+                        "/media/dados/Htdocs/web/groenlandia/website/server/application/template/footer.php",
+                        "/media/dados/Htdocs/web/groenlandia/website/.gitignore",
+                        "/media/dados/Htdocs/web/groenlandia/website/server/modules/griffo/Page/view/website/page.php",
+                        "/media/dados/Htdocs/web/groenlandia/website/server/modules/griffo/Page/view/website/js/page.js",
+                        "/media/dados/Htdocs/web/griffo/client/layers/website/templates/default/index.php",
+                        "/media/dados/Htdocs/web/griffo/server/modules/griffo/Gallery/controller/GalleryController.php",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css.map",
+                        "/media/dados/Htdocs/web/griffo/client/layers/admin/templates/default/css/main.css",
+                        "/media/dados/Htdocs/web/stara/website/server/modules/griffo/Gallery/controller/GalleryController.php",
+                        "/media/dados/Htdocs/web/stara/website/client/layers/website/templates/default/js/controllers/servicesCtrl.js"
                     ]
                 },
                 "startNum": {
@@ -197,18 +197,7 @@
                     "value": false
                 },
                 "beforesave": {
-                    "value": [
-                        {
-                            "name": "def",
-                            "exts": [
-                                ".txt"
-                            ],
-                            "cmds": [
-                                "uppercase",
-                                "trimleading"
-                            ]
-                        }
-                    ]
+                    "value": []
                 }
             }
         }
