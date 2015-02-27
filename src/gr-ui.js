@@ -776,6 +776,7 @@
                                     carousel.items.outerWidth(width);
                                     carousel.scroller.width(width * carousel.items.length);
                                     carousel.itemWidth = width;
+                                    $timeout(function(){ $element.height(carousel.scroller.height()); },100);
                                     carousel.reset();
                                 }
                             },
