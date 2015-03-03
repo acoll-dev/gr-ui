@@ -133,7 +133,7 @@
                 new: grAlert.new
             }
         }])
-        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout) {
+        .directive('grAlert', ['$templateCache', '$timeout', function($templateCache, $timeout){
                 return {
                     restrict: 'E',
                     scope: true,
@@ -174,136 +174,162 @@
 
 (function(){
     angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
-        .directive('grAutofields', ['$compile', '$timeout', '$grAlert', function ($compile, $timeout, $grAlert) {
+        .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
             return {
                 restrict: 'A',
-                link: function ($scope, $element, $attrs) {
-                    if (!$attrs.name) {
-                        return false;
-                    }
-                    var $input = angular.element('<auto:fields/>'),
-                        $alert = $grAlert.new(),
-                        $errors = [],
-                        defaults = $attrs.grAutofields ? angular.copy($scope.$eval($attrs.grAutofields)) : false,
-                        autofields = $attrs.grAutofields ? $scope.$eval($attrs.grAutofields) : false;
-                    if (!autofields) {
-                        return false;
-                    } else {
-                        autofields.name = $attrs.grAutofields;
-                    };
-                    if (autofields.schema) {
-                        $input.attr('fields', autofields.name + '.schema');
-                    }
-                    if (autofields.data) {
-                        $input.attr('data', autofields.name + '.data');
-                    }
-                    if (autofields.options) {
-                        $input.attr('options', autofields.name + '.options');
-                    }
-                    $element.prepend($input).removeAttr('gr-autofields').attr({
-                        'novalidate': true,
-                        'ng-submit': $attrs.name + '.submit()'
-                    });
-                    if ($element.find('[type="submit"]').length === 0) {
-                        $element.append('<button type="submit" class="hidden" />');
-                    }
-                    $scope.$watch(function(){
-                        if ($scope[$attrs.name].autofields) {
-                            return $scope[$attrs.name].autofields.$error;
-                        } else {
-                            return {};
-                        }
-                    }, checkError, true);
-                    function getError($error) {
-                        var _errors = {};
-                        angular.forEach($error, function (errors, errorId) {
-                            angular.forEach(errors, function (field, id) {
-                                angular.forEach(autofields.schema, function (item) {
-                                    if (item.type !== 'multiple') {
-                                        if (item.property === field.$name && item.msgs && item.msgs[errorId]) {
-                                            _errors[item.property] = angular.copy(item.msgs[errorId]);
-                                        }
+                link: function($scope, $element, $attrs){
+                    if(!$attrs.name && !$attrs.grAutofields){ return false; };
+                    var $getter = $parse($attrs.grAutofields),
+                        $setter = $getter.assign,
+                        grAutofields = $getter($scope),
+                        init = function(){
+                            var $input = angular.element('<auto:fields/>'),
+                                $alert = $grAlert.new(),
+                                $errors = [],
+                                defaultOptions = {
+                                    defaultOption: 'Selecione...',
+                                    validation: {
+                                        showMessages: false
+                                    }
+                                },
+                                modalScope = $element.parents('.modal').eq(0).scope(),
+                                defaults;
+                            if(!grAutofields.options){ grAutofields.options = defaultOptions; }else{ angular.extend(grAutofields.options, defaultOptions); }
+                            defaults = angular.copy(grAutofields);
+                            if(grAutofields.schema){
+                                $input.attr('fields', $attrs.grAutofields + '.schema');
+                            }
+                            if(grAutofields.data){
+                                $input.attr('data', $attrs.grAutofields + '.data');
+                            }
+                            if(grAutofields.options){
+                                $input.attr('options', $attrs.grAutofields + '.options');
+                            }
+                            $element.prepend($input).removeAttr('gr-autofields').attr({
+                                'novalidate': true,
+                                'ng-submit': 'Autofields.submit()'
+                            });
+                            if($element.find('[type="submit"]').length === 0){
+                                $element.append('<button type="submit" class="hidden" />');
+                            }
+                            $scope.$watch(function(){
+                                if($scope[$attrs.name].autofields){
+                                    return $scope[$attrs.name].autofields.$error;
+                                }else{
+                                    return [];
+                                }
+                            }, checkError, true);
+                            $scope.$watch(function(){ return modalScope ? true : false; }, function(hasModal){
+                                if(hasModal){
+                                    $alert.destroy();
+                                    $alert = $grAlert.new(modalScope.modal.element);
+                                }
+                            }, true);
+                            function getError($error){
+                                var _errors = {};
+                                angular.forEach($error, function(errors, errorId){
+                                    angular.forEach(errors, function(field, id){
+                                        angular.forEach(grAutofields.schema, function(item){
+                                            if(item.type !== 'multiple'){
+                                                if(item.property === field.$name && item.msgs && item.msgs[errorId]){
+                                                    _errors[item.property] = angular.copy(item.msgs[errorId]);
+                                                }
+                                            } else {
+                                                angular.forEach(item.fields, function(subitem){
+                                                    if(subitem.property === field.$name && subitem.msgs && subitem.msgs[errorId]){
+                                                        _errors[subitem.property] = angular.copy(subitem.msgs[errorId]);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                                });
+                                return _errors;
+                            };
+                            function checkError($error){
+                                var _errors = sort(getError($error));
+                                if(_errors !== $errors){
+                                    $errors = _errors;
+                                }
+                                if($errors.length > 0 && $scope[$attrs.name].$submitted){
+                                    $alert.show('danger', $errors);
+                                }else{
+                                    $alert.hide();
+                                }
+                            };
+                            function sort(errors){
+                                var _errors = [];
+                                angular.forEach(grAutofields.schema, function(item){
+                                    if(item.type !== 'multiple'){
+                                        if(errors[item.property]){
+                                            _errors.push(angular.copy(errors[item.property]));
+                                        };
                                     } else {
-                                        angular.forEach(item.fields, function (subitem) {
-                                            if (subitem.property === field.$name && subitem.msgs && subitem.msgs[errorId]) {
-                                                _errors[subitem.property] = angular.copy(subitem.msgs[errorId]);
+                                        angular.forEach(item.fields, function(subitem){
+                                            if(errors[subitem.property]){
+                                                _errors.push(angular.copy(errors[subitem.property]));
                                             }
                                         });
                                     }
                                 });
-                            });
-                        });
-                        return _errors;
-                    };
-                    function checkError($error) {
-                        var _errors = sort(getError($error));
-                        if (_errors !== $errors) {
-                            $errors = _errors;
-                        }
-                        if ($scope[$attrs.name].$submitted) {
-                            if (!$alert.isShown) {
-                                $alert.show('danger', $errors);
-                            } else {
-                                $alert.update('danger', $errors);
-                            }
-                        }
-                    };
-                    function sort(errors) {
-                        var _errors = [];
-                        angular.forEach(autofields.schema, function (item) {
-                            if (item.type !== 'multiple') {
-                                if (errors[item.property]) {
-                                    _errors.push(angular.copy(errors[item.property]));
-                                };
-                            } else {
-                                angular.forEach(item.fields, function (subitem) {
-                                    if (errors[subitem.property]) {
-                                        _errors.push(angular.copy(errors[subitem.property]));
+                                return angular.copy(_errors);
+                            };
+                            function submit(){
+                                var field;
+                                angular.forEach(getError($scope[$attrs.name].autofields.$error), function(value, id){
+                                    if(!field){
+                                        field = id;
                                     }
                                 });
-                            }
-                        });
-                        return angular.copy(_errors);
-                    };
-                    function submit() {
-                        var field;
-                        angular.forEach(getError($scope[$attrs.name].autofields.$error), function (value, id) {
-                            if (!field) {
-                                field = id;
-                            }
-                        });
-                        if (!$scope[$attrs.name].$submitted) {
-                            $scope[$attrs.name].$setSubmitted(true);
-                        }
-                        if (!$scope[autofields.name].options.validation.enabled) {
-                            $scope[autofields.name].options.validation.enabled = true
+                                $timeout(function(){
+                                    if(!$scope[$attrs.name].$submitted){
+                                        $scope[$attrs.name].$setSubmitted(true);
+                                        $scope.$apply();
+                                    }
+                                    if(!grAutofields.options.validation.enabled){
+                                        grAutofields.options.validation.enabled = true
+                                    };
+                                    if($scope[$attrs.name].autofields.$invalid){
+                                        checkError($scope[$attrs.name].autofields.$error);
+                                    } else {
+                                        grAutofields.submit(grAutofields.data);
+                                    }
+                                });
+                            };
+                            function reset(){
+                                $timeout(function(){
+                                    grAutofields = angular.copy(defaults);
+                                    $scope[$attrs.name].$setPristine();
+                                    $scope[$attrs.name].$submitted = false;
+                                    $scope.$apply();
+                                    $alert.hide();
+                                });
+                            };
+                            function updateDefaults(){
+                                defaults = angular.copy(grAutofields);
+                            };
+                            function hasChange(){
+                                return !angular.equals(defaults.data, grAutofields.data);
+                            };
+                            $compile($element)($scope);
+                            $timeout(function(){
+                                $scope[$attrs.name].submit = submit;
+                                $scope[$attrs.name].reset = reset;
+                                $scope[$attrs.name].updateDefaults = updateDefaults;
+                                $scope[$attrs.name].hasChange = hasChange;
+                            });
                         };
-                        if ($scope[$attrs.name].$invalid) {
-                            checkError($scope[$attrs.name].autofields.$error);
-                        } else {
-                            $scope[autofields.name].submit($scope[autofields.name].data);
+                    $scope.$watch(function(){
+                        return grAutofields;
+                    }, function(newValue){
+                        if(newValue){
+                            $timeout(function(){
+                                $setter($scope, newValue);
+                                $scope.$apply();
+                            });
                         }
-                    };
-                    function reset() {
-                        $timeout(function(){
-                            $scope[autofields.name] = angular.copy(defaults);
-                            $scope[$attrs.name].$setPristine();
-                            $alert.hide();
-                        });
-                    };
-                    function updateDefaults() {
-                        defaults = angular.copy($scope[autofields.name]);
-                    };
-                    function hasChange(){
-                        return !angular.equals(defaults.data, $scope[autofields.name].data);
-                    };
-                    $timeout(function(){
-                        $scope[$attrs.name].submit = submit;
-                        $scope[$attrs.name].reset = reset;
-                        $scope[$attrs.name].updateDefaults = updateDefaults;
-                        $scope[$attrs.name].hasChange = hasChange;
-                    });
-                    $compile($element)($scope);
+                    }, true);
+                    init();
                 }
             }
         }]);
@@ -357,7 +383,7 @@
                     clearText: '{{\'Clear\' | grTranslate}}',
                     closeText: '{{\'Close\' | grTranslate}}'
                 };
-                if (!(field.attr && field.attr.disabled == true)) {
+                if(!(field.attr && field.attr.disabled == true)){
                     field.$addons = [{
                         button: true,
                         icon: 'fa fa-fw fa-calendar',
@@ -558,13 +584,13 @@
 (function(){
     angular.module('gr.ui.autoheight', [])
         .directive('grAutoheight', ['$window', '$document', '$timeout',
-            function ($window, $document, $timeout) {
+            function($window, $document, $timeout){
                 return {
-                    link: function ($scope, $element, $attrs) {
+                    link: function($scope, $element, $attrs){
                         var siblingsMaxHeigth, sizes = false, viewPort, setHeight, clearHeight, ignore = false;
-                        viewPort = function() {
+                        viewPort = function(){
                             var e = $window, a = 'inner';
-                            if (!('innerWidth' in $window )) {
+                            if(!('innerWidth' in $window )){
                                 a = 'client';
                                 e = $document.documentElement || $document.body;
                             }
@@ -1006,13 +1032,13 @@
                             var w = el || $window,
                                 d = w.document,
                                 _return = {};
-                            if (w.innerWidth != null){
+                            if(w.innerWidth != null){
                                 _return = {
                                     width: w.innerWidth,
                                     height: w.innerHeight
                                 };
                             };
-                            if (document.compatMode == "CSS1Compat"){
+                            if(document.compatMode == "CSS1Compat"){
                                 _return = {
                                     width: d.documentElement.clientWidth,
                                     height: d.documentElement.clientHeight
@@ -1171,7 +1197,7 @@
 (function(){
     angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template', 'gr.ui.translate']);
     angular.module('gr.ui.modal.provider', [])
-        .provider('$grModal', function () {
+        .provider('$grModal', function(){
             var setup,
                 $injector,
                 $modal,
@@ -1188,15 +1214,15 @@
                         'alert': ''
                     }
                 },
-                'new': function (config) {
-                    if (angular.isObject(config)) {
-                        if (!config.name) {
+                'new': function(config){
+                    if(angular.isObject(config)){
+                        if(!config.name){
                             return;
                         }
-                        if (!config.size) {
+                        if(!config.size){
                             return;
                         }
-                        if (!config.model && !config.text) {
+                        if(!config.model && !config.text){
                             return;
                         }
                         var element = {
@@ -1217,9 +1243,9 @@
                         };
                         grModal.element[element.name] = element;
                         var ModalInstanceCtrl = ['$scope', '$modalInstance',
-                            function ($scope, $modalInstance) {
-                                if (typeof config.define === 'object') {
-                                    angular.forEach(config.define, function (d, i) {
+                            function($scope, $modalInstance){
+                                if(typeof config.define === 'object'){
+                                    angular.forEach(config.define, function(d, i){
                                         $scope[i] = d;
                                     });
                                 }
@@ -1227,7 +1253,7 @@
                         }];
                         id++;
                         return {
-                            'open': function () {
+                            'open': function(){
                                 var options = {
                                     'title': element.title,
                                     'name': element.name,
@@ -1265,10 +1291,10 @@
                         return;
                     }
                 },
-                'set': function (name, el) {
+                'set': function(name, el){
                     grModal.element[name].element = el;
                 },
-                'alert': function (message, size) {
+                'alert': function(message, size){
                     var alert = grModal.new({
                         'name': 'alert',
                         'size': size || 'sm',
@@ -1276,7 +1302,7 @@
                         'buttons': [{
                             'type': 'default',
                             'label': 'Close',
-                            'onClick': function (scope, element, controller) {
+                            'onClick': function(scope, element, controller){
                                 controller.close();
                             }
                         }],
@@ -1284,7 +1310,7 @@
                     });
                     alert.open();
                 },
-				'confirm': function (message, confirm, cancel, size) {
+				'confirm': function(message, confirm, cancel, size){
 					var alert = grModal.new({
 						'name': 'confirm',
 						'size': size || 'sm',
@@ -1292,7 +1318,7 @@
 						'buttons': [{
 							'type': 'primary',
 							'label': 'Confirm',
-							'onClick': function (scope, element, controller) {
+							'onClick': function(scope, element, controller){
 								if(confirm && angular.isFunction(confirm)){
 									confirm();
 								}
@@ -1301,7 +1327,7 @@
                     	}, {
 							'type': 'default',
 							'label': 'Cancel',
-							'onClick': function (scope, element, controller) {
+							'onClick': function(scope, element, controller){
 								if(cancel && angular.isFunction(cancel)){
 									cancel();
 								}
@@ -1314,36 +1340,36 @@
 					alert.open();
 				},
                 'events': {
-                    'onOpen': function () {},
-                    'onClose': function () {}
+                    'onOpen': function(){},
+                    'onClose': function(){}
                 }
             };
-            this.config = function (config) {
-                if (angular.isString(config.base)) {
+            this.config = function(config){
+                if(angular.isString(config.base)){
                     grModal.template.base = config.base;
                 }
-                if (angular.isFunction(config.onClose)) {
+                if(angular.isFunction(config.onClose)){
                     grModal.events.onClose = config.onClose;
                 }
-                if (angular.isFunction(config.onOpen)) {
+                if(angular.isFunction(config.onOpen)){
                     grModal.events.onOpen = config.onOpen;
                 }
             };
-            setup = function (injector) {
+            setup = function(injector){
                 $injector = injector;
                 $modal = $injector.get('$grModal.ui');
                 $templateCache = $injector.get('$templateCache');
             };
             this.$get = ['$injector',
-            function (injector) {
+            function(injector){
                     setup(injector);
                     return {
                         'new': grModal.new,
                         'alert': grModal.alert,
 						'confirm': grModal.confirm,
                         'template': {
-                            'get': function (name) {
-                                if (angular.isString(name)) {
+                            'get': function(name){
+                                if(angular.isString(name)){
                                     return grModal.template.base + grModal.element[name].model;
                                 }
                             }
@@ -1351,35 +1377,35 @@
                     };
             }];
         })
-        .provider('$grModal.ui', function () {
+        .provider('$grModal.ui', function(){
             var $modalProvider = {
                 options: {
                     backdrop: true, //can be also false or 'static'
                     keyboard: true
                 },
                 $get: ['$injector', '$rootScope', '$q', '$http', '$templateCache', '$controller', '$grModalStack',
-                    function ($injector, $rootScope, $q, $http, $templateCache, $controller, $grModalStack) {
+                    function($injector, $rootScope, $q, $http, $templateCache, $controller, $grModalStack){
                         var $modal = {};
 
-                        function getTemplatePromise(options) {
+                        function getTemplatePromise(options){
                             return options.template ? $q.when(options.template) :
                                 $http.get(angular.isFunction(options.templateUrl) ? (options.templateUrl)() : options.templateUrl, {
                                     cache: $templateCache
-                                }).then(function (result) {
+                                }).then(function(result){
                                     return result.data;
                                 });
                         };
 
-                        function getResolvePromises(resolves) {
+                        function getResolvePromises(resolves){
                             var promisesArr = [];
-                            angular.forEach(resolves, function (value) {
-                                if (angular.isFunction(value) || angular.isArray(value)) {
+                            angular.forEach(resolves, function(value){
+                                if(angular.isFunction(value) || angular.isArray(value)){
                                     promisesArr.push($q.when($injector.invoke(value)));
                                 }
                             });
                             return promisesArr;
                         };
-                        $modal.open = function (modalOptions) {
+                        $modal.open = function(modalOptions){
 
                             var modalResultDeferred = $q.defer();
                             var modalOpenedDeferred = $q.defer();
@@ -1388,10 +1414,10 @@
                             var modalInstance = {
                                 result: modalResultDeferred.promise,
                                 opened: modalOpenedDeferred.promise,
-                                close: function (result) {
+                                close: function(result){
                                     $grModalStack.close(modalInstance, result);
                                 },
-                                dismiss: function (reason) {
+                                dismiss: function(reason){
                                     $grModalStack.dismiss(modalInstance, reason);
                                 }
                             };
@@ -1401,14 +1427,14 @@
                             modalOptions.resolve = modalOptions.resolve || {};
 
                             //verify options
-                            if (!modalOptions.template && !modalOptions.templateUrl) {
+                            if(!modalOptions.template && !modalOptions.templateUrl){
                                 throw new Error('One of template or templateUrl options is required.');
                             }
 
                             var templateAndResolvePromise =
                                 $q.all([getTemplatePromise(modalOptions)].concat(getResolvePromises(modalOptions.resolve)));
 
-                            templateAndResolvePromise.then(function resolveSuccess(tplAndVars) {
+                            templateAndResolvePromise.then(function resolveSuccess(tplAndVars){
 
                                 var modalScope = (modalOptions.scope || $rootScope).$new();
                                 modalScope.$close = modalInstance.close;
@@ -1418,15 +1444,15 @@
                                 var resolveIter = 1;
 
                                 //controllers
-                                if (modalOptions.controller) {
+                                if(modalOptions.controller){
                                     ctrlLocals.$scope = modalScope;
                                     ctrlLocals.$modalInstance = modalInstance;
-                                    angular.forEach(modalOptions.resolve, function (value, key) {
+                                    angular.forEach(modalOptions.resolve, function(value, key){
                                         ctrlLocals[key] = tplAndVars[resolveIter++];
                                     });
 
                                     ctrlInstance = $controller(modalOptions.controller, ctrlLocals);
-                                    if (modalOptions.controller) {
+                                    if(modalOptions.controller){
                                         modalScope[modalOptions.controllerAs] = ctrlInstance;
                                     }
                                 }
@@ -1448,13 +1474,13 @@
                                     events: modalOptions.events
                                 });
 
-                            }, function resolveError(reason) {
+                            }, function resolveError(reason){
                                 modalResultDeferred.reject(reason);
                             });
 
-                            templateAndResolvePromise.then(function () {
+                            templateAndResolvePromise.then(function(){
                                 modalOpenedDeferred.resolve(true);
-                            }, function () {
+                            }, function(){
                                 modalOpenedDeferred.reject(false);
                             });
 
@@ -1468,89 +1494,89 @@
             return $modalProvider;
         });
     angular.module('gr.ui.modal.factory', [])
-        .factory('$$grStackedMap', function () {
+        .factory('$$grStackedMap', function(){
             return {
-                createNew: function () {
+                createNew: function(){
                     var stack = [];
 
                     return {
-                        add: function (key, value) {
+                        add: function(key, value){
                             stack.push({
                                 key: key,
                                 value: value
                             });
                         },
-                        get: function (key) {
-                            for (var i = 0; i < stack.length; i++) {
-                                if (key == stack[i].key) {
+                        get: function(key){
+                            for (var i = 0; i < stack.length; i++){
+                                if(key == stack[i].key){
                                     return stack[i];
                                 }
                             }
                         },
-                        keys: function () {
+                        keys: function(){
                             var keys = [];
-                            for (var i = 0; i < stack.length; i++) {
+                            for (var i = 0; i < stack.length; i++){
                                 keys.push(stack[i].key);
                             }
                             return keys;
                         },
-                        top: function () {
+                        top: function(){
                             return stack[stack.length - 1];
                         },
-                        remove: function (key) {
+                        remove: function(key){
                             var idx = -1;
-                            for (var i = 0; i < stack.length; i++) {
-                                if (key == stack[i].key) {
+                            for (var i = 0; i < stack.length; i++){
+                                if(key == stack[i].key){
                                     idx = i;
                                     break;
                                 }
                             }
                             return stack.splice(idx, 1)[0];
                         },
-                        removeTop: function () {
+                        removeTop: function(){
                             return stack.splice(stack.length - 1, 1)[0];
                         },
-                        length: function () {
+                        length: function(){
                             return stack.length;
                         }
                     };
                 }
             };
         })
-        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap', function ($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap) {
+        .factory('$grModalStack', ['$grTransition.ui', '$timeout', '$document', '$compile', '$rootScope', '$$grStackedMap', function($transition, $timeout, $document, $compile, $rootScope, $$grStackedMap){
                 var OPENED_MODAL_CLASS = 'modal-open';
                 var backdropDomEl, backdropScope;
                 var openedWindows = $$grStackedMap.createNew();
                 var $grModalStack = {};
-                function backdropIndex() {
+                function backdropIndex(){
                     var topBackdropIndex = -1;
                     var opened = openedWindows.keys();
-                    for (var i = 0; i < opened.length; i++) {
-                        if (openedWindows.get(opened[i]).value.backdrop) {
+                    for (var i = 0; i < opened.length; i++){
+                        if(openedWindows.get(opened[i]).value.backdrop){
                             topBackdropIndex = i;
                         }
                     }
                     return topBackdropIndex;
                 }
-                $rootScope.$watch(backdropIndex, function (newBackdropIndex) {
-                    if (backdropScope) {
+                $rootScope.$watch(backdropIndex, function(newBackdropIndex){
+                    if(backdropScope){
                         backdropScope.index = newBackdropIndex;
                     }
                 });
-                function removeModalWindow(modalInstance) {
+                function removeModalWindow(modalInstance){
                     var body = $document.find('body').eq(0);
                     var grModalWindow = openedWindows.get(modalInstance).value;
                     openedWindows.remove(modalInstance);
-                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function () {
+                    removeAfterAnimate(grModalWindow.modalDomEl, grModalWindow.modalScope, 300, function(){
                         grModalWindow.modalScope.$destroy();
                         body.toggleClass(OPENED_MODAL_CLASS, openedWindows.length() > 0);
                         checkRemoveBackdrop();
                     });
                 }
-                function checkRemoveBackdrop() {
-                    if (backdropDomEl && backdropIndex() == -1) {
+                function checkRemoveBackdrop(){
+                    if(backdropDomEl && backdropIndex() == -1){
                         var backdropScopeRef = backdropScope;
-                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function () {
+                        removeAfterAnimate(backdropDomEl, backdropScope, 150, function(){
                             backdropScopeRef.$destroy();
                             backdropScopeRef = null;
                         });
@@ -1558,12 +1584,12 @@
                         backdropScope = undefined;
                     }
                 }
-                function removeAfterAnimate(domEl, scope, emulateTime, done) {
+                function removeAfterAnimate(domEl, scope, emulateTime, done){
                     scope.animate = false;
                     var transitionEndEventName = $transition.transitionEndEventName;
-                    if (transitionEndEventName) {
+                    if(transitionEndEventName){
                         var timeout = $timeout(afterAnimating, emulateTime);
-                        domEl.bind(transitionEndEventName, function () {
+                        domEl.bind(transitionEndEventName, function(){
                             $timeout.cancel(timeout);
                             afterAnimating();
                             scope.$apply();
@@ -1571,30 +1597,30 @@
                     } else {
                         $timeout(afterAnimating);
                     }
-                    function afterAnimating() {
-                        if (afterAnimating.done) {
+                    function afterAnimating(){
+                        if(afterAnimating.done){
                             return;
                         }
                         afterAnimating.done = true;
 
                         domEl.remove();
-                        if (done) {
+                        if(done){
                             done();
                         }
                     }
                 }
-                $document.bind('keydown', function (evt) {
+                $document.bind('keydown', function(evt){
                     if(openedWindows.length()){
                         var modal;
-                        if (evt.which === 27) {
+                        if(evt.which === 27){
                             modal = openedWindows.top();
-                            if (modal && modal.value.keyboard) {
+                            if(modal && modal.value.keyboard){
                                 evt.preventDefault();
-                                $rootScope.$apply(function () {
+                                $rootScope.$apply(function(){
                                     $grModalStack.dismiss(modal.key, 'escape key press');
                                 });
                             }
-                        }else if(evt.which === 13) {
+                        }else if(evt.which === 13){
                             modal = angular.element(openedWindows.top().value.modalDomEl);
                             var enterBind = modal.find('[gr-enter-bind]');
                             if(enterBind.length > 0){
@@ -1603,7 +1629,7 @@
                         }
                     }
                 });
-                $grModalStack.open = function (modalInstance, modal) {
+                $grModalStack.open = function(modalInstance, modal){
                     openedWindows.add(modalInstance, {
                         deferred: modal.deferred,
                         modalScope: modal.scope,
@@ -1614,7 +1640,7 @@
                     });
                     var body = $document.find('body').eq(0),
                         currBackdropIndex = backdropIndex();
-                    if (currBackdropIndex >= 0 && !backdropDomEl) {
+                    if(currBackdropIndex >= 0 && !backdropDomEl){
                         backdropScope = $rootScope.$new(true);
                         backdropScope.index = currBackdropIndex;
                         backdropScope.zIndex = modal.zIndex;
@@ -1640,62 +1666,62 @@
                     body.append(modalDomEl);
                     body.addClass(OPENED_MODAL_CLASS);
                 };
-                $grModalStack.close = function (modalInstance, result) {
+                $grModalStack.close = function(modalInstance, result){
                     var grModalWindow = openedWindows.get(modalInstance);
-                    if (grModalWindow) {
+                    if(grModalWindow){
                         grModalWindow.value.deferred.resolve(result);
                         removeModalWindow(modalInstance);
                     }
                 };
-                $grModalStack.dismiss = function (modalInstance, reason) {
+                $grModalStack.dismiss = function(modalInstance, reason){
                     var grModalWindow = openedWindows.get(modalInstance);
-                    if (grModalWindow) {
+                    if(grModalWindow){
                         grModalWindow.value.deferred.reject(reason);
                         removeModalWindow(modalInstance);
                     }
                 };
-                $grModalStack.dismissAll = function (reason) {
+                $grModalStack.dismissAll = function(reason){
                     var topModal = this.getTop();
-                    while (topModal) {
+                    while (topModal){
                         this.dismiss(topModal.key, reason);
                         topModal = this.getTop();
                     }
                 };
-                $grModalStack.getTop = function () {
+                $grModalStack.getTop = function(){
                     return openedWindows.top();
                 };
                 return $grModalStack;
         }])
-        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope', function ($q, $timeout, $rootScope) {
-                var $transition = function (element, trigger, options) {
+        .factory('$grTransition.ui', ['$q', '$timeout', '$rootScope', function($q, $timeout, $rootScope){
+                var $transition = function(element, trigger, options){
                     options = options || {};
                     var deferred = $q.defer();
                     var endEventName = $transition[options.animation ? 'animationEndEventName' : 'transitionEndEventName'];
 
-                    var transitionEndHandler = function (event) {
-                        $rootScope.$apply(function () {
+                    var transitionEndHandler = function(event){
+                        $rootScope.$apply(function(){
                             element.unbind(endEventName, transitionEndHandler);
                             deferred.resolve(element);
                         });
                     };
 
-                    if (endEventName) {
+                    if(endEventName){
                         element.bind(endEventName, transitionEndHandler);
                     }
-                    $timeout(function () {
-                        if (angular.isString(trigger)) {
+                    $timeout(function(){
+                        if(angular.isString(trigger)){
                             element.addClass(trigger);
-                        } else if (angular.isFunction(trigger)) {
+                        } else if(angular.isFunction(trigger)){
                             trigger(element);
-                        } else if (angular.isObject(trigger)) {
+                        } else if(angular.isObject(trigger)){
                             element.css(trigger);
                         }
-                        if (!endEventName) {
+                        if(!endEventName){
                             deferred.resolve(element);
                         }
                     });
-                    deferred.promise.cancel = function () {
-                        if (endEventName) {
+                    deferred.promise.cancel = function(){
+                        if(endEventName){
                             element.unbind(endEventName, transitionEndHandler);
                         }
                         deferred.reject('Transition cancelled');
@@ -1717,9 +1743,9 @@
                     'transition': 'animationend'
                 };
 
-                function findEndEventName(endEventNames) {
-                    for (var name in endEventNames) {
-                        if (transElement.style[name] !== undefined) {
+                function findEndEventName(endEventNames){
+                    for (var name in endEventNames){
+                        if(transElement.style[name] !== undefined){
                             return endEventNames[name];
                         }
                     }
@@ -1729,24 +1755,24 @@
                 return $transition;
         }]);
     angular.module('gr.ui.modal.directive', [])
-        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout', function (MODAL, $templateCache, $timeout) {
+        .directive('grModalBackdrop', ['$grModal', '$templateCache', '$timeout', function(MODAL, $templateCache, $timeout){
                 return {
                     restrict: 'EA',
                     replace: true,
                     template: $templateCache.get('grModal/backdrop.html'),
-                    link: function (scope, element, attrs) {
+                    link: function(scope, element, attrs){
                         scope.backdropClass = attrs.backdropClass || '';
 
                         scope.animate = false;
 
                         //trigger CSS transitions
-                        $timeout(function () {
+                        $timeout(function(){
                             scope.animate = true;
                         });
                     }
                 };
           }])
-        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile', function ($grModalStack, $templateCache, MODAL, $http, $timeout, $compile) {
+        .directive('grModalWindow', ['$grModalStack', '$templateCache', '$grModal', '$http', '$timeout', '$compile', function($grModalStack, $templateCache, MODAL, $http, $timeout, $compile){
                 return {
                     restrict: 'EA',
                     scope: {
@@ -1756,7 +1782,7 @@
                     replace: true,
                     transclude: true,
                     template: $templateCache.get('grModal/window.html'),
-                    link: function (scope, element, attrs, ctrl) {
+                    link: function(scope, element, attrs, ctrl){
                         element.addClass(attrs.windowClass || '');
 
                         scope.size = attrs.size;
@@ -1767,33 +1793,33 @@
                             opened = true;
 
                         scope.buttons = modal.value.buttons;
-                        scope.exec = function (fn) {
+                        scope.exec = function(fn){
                             fn(scope.$parent, element, modal.key);
                         };
 
-                        modal.key.result.then(function () {
+                        modal.key.result.then(function(){
                             modal.value.events.onClose(element);
-                        }, function () {
+                        }, function(){
                             modal.value.events.onClose(element);
                         })
 
-                        modal.key.opened.then(function () {
+                        modal.key.opened.then(function(){
                             modal.value.events.onOpen(element);
-                        }, function () {
+                        }, function(){
                             modal.value.events.onOpen(element);
                         });
 
-                        $timeout(function () {
+                        $timeout(function(){
                             // trigger CSS transitions
                             scope.animate = true;
                             // focus a freshly-opened modal
                             element[0].focus();
                         });
 
-                        scope.close = function (evt) {
-                            if (!evt || evt === true) {
+                        scope.close = function(evt){
+                            if(!evt || evt === true){
                                 $grModalStack.close(modal.key);
-                            } else if (modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)) {
+                            } else if(modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)){
                                 evt.preventDefault();
                                 evt.stopPropagation();
                                 $grModalStack.dismiss(modal.key, 'backdrop click');
@@ -1807,8 +1833,8 @@
                     restrict: 'EA',
                     replace: true,
                     transclude: true,
-                    link: function (scope, element, attrs, ctrl, $transclude) {
-                        $transclude(scope, function(clone) {
+                    link: function(scope, element, attrs, ctrl, $transclude){
+                        $transclude(scope, function(clone){
                             var buttonTemplate = $templateCache.get('grModal/button.html');
                             scope.$watch('buttons', function(scopeButtons){
                                 angular.forEach(scopeButtons, function(btn, id){
@@ -1833,17 +1859,17 @@
                     }
             }
         }])
-        .directive('grModalTransclude', function () {
+        .directive('grModalTransclude', function(){
             return {
-                link: function ($scope, $element, $attrs, controller, $transclude) {
-                    $transclude($scope.$parent, function (clone) {
+                link: function($scope, $element, $attrs, controller, $transclude){
+                    $transclude($scope.$parent, function(clone){
                         $element.empty();
                         $element.append(clone);
                     });
                 }
             };
         })
-        .directive('autofocus', ['$timeout', function ($timeout) {
+        .directive('autofocus', ['$timeout', function($timeout){
             return {
                 restrict: 'A',
                 link: function($scope, $element){
@@ -1890,7 +1916,7 @@
                 var alert = $grAlert.new(),
                     defaultSorting = {},
                     dataSource = '',
-                    getData = function(src, reload) {
+                    getData = function(src, reload){
                         if(!reload){
                             alert.show('loading', ['Loading table data...'], 0);
                         }else{
@@ -1927,27 +1953,27 @@
                             $scope: $scope,
                             orderBy: '',
                             counts: [5, 10, 25, 50, 100],
-                            getFilterData: function ($defer, params) {
+                            getFilterData: function($defer, params){
                                 var grFormData = $scope.grTable.dataSet,
                                     arr = [],
                                     data = [];
-                                angular.forEach(grFormData, function (item, id) {
-                                    angular.forEach(item, function (_item, _id) {
-                                        if (!arr[_id]) {
+                                angular.forEach(grFormData, function(item, id){
+                                    angular.forEach(item, function(_item, _id){
+                                        if(!arr[_id]){
                                             arr[_id] = [];
                                             arr.length++;
                                         }
-                                        if (!data[_id]) {
+                                        if(!data[_id]){
                                             data[_id] = [];
                                             data.length++;
                                         }
-                                        if (inArray(_item, arr[_id]) === -1) {
+                                        if(inArray(_item, arr[_id]) === -1){
                                             arr[_id].push(_item);
                                             data[_id].push({
                                                 'id': _item,
                                                 'title': _item
                                             });
-                                            if (data[_id][0].title !== '-') {
+                                            if(data[_id][0].title !== '-'){
                                                 data[_id].unshift({
                                                     id: '',
                                                     title: '-'
@@ -1959,9 +1985,9 @@
                                 $defer.resolve(data);
                                 return $defer;
                             },
-                            getData: function ($defer, params) {
+                            getData: function($defer, params){
                                 var data = $scope.grTable.dataSet;
-                                if (data) {
+                                if(data){
                                     var filteredData = $filter('filter')(data, params.filter());
                                     var orderedData = params.filter() ? (params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData) : data,
                                         newData = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
@@ -1985,12 +2011,12 @@
                     },
                     grTableConfig,
                     inArray = Array.prototype.indexOf ?
-                                function (val, arr) {
+                                function(val, arr){
                                     return arr.indexOf(val);
-                                } : function (val, arr) {
+                                } : function(val, arr){
                                     var i = arr.length;
-                                    while (i--) {
-                                        if (arr[i] === val) {
+                                    while (i--){
+                                        if(arr[i] === val){
                                             return i;
                                         }
                                     }
@@ -2121,7 +2147,7 @@
                 replace: true
             }
         })
-        .directive('grChange', ['$parse', '$timeout', function ($parse, $timeout) {
+        .directive('grChange', ['$parse', '$timeout', function($parse, $timeout){
             return {
                 restrict: 'A',
                 scope: false,
@@ -2190,36 +2216,36 @@
 (function(){
     angular.module('ngTable', [])
         .factory('ngTableParams', ['$q', '$log',
-            function ($q, $log) {
-                var isNumber = function (n) {
+            function($q, $log){
+                var isNumber = function(n){
                     return !isNaN(parseFloat(n)) && isFinite(n);
                 };
-                var ngTableParams = function (baseParameters, baseSettings) {
+                var ngTableParams = function(baseParameters, baseSettings){
                     var self = this,
                         log = function(){
-                            if (settings.debugMode && $log.debug) {
+                            if(settings.debugMode && $log.debug){
                                 $log.debug.apply(this, arguments);
                             }
                         };
                     this.data = [];
                     this.filterData = [];
-                    this.parameters = function (newParameters, parseParamsFromUrl) {
+                    this.parameters = function(newParameters, parseParamsFromUrl){
                         parseParamsFromUrl = parseParamsFromUrl || false;
-                        if (angular.isDefined(newParameters)) {
-                            for (var key in newParameters) {
+                        if(angular.isDefined(newParameters)){
+                            for (var key in newParameters){
                                 var value = newParameters[key];
-                                if (parseParamsFromUrl && key.indexOf('[') >= 0) {
+                                if(parseParamsFromUrl && key.indexOf('[') >= 0){
                                     var keys = key.split(/\[(.*)\]/).reverse()
                                     var lastKey = '';
-                                    for (var i = 0, len = keys.length; i < len; i++) {
+                                    for (var i = 0, len = keys.length; i < len; i++){
                                         var name = keys[i];
-                                        if (name !== '') {
+                                        if(name !== ''){
                                             var v = value;
                                             value = {};
                                             value[lastKey = name] = (isNumber(v) ? parseFloat(v) : v);
                                         }
                                     }
-                                    if (lastKey === 'sorting') {
+                                    if(lastKey === 'sorting'){
                                         params[lastKey] = {};
                                     }
                                     params[lastKey] = angular.extend(params[lastKey] || {}, value[lastKey]);
@@ -2232,9 +2258,9 @@
                         }
                         return params;
                     };
-                    this.settings = function (newSettings) {
-                        if (angular.isDefined(newSettings)) {
-                            if (angular.isArray(newSettings.data)) {
+                    this.settings = function(newSettings){
+                        if(angular.isDefined(newSettings)){
+                            if(angular.isArray(newSettings.data)){
                                 //auto-set the total from passed in data
                                 newSettings.total = newSettings.data.length;
                             }
@@ -2244,29 +2270,29 @@
                         }
                         return settings;
                     };
-                    this.page = function (page) {
+                    this.page = function(page){
                         return angular.isDefined(page) ? this.parameters({
                             'page': page
                         }) : params.page;
                     };
-                    this.total = function (total) {
+                    this.total = function(total){
                         return angular.isDefined(total) ? this.settings({
                             'total': total
                         }) : settings.total;
                     };
-                    this.count = function (count) {
+                    this.count = function(count){
                         return angular.isDefined(count) ? this.parameters({
                             'count': count,
                             'page': 1
                         }) : params.count;
                     };
-                    this.filter = function (filter) {
+                    this.filter = function(filter){
                         return angular.isDefined(filter) ? this.parameters({
                             'filter': filter
                         }) : params.filter;
                     };
-                    this.sorting = function (sorting) {
-                        if (arguments.length == 2) {
+                    this.sorting = function(sorting){
+                        if(arguments.length == 2){
                             var sortArray = {};
                             sortArray[sorting] = arguments[1];
                             this.parameters({
@@ -2278,35 +2304,35 @@
                             'sorting': sorting
                         }) : params.sorting;
                     };
-                    this.isSortBy = function (field, direction) {
+                    this.isSortBy = function(field, direction){
                         return angular.isDefined(params.sorting[field]) && params.sorting[field] == direction;
                     };
                     this.orderBy = function(){
                         var sorting = [];
-                        for (var column in params.sorting) {
+                        for (var column in params.sorting){
                             sorting.push((params.sorting[column] === "asc" ? "+" : "-") + column);
                         }
                         return sorting;
                     };
-                    this.getData = function ($defer, params) {
-                        if (angular.isArray(this.data) && angular.isObject(params)) {
+                    this.getData = function($defer, params){
+                        if(angular.isArray(this.data) && angular.isObject(params)){
                             $defer.resolve(this.data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
                         } else {
                             $defer.resolve([]);
                         }
                     };
-                    this.getFilterData = function ($defer, params) {
-                        if (angular.isArray(this.filterData) && angular.isObject(params)) {
+                    this.getFilterData = function($defer, params){
+                        if(angular.isArray(this.filterData) && angular.isObject(params)){
                             $defer.resolve(this.filterData);
                         } else {
                             $defer.resolve([]);
                         }
                     };
-                    this.getGroups = function ($defer, column) {
+                    this.getGroups = function($defer, column){
                         var defer = $q.defer();
-                        defer.promise.then(function (data) {
+                        defer.promise.then(function(data){
                             var groups = {};
-                            angular.forEach(data, function (item) {
+                            angular.forEach(data, function(item){
                                 var groupName = angular.isFunction(column) ? column(item) : item[column];
 
                                 groups[groupName] = groups[groupName] || {
@@ -2316,7 +2342,7 @@
                                 groups[groupName].data.push(item);
                             });
                             var result = [];
-                            for (var i in groups) {
+                            for (var i in groups){
                                 result.push(groups[i]);
                             }
                             log('ngTable: refresh groups', result);
@@ -2324,12 +2350,12 @@
                         });
                         this.getData(defer, self);
                     };
-                    this.generatePagesArray = function (currentPage, totalItems, pageSize) {
+                    this.generatePagesArray = function(currentPage, totalItems, pageSize){
                         var maxBlocks, maxPage, maxPivotPages, minPage, numPages, pages;
                         maxBlocks = 11;
                         pages = [];
                         numPages = Math.ceil(totalItems / pageSize);
-                        if (numPages > 1) {
+                        if(numPages > 1){
                             pages.push({
                                 type: 'prev',
                                 number: Math.max(1, currentPage - 1),
@@ -2345,8 +2371,8 @@
                             maxPage = Math.min(numPages - 1, currentPage + maxPivotPages * 2 - (currentPage - minPage));
                             minPage = Math.max(2, minPage - (maxPivotPages * 2 - (maxPage - minPage)));
                             var i = minPage;
-                            while (i <= maxPage) {
-                                if ((i === minPage && i !== 2) || (i === maxPage && i !== numPages - 1)) {
+                            while (i <= maxPage){
+                                if((i === minPage && i !== 2) || (i === maxPage && i !== numPages - 1)){
                                     pages.push({
                                         type: 'more',
                                         active: false
@@ -2373,26 +2399,26 @@
                         }
                         return pages;
                     };
-                    this.url = function (asString) {
+                    this.url = function(asString){
                         asString = asString || false;
                         var pairs = (asString ? [] : {});
-                        for (var key in params) {
-                            if (params.hasOwnProperty(key)) {
+                        for (var key in params){
+                            if(params.hasOwnProperty(key)){
                                 var item = params[key],
                                     name = encodeURIComponent(key);
-                                if (typeof item === "object") {
-                                    for (var subkey in item) {
-                                        if (!angular.isUndefined(item[subkey]) && item[subkey] !== "") {
+                                if(typeof item === "object"){
+                                    for (var subkey in item){
+                                        if(!angular.isUndefined(item[subkey]) && item[subkey] !== ""){
                                             var pname = name + "[" + encodeURIComponent(subkey) + "]";
-                                            if (asString) {
+                                            if(asString){
                                                 pairs.push(pname + "=" + item[subkey]);
                                             } else {
                                                 pairs[pname] = item[subkey];
                                             }
                                         }
                                     }
-                                } else if (!angular.isFunction(item) && !angular.isUndefined(item) && item !== "") {
-                                    if (asString) {
+                                } else if(!angular.isFunction(item) && !angular.isUndefined(item) && item !== ""){
+                                    if(asString){
                                         pairs.push(name + "=" + encodeURIComponent(item));
                                     } else {
                                         pairs[name] = encodeURIComponent(item);
@@ -2407,17 +2433,17 @@
                         var $deferData = $q.defer(),
                             self = this;
                         settings.$loading = true;
-                        if (settings.groupBy) {
+                        if(settings.groupBy){
                             settings.getGroups($deferData, settings.groupBy, this);
                         } else {
                             settings.getData($deferData, this);
                         }
                         settings.getFilterData($deferColumns, this);
                         log('ngTable: reload data');
-                        $q.all([$deferData.promise, $deferColumns.promise]).then(function (data) {
+                        $q.all([$deferData.promise, $deferColumns.promise]).then(function(data){
                             settings.$loading = false;
                             log('ngTable: current scope', settings.$scope);
-                            if (settings.groupBy) {
+                            if(settings.groupBy){
                                 self.data = settings.$scope.$groups = data[0];
                             } else {
                                 self.data = settings.$scope.$data = data[0];
@@ -2458,34 +2484,34 @@
                 return ngTableParams;
         }])
         .directive('ngTable', ['$compile', '$q', '$parse',
-            function ($compile, $q, $parse) {
+            function($compile, $q, $parse){
                 'use strict';
                 return {
                     restrict: 'A',
                     priority: 1001,
                     scope: true,
                     controller: ['$scope', 'ngTableParams', '$timeout',
-                        function ($scope, ngTableParams, $timeout) {
+                        function($scope, ngTableParams, $timeout){
 
                             $scope.$loading = false;
 
-                            if (!$scope.params) {
+                            if(!$scope.params){
                                 $scope.params = new ngTableParams();
                             }
                             $scope.params.settings().$scope = $scope;
 
                             var delayFilter = (function(){
                                 var timer = 0;
-                                return function (callback, ms) {
+                                return function(callback, ms){
                                     $timeout.cancel(timer);
                                     timer = $timeout(callback, ms);
                                 };
                             })();
 
-                            $scope.$watch('params.$params', function (newParams, oldParams) {
+                            $scope.$watch('params.$params', function(newParams, oldParams){
                                 $scope.params.settings().$scope = $scope;
 
-                                if (!angular.equals(newParams.filter, oldParams.filter)) {
+                                if(!angular.equals(newParams.filter, oldParams.filter)){
                                     delayFilter(function(){
                                         $scope.params.$params.page = 1;
                                         $scope.params.reload();
@@ -2495,9 +2521,9 @@
                                 }
                             }, true);
 
-                            $scope.sortBy = function (column, event) {
+                            $scope.sortBy = function(column, event){
                                 var parsedSortable = $scope.parse(column.sortable);
-                                if (!parsedSortable) {
+                                if(!parsedSortable){
                                     return;
                                 }
                                 var defaultSort = $scope.params.settings().defaultSort;
@@ -2510,7 +2536,7 @@
                                 });
                             };
                     }],
-                    compile: function (element) {
+                    compile: function(element){
                         var columns = [],
                             i = 0,
                             row = null,
@@ -2520,22 +2546,22 @@
                         var thead = element.find('thead');
 
                         // IE 8 fix :not(.ng-table-group) selector
-                        angular.forEach(angular.element(element.find('tr')), function (tr) {
+                        angular.forEach(angular.element(element.find('tr')), function(tr){
                             tr = angular.element(tr);
-                            if (!tr.hasClass('ng-table-group') && !row) {
+                            if(!tr.hasClass('ng-table-group') && !row){
                                 row = tr;
                             }
                         });
-                        if (!row) {
+                        if(!row){
                             return;
                         }
-                        angular.forEach(row.find('td'), function (item) {
+                        angular.forEach(row.find('td'), function(item){
                             var el = angular.element(item);
-                            if (el.attr('ignore-cell') && 'true' === el.attr('ignore-cell')) {
+                            if(el.attr('ignore-cell') && 'true' === el.attr('ignore-cell')){
                                 return;
                             }
-                            var parsedAttribute = function (attr, defaultValue) {
-                                return function (scope) {
+                            var parsedAttribute = function(attr, defaultValue){
+                                return function(scope){
                                     var _attr = (el.attr('x-data-' + attr) || el.attr('data-' + attr) || el.attr(attr));
 //                                        _attr = _attr ? ('\'' + _attr + '\'') : '';
                                     return $parse(_attr)(scope, { $columns: columns }) || defaultValue;
@@ -2549,11 +2575,11 @@
                                 filterTemplateURL = false,
                                 filterName = false;
 
-                            if (filter && filter.$$name) {
+                            if(filter && filter.$$name){
                                 filterName = filter.$$name;
                                 delete filter.$$name;
                             }
-                            if (filter && filter.templateURL) {
+                            if(filter && filter.templateURL){
                                 filterTemplateURL = filter.templateURL;
                                 delete filter.templateURL;
                             }
@@ -2570,7 +2596,7 @@
                                 filterPlaceholder: filterPlaceholder,
                                 headerTemplateURL: headerTemplateURL,
                                 filterData: (el.attr("filter-data") ? el.attr("filter-data") : null),
-                                show: (el.attr("ng-show") ? function (scope) {
+                                show: (el.attr("ng-show") ? function(scope){
                                     return $parse(el.attr("ng-show"))(scope);
                                 } : function(){
                                     return true;
@@ -2578,7 +2604,7 @@
                             });
                             for(var aux in filter){ filters++; }
                         });
-                        return function (scope, element, attrs) {
+                        return function(scope, element, attrs){
                             scope.$loading = false;
                             scope.$columns = columns;
                             if(filters > 0){
@@ -2586,22 +2612,22 @@
                             }else{
                                 scope.show_filter = false;
                             }
-                            scope.$watch(attrs.ngTable, (function (params) {
-                                if (angular.isUndefined(params)) {
+                            scope.$watch(attrs.ngTable, (function(params){
+                                if(angular.isUndefined(params)){
                                     return;
                                 }
                                 scope.paramsModel = $parse(attrs.ngTable);
                                 scope.params = params;
                             }), true);
-                            scope.parse = function (text) {
+                            scope.parse = function(text){
                                 return angular.isDefined(text) ? text(scope) : '';
                             };
-//                            if (attrs.showFilter) {
-//                                scope.$parent.$watch(attrs.showFilter, function (value) {
+//                            if(attrs.showFilter){
+//                                scope.$parent.$watch(attrs.showFilter, function(value){
 //                                    scope.show_filter = value;
 //                                });
 //                            }
-                            if (!element.hasClass('ng-table')) {
+                            if(!element.hasClass('ng-table')){
                                 scope.templates = {
                                     header: (attrs.templateHeader ? attrs.templateHeader : 'ng-table/header.html'),
                                     pagination: (attrs.templatePagination ? attrs.templatePagination : 'ng-table/pager.html')
@@ -2630,7 +2656,7 @@
                 }
         }])
         .directive('ngTablePagination', ['$compile',
-            function ($compile) {
+            function($compile){
                 'use strict';
                 return {
                     restrict: 'A',
@@ -2639,12 +2665,12 @@
                         'templateUrl': '='
                     },
                     replace: false,
-                    link: function (scope, element, attrs) {
+                    link: function(scope, element, attrs){
                         scope.params.settings().$scope.$on('ngTableAfterReloadData', function(){
                             scope.pages = scope.params.generatePagesArray(scope.params.page(), scope.params.total(), scope.params.count());
                         }, true);
-                        scope.$watch('templateUrl', function (templateUrl) {
-                            if (angular.isUndefined(templateUrl)) {
+                        scope.$watch('templateUrl', function(templateUrl){
+                            if(angular.isUndefined(templateUrl)){
                                 return;
                             }
                             var template = angular.element(document.createElement('div'))
@@ -2658,7 +2684,7 @@
                 };
         }])
         .run(['$templateCache',
-            function ($templateCache) {
+            function($templateCache){
                 $templateCache.put('ng-table/filters/select-multiple.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" multiple ng-multiple="true" ng-model="params.filter()[name]" ng-show="filter==\'select-multiple\'" class="filter filter-select-multiple form-control" name="{{column.filterName}}"> </select>');
                 $templateCache.put('ng-table/filters/select.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" ng-model="params.filter()[name]" ng-show="filter==\'select\'" class="filter filter-select form-control" name="{{column.filterName}}"> </select>');
                 $templateCache.put('ng-table/filters/text.html', '<input type="text" name="{{column.filterName}}" ng-model="params.filter()[name]" ng-if="filter==\'text\'" class="input-filter form-control" placeholder="{{column.filterPlaceholder | grTranslate}}"/>');
@@ -2675,7 +2701,7 @@
 
 (function(){
     angular.module('ngTableExport', [])
-        .config(['$compileProvider', function ($compileProvider){
+        .config(['$compileProvider', function($compileProvider){
                 $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
         }])
         .directive('grTableExportCsv', ['$parse', function(){
@@ -2685,12 +2711,12 @@
                     transclude: true,
                     template: '<a class="gr-table-export-csv" ng-mousedown="grTable.csv.generate()" ng-href="{{grTable.csv.link()}}" download="{{grTable.csv.name + \'.csv\'}}" ng-show="grTable.csv && grTable.csv.name" ng-disabled="grTable.data.length <= 0" ng-transclude></a>',
                     replace: true,
-                    link: function ($scope, $element, $attrs) {
+                    link: function($scope, $element, $attrs){
                         var init = function init(name){
                             var data = '';
                             $scope.grTable.csv = {
                                 name: name !== '' ? name : undefined,
-                                stringify: function (str) {
+                                stringify: function(str){
                                     return '"' +
                                         str.replace(/^\s\s*/, '').replace(/\s*\s$/, '')
                                         .replace(/"/g, '""') +
@@ -2700,14 +2726,14 @@
                                     var element = angular.element('table.gr-table.ng-table[export-csv="' + name + '"]'),
                                         rows = element.find('tr').not('tfoot tr');
                                     data = '';
-                                    angular.forEach(rows, function (row, i) {
+                                    angular.forEach(rows, function(row, i){
                                         var tr = angular.element(row),
                                             tds = tr.find('th'),
                                             rowData = '';
-                                        if (tr.hasClass('ng-table-filters')) { return; }
-                                        if (tds.length == 0) { tds = tr.find('td'); }
-                                        if (i != 1) {
-                                            angular.forEach(tds, function (td, i) {
+                                        if(tr.hasClass('ng-table-filters')){ return; }
+                                        if(tds.length == 0){ tds = tr.find('td'); }
+                                        if(i != 1){
+                                            angular.forEach(tds, function(td, i){
                                                 rowData += $scope.grTable.csv.stringify(angular.element(td).text()) + ';';
                                             });
                                             rowData = rowData.slice(0, rowData.length - 1);
@@ -2741,15 +2767,15 @@
 
                 // Helper Methods
                 var helper = {
-                    CamelToTitle: function (str) {
+                    CamelToTitle: function(str){
                         return str
                         .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, function (str) { return str.toUpperCase(); });
+                        .replace(/^./, function(str){ return str.toUpperCase(); });
                     },
-                    CamelToDash: function (str) {
+                    CamelToDash: function(str){
                         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
                     },
-                    LabelText: function(field) {
+                    LabelText: function(field){
                         return field.label || helper.CamelToTitle(field.property);
                     }
                 };
@@ -2911,7 +2937,7 @@
                     priority: 1,
                     replace: true,
                     compile: function(){
-                        return function ($scope, $element, $attr) {
+                        return function($scope, $element, $attr){
                             // Scope Hooks
                             var directive = {
                                 schemaStr: $attr.fields || $attr.autoFields,
@@ -2925,11 +2951,11 @@
 
                             //Helper Functions
                             var helper = {
-                                extendDeep: function(dst) {
-                                    angular.forEach(arguments, function(obj) {
-                                        if (obj !== dst) {
-                                            angular.forEach(obj, function(value, key) {
-                                                if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
+                                extendDeep: function(dst){
+                                    angular.forEach(arguments, function(obj){
+                                        if(obj !== dst){
+                                            angular.forEach(obj, function(value, key){
+                                                if(dst[key] && dst[key].constructor && dst[key].constructor === Object){
                                                     helper.extendDeep(dst[key], value);
                                                 } else {
                                                     dst[key] = value;
@@ -2967,17 +2993,17 @@
                             };
 
                             // Init and Watch
-                            $scope.$watch(directive.optionsStr, function (newOptions, oldOptions) {
+                            $scope.$watch(directive.optionsStr, function(newOptions, oldOptions){
                                 helper.extendDeep(directive.options, newOptions);
                                 if(newOptions !== oldOptions) build();
                             }, true);
-                            $scope.$watch(directive.schemaStr, function (schema) {
+                            $scope.$watch(directive.schemaStr, function(schema){
                                 build(schema);
                             }, true);
-                            $scope.$watch(directive.formStr, function (form) {
+                            $scope.$watch(directive.formStr, function(form){
                                 directive.container.attr('name',directive.formStr);
                             });
-                            $scope.$watch(function(){return $attr['class'];}, function (form) {
+                            $scope.$watch(function(){return $attr['class'];}, function(form){
                                 directive.classes = $attr['class'];
                                 directive.container.attr('class', directive.classes);
                             });
@@ -3062,14 +3088,14 @@
                 return {
                     restrict: 'A',
                     require: 'ngModel',
-                    link: function (scope, element, attr, ngModel) {
+                    link: function(scope, element, attr, ngModel){
                         var urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-\?\=\&]*)$/i;
 
                         //Render formatters on blur...
                         var render = function(){
                             var viewValue = ngModel.$modelValue;
-                            if (viewValue == null) return;
-                            angular.forEach(ngModel.$formatters, function (formatter) {
+                            if(viewValue == null) return;
+                            angular.forEach(ngModel.$formatters, function(formatter){
                                 viewValue = formatter(viewValue);
                             })
                             ngModel.$viewValue = viewValue;
@@ -3077,13 +3103,13 @@
                         };
                         element.bind('blur', render);
 
-                        var formatUrl = function (value) {
+                        var formatUrl = function(value){
                             var test = urlRegex.test(value);
-                            if (test) {
+                            if(test){
                                 var matches = value.match(urlRegex);
                                 var reformatted = (matches[1] != null && matches[1] != '') ? matches[1] : 'http://';
                                 reformatted += matches[2] + '.' + matches[3];
-                                if (typeof matches[4] != "undefined") reformatted += matches[4]
+                                if(typeof matches[4] != "undefined") reformatted += matches[4]
                                 value = reformatted;
                             }
                             return value;
@@ -3098,10 +3124,10 @@
         angular.module('autofields.validation', ['autofields.core'])
             .config(['$autofieldsProvider', function($autofieldsProvider){
                 var helper = {
-                    CamelToTitle: function (str) {
+                    CamelToTitle: function(str){
                         return str
                         .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, function (str) { return str.toUpperCase(); });
+                        .replace(/^./, function(str){ return str.toUpperCase(); });
                     }
                 };
 

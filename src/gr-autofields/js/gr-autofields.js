@@ -1,140 +1,169 @@
 'use strict';
+
+
 (function(){
     angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
-        .directive('grAutofields', ['$compile', '$timeout', '$grAlert', function ($compile, $timeout, $grAlert) {
+        .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
             return {
                 restrict: 'A',
-                link: function ($scope, $element, $attrs) {
-                    if (!$attrs.name) {
-                        return false;
-                    }
-                    var $input = angular.element('<auto:fields/>'),
-                        $alert = $grAlert.new(),
-                        $errors = [],
-                        defaults = $attrs.grAutofields ? angular.copy($scope.$eval($attrs.grAutofields)) : false,
-                        autofields = $attrs.grAutofields ? $scope.$eval($attrs.grAutofields) : false;
-                    if (!autofields) {
-                        return false;
-                    } else {
-                        autofields.name = $attrs.grAutofields;
-                    };
-                    if (autofields.schema) {
-                        $input.attr('fields', autofields.name + '.schema');
-                    }
-                    if (autofields.data) {
-                        $input.attr('data', autofields.name + '.data');
-                    }
-                    if (autofields.options) {
-                        $input.attr('options', autofields.name + '.options');
-                    }
-                    $element.prepend($input).removeAttr('gr-autofields').attr({
-                        'novalidate': true,
-                        'ng-submit': $attrs.name + '.submit()'
-                    });
-                    if ($element.find('[type="submit"]').length === 0) {
-                        $element.append('<button type="submit" class="hidden" />');
-                    }
-                    $scope.$watch(function(){
-                        if ($scope[$attrs.name].autofields) {
-                            return $scope[$attrs.name].autofields.$error;
-                        } else {
-                            return {};
-                        }
-                    }, checkError, true);
-                    function getError($error) {
-                        var _errors = {};
-                        angular.forEach($error, function (errors, errorId) {
-                            angular.forEach(errors, function (field, id) {
-                                angular.forEach(autofields.schema, function (item) {
-                                    if (item.type !== 'multiple') {
-                                        if (item.property === field.$name && item.msgs && item.msgs[errorId]) {
-                                            _errors[item.property] = angular.copy(item.msgs[errorId]);
-                                        }
+                link: function($scope, $element, $attrs){
+                    if(!$attrs.name && !$attrs.grAutofields){ return false; };
+                    var $getter = $parse($attrs.grAutofields),
+                        $setter = $getter.assign,
+                        grAutofields = $getter($scope),
+                        init = function(){
+                            var $input = angular.element('<auto:fields/>'),
+                                $alert = $grAlert.new(),
+                                $errors = [],
+                                defaultOptions = {
+                                    defaultOption: 'Selecione...',
+                                    validation: {
+                                        showMessages: false
+                                    }
+                                },
+                                modalScope = $element.parents('.modal').eq(0).scope(),
+                                defaults;
+                            if(!grAutofields.options){ grAutofields.options = defaultOptions; }else{ angular.extend(grAutofields.options, defaultOptions); }
+                            defaults = angular.copy(grAutofields);
+                            if(grAutofields.schema){
+                                $input.attr('fields', $attrs.grAutofields + '.schema');
+                            }
+                            if(grAutofields.data){
+                                $input.attr('data', $attrs.grAutofields + '.data');
+                            }
+                            if(grAutofields.options){
+                                $input.attr('options', $attrs.grAutofields + '.options');
+                            }
+                            $element.prepend($input).removeAttr('gr-autofields').attr({
+                                'novalidate': true,
+                                'ng-submit': 'Autofields.submit()'
+                            });
+                            if($element.find('[type="submit"]').length === 0){
+                                $element.append('<button type="submit" class="hidden" />');
+                            }
+                            $scope.$watch(function(){
+                                if($scope[$attrs.name].autofields){
+                                    return $scope[$attrs.name].autofields.$error;
+                                }else{
+                                    return [];
+                                }
+                            }, checkError, true);
+                            $scope.$watch(function(){ return modalScope ? true : false; }, function(hasModal){
+                                if(hasModal){
+                                    $alert.destroy();
+                                    $alert = $grAlert.new(modalScope.modal.element);
+                                }
+                            }, true);
+                            function getError($error){
+                                var _errors = {};
+                                angular.forEach($error, function(errors, errorId){
+                                    angular.forEach(errors, function(field, id){
+                                        angular.forEach(grAutofields.schema, function(item){
+                                            if(item.type !== 'multiple'){
+                                                if(item.property === field.$name && item.msgs && item.msgs[errorId]){
+                                                    _errors[item.property] = angular.copy(item.msgs[errorId]);
+                                                }
+                                            } else {
+                                                angular.forEach(item.fields, function(subitem){
+                                                    if(subitem.property === field.$name && subitem.msgs && subitem.msgs[errorId]){
+                                                        _errors[subitem.property] = angular.copy(subitem.msgs[errorId]);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                                });
+                                return _errors;
+                            };
+                            function checkError($error){
+                                var _errors = sort(getError($error));
+                                if(_errors !== $errors){
+                                    $errors = _errors;
+                                }
+                                if($errors.length > 0 && $scope[$attrs.name].$submitted){
+                                    $alert.show('danger', $errors);
+                                }else{
+                                    $alert.hide();
+                                }
+                            };
+                            function sort(errors){
+                                var _errors = [];
+                                angular.forEach(grAutofields.schema, function(item){
+                                    if(item.type !== 'multiple'){
+                                        if(errors[item.property]){
+                                            _errors.push(angular.copy(errors[item.property]));
+                                        };
                                     } else {
-                                        angular.forEach(item.fields, function (subitem) {
-                                            if (subitem.property === field.$name && subitem.msgs && subitem.msgs[errorId]) {
-                                                _errors[subitem.property] = angular.copy(subitem.msgs[errorId]);
+                                        angular.forEach(item.fields, function(subitem){
+                                            if(errors[subitem.property]){
+                                                _errors.push(angular.copy(errors[subitem.property]));
                                             }
                                         });
                                     }
                                 });
-                            });
-                        });
-                        return _errors;
-                    };
-                    function checkError($error) {
-                        var _errors = sort(getError($error));
-                        if (_errors !== $errors) {
-                            $errors = _errors;
-                        }
-                        if ($scope[$attrs.name].$submitted) {
-                            if (!$alert.isShown) {
-                                $alert.show('danger', $errors);
-                            } else {
-                                $alert.update('danger', $errors);
-                            }
-                        }
-                    };
-                    function sort(errors) {
-                        var _errors = [];
-                        angular.forEach(autofields.schema, function (item) {
-                            if (item.type !== 'multiple') {
-                                if (errors[item.property]) {
-                                    _errors.push(angular.copy(errors[item.property]));
-                                };
-                            } else {
-                                angular.forEach(item.fields, function (subitem) {
-                                    if (errors[subitem.property]) {
-                                        _errors.push(angular.copy(errors[subitem.property]));
+                                return angular.copy(_errors);
+                            };
+                            function submit(){
+                                var field;
+                                angular.forEach(getError($scope[$attrs.name].autofields.$error), function(value, id){
+                                    if(!field){
+                                        field = id;
                                     }
                                 });
-                            }
-                        });
-                        return angular.copy(_errors);
-                    };
-                    function submit() {
-                        var field;
-                        angular.forEach(getError($scope[$attrs.name].autofields.$error), function (value, id) {
-                            if (!field) {
-                                field = id;
-                            }
-                        });
-                        if (!$scope[$attrs.name].$submitted) {
-                            $scope[$attrs.name].$setSubmitted(true);
-                        }
-                        if (!$scope[autofields.name].options.validation.enabled) {
-                            $scope[autofields.name].options.validation.enabled = true
+                                $timeout(function(){
+                                    if(!$scope[$attrs.name].$submitted){
+                                        $scope[$attrs.name].$setSubmitted(true);
+                                        $scope.$apply();
+                                    }
+                                    if(!grAutofields.options.validation.enabled){
+                                        grAutofields.options.validation.enabled = true
+                                    };
+                                    if($scope[$attrs.name].autofields.$invalid){
+                                        checkError($scope[$attrs.name].autofields.$error);
+                                    } else {
+                                        grAutofields.submit(grAutofields.data);
+                                    }
+                                });
+                            };
+                            function reset(){
+                                $timeout(function(){
+                                    grAutofields = angular.copy(defaults);
+                                    $scope[$attrs.name].$setPristine();
+                                    $scope[$attrs.name].$submitted = false;
+                                    $scope.$apply();
+                                    $alert.hide();
+                                });
+                            };
+                            function updateDefaults(){
+                                defaults = angular.copy(grAutofields);
+                            };
+                            function hasChange(){
+                                return !angular.equals(defaults.data, grAutofields.data);
+                            };
+                            $compile($element)($scope);
+                            $timeout(function(){
+                                $scope[$attrs.name].submit = submit;
+                                $scope[$attrs.name].reset = reset;
+                                $scope[$attrs.name].updateDefaults = updateDefaults;
+                                $scope[$attrs.name].hasChange = hasChange;
+                            });
                         };
-                        if ($scope[$attrs.name].$invalid) {
-                            checkError($scope[$attrs.name].autofields.$error);
-                        } else {
-                            $scope[autofields.name].submit($scope[autofields.name].data);
+                    $scope.$watch(function(){
+                        return grAutofields;
+                    }, function(newValue){
+                        if(newValue){
+                            $timeout(function(){
+                                $setter($scope, newValue);
+                                $scope.$apply();
+                            });
                         }
-                    };
-                    function reset() {
-                        $timeout(function(){
-                            $scope[autofields.name] = angular.copy(defaults);
-                            $scope[$attrs.name].$setPristine();
-                            $alert.hide();
-                        });
-                    };
-                    function updateDefaults() {
-                        defaults = angular.copy($scope[autofields.name]);
-                    };
-                    function hasChange(){
-                        return !angular.equals(defaults.data, $scope[autofields.name].data);
-                    };
-                    $timeout(function(){
-                        $scope[$attrs.name].submit = submit;
-                        $scope[$attrs.name].reset = reset;
-                        $scope[$attrs.name].updateDefaults = updateDefaults;
-                        $scope[$attrs.name].hasChange = hasChange;
-                    });
-                    $compile($element)($scope);
+                    }, true);
+                    init();
                 }
             }
         }]);
-})();
+}());
+
 (function(){
     angular.module('gr.ui.autofields.bootstrap', ['autofields.standard','ui.bootstrap'])
         .config(['$autofieldsProvider', function($autofieldsProvider){
@@ -186,7 +215,7 @@
                     clearText: '{{\'Clear\' | grTranslate}}',
                     closeText: '{{\'Close\' | grTranslate}}'
                 };
-                if (!(field.attr && field.attr.disabled == true)) {
+                if(!(field.attr && field.attr.disabled == true)){
                     field.$addons = [{
                         button: true,
                         icon: 'fa fa-fw fa-calendar',
@@ -337,7 +366,8 @@
                 return fieldElements;
             }, {require:'helpBlock'});
         }]);
-})();
+}());
+
 (function(){
     angular.module('gr.ui.autofields.bootstrap.validation',['autofields.validation'])
         .config(['$tooltipProvider', function($tooltipProvider){
@@ -377,10 +407,11 @@
                 return fieldElements;
             }, {require:'validation', override:true});
         }]);
-})();
+}());
+
 (function(){
     angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap','gr.ui.autofields.bootstrap.validation']);
-})();
+}());
 
 /** gr-autofields dependencies **/
 
@@ -872,4 +903,4 @@ b.isCollapsed=1==b.rangeCount&&b._ranges[0].collapsed,e(b,b._ranges[b.rangeCount
  * Build date: 26 February 2012
  */
 rangy.createModule("SaveRestore",function(a,b){function c(a,b){return(b||document).getElementById(a)}function d(a,b){var c,d="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),e=k.getDocument(a.startContainer),f=a.cloneRange();return f.collapse(b),c=e.createElement("span"),c.id=d,c.style.lineHeight="0",c.style.display="none",c.className="rangySelectionBoundary",c.appendChild(e.createTextNode(l)),f.insertNode(c),f.detach(),c}function e(a,d,e,f){var g=c(e,a);g?(d[f?"setStartBefore":"setEndBefore"](g),g.parentNode.removeChild(g)):b.warn("Marker element has been removed. Cannot restore selection.")}function f(a,b){return b.compareBoundaryPoints(a.START_TO_START,a)}function g(e){e=e||window;var g=e.document;if(!a.isSelectionValid(e))return void b.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus.");var h,i,j,k=a.getSelection(e),l=k.getAllRanges(),m=[];l.sort(f);for(var n=0,o=l.length;o>n;++n)j=l[n],j.collapsed?(i=d(j,!1),m.push({markerId:i.id,collapsed:!0})):(i=d(j,!1),h=d(j,!0),m[n]={startMarkerId:h.id,endMarkerId:i.id,collapsed:!1,backwards:1==l.length&&k.isBackwards()});for(n=o-1;n>=0;--n)j=l[n],j.collapsed?j.collapseBefore(c(m[n].markerId,g)):(j.setEndBefore(c(m[n].endMarkerId,g)),j.setStartAfter(c(m[n].startMarkerId,g)));return k.setRanges(l),{win:e,doc:g,rangeInfos:m,restored:!1}}function h(d,f){if(!d.restored){for(var g,h,i=d.rangeInfos,j=a.getSelection(d.win),k=[],l=i.length,m=l-1;m>=0;--m){if(g=i[m],h=a.createRange(d.doc),g.collapsed){var n=c(g.markerId,d.doc);if(n){n.style.display="inline";var o=n.previousSibling;o&&3==o.nodeType?(n.parentNode.removeChild(n),h.collapseToPoint(o,o.length)):(h.collapseBefore(n),n.parentNode.removeChild(n))}else b.warn("Marker element has been removed. Cannot restore selection.")}else e(d.doc,h,g.startMarkerId,!0),e(d.doc,h,g.endMarkerId,!1);1==l&&h.normalizeBoundaries(),k[m]=h}1==l&&f&&a.features.selectionHasExtend&&i[0].backwards?(j.removeAllRanges(),j.addRange(k[0],!0)):j.setRanges(k),d.restored=!0}}function i(a,b){var d=c(b,a);d&&d.parentNode.removeChild(d)}function j(a){for(var b,c=a.rangeInfos,d=0,e=c.length;e>d;++d)b=c[d],b.collapsed?i(a.doc,b.markerId):(i(a.doc,b.startMarkerId),i(a.doc,b.endMarkerId))}a.requireModules(["DomUtil","DomRange","WrappedRange"]);var k=a.dom,l="";a.saveSelection=g,a.restoreSelection=h,a.removeMarkerElement=i,a.removeMarkers=j})}({},function(){return this}());
-})();
+}());
