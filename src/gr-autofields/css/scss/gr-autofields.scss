@@ -124,15 +124,15 @@ $input-border: #CCCCCC;
             padding-left: 30px;
         }
     }
-    >.row{
-        margin-bottom: 15px;
-        >[class*="col-"]{
+    .row{
+        margin-bottom: 0;
+        [class*="col-"]{
             .checkbox{
                 margin-bottom: 10px;
                 margin-top: 25px;
             }
-			.form-group{
-				margin-bottom: 0;
+			.form-group:last-child{
+				margin-bottom: 15px;
 			}
         }
     }

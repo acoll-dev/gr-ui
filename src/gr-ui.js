@@ -2038,7 +2038,7 @@
                         if(angular.isString(src)){
                             dataSource = src;
                             getData(dataSource);
-                        }else if(angular.isObject(src) || angulr.isArray(src)){
+                        }else if(angular.isObject(src) || angular.isArray(src)){
                             $scope.grTable.dataSet = src;
                         }
                     }
@@ -2062,6 +2062,7 @@
                 });
                 $scope.$watch('grTable.dataSet', function(){ $scope.grTable.reload(); }, true);
                 setFunctions($scope, $element, $attrs);
+                $scope.$parent[$attrs.name || 'grTable'] = $scope.grTable;
             },
             setFunctions= function($scope, $element, $attrs){
                 $scope.grTable.fn = {};
@@ -2090,6 +2091,7 @@
             return {
                 restrict: 'A',
                 priority: 1002,
+                scope: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
                         $attrs.$set('ngTable', 'grTable');
