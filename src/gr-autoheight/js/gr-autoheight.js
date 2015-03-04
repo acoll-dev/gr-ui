@@ -2,13 +2,13 @@
 (function(){
     angular.module('gr.ui.autoheight', [])
         .directive('grAutoheight', ['$window', '$document', '$timeout',
-            function ($window, $document, $timeout) {
+            function ($window, $document, $timeout){
                 return {
-                    link: function ($scope, $element, $attrs) {
+                    link: function ($scope, $element, $attrs){
                         var siblingsMaxHeigth, sizes = false, viewPort, setHeight, clearHeight, ignore = false;
-                        viewPort = function() {
+                        viewPort = function(){
                             var e = $window, a = 'inner';
-                            if (!('innerWidth' in $window )) {
+                            if (!('innerWidth' in $window )){
                                 a = 'client';
                                 e = $document.documentElement || $document.body;
                             }
@@ -150,4 +150,4 @@
                     }
                 };
             }]);
-})();
+}());

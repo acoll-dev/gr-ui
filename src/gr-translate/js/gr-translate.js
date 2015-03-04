@@ -1,7 +1,7 @@
 'use strict';
 (function(){
     angular.module('gr.ui.translate', []);
-})();
+}());
 (function(){
     angular.module('gr.ui.translate')
         .filter('grTranslate', ['$injector', function($injector){
@@ -15,4 +15,4 @@
                 return value;
             }
         }]);
-})();
+}());

@@ -123,7 +123,7 @@
                 new: grAlert.new
             }
         }])
-        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout) {
+        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout){
                 return {
                     restrict: 'E',
                     scope: true,
@@ -154,4 +154,4 @@
                     '</div>' +
                 '</div>');
         }]);
-})();
+}());

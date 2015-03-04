@@ -1,7 +1,7 @@
 'use strict';
 (function(){
     angular.module('gr.ui.table.config')
-        .factory('$grTable.config', ['$grRestful', '$grModal', '$grAlert', '$timeout', function ($grRestful, $grModal, $grAlert, $timeout) {
+        .factory('$grTable.config', ['$grRestful', '$grModal', '$grAlert', '$timeout', function ($grRestful, $grModal, $grAlert, $timeout){
             return {
                 'edit': function($scope){
                     return {
@@ -91,4 +91,4 @@
                 }
             }
         }]);
-})();
+}());

@@ -428,15 +428,15 @@
 
                 // Helper Methods
                 var helper = {
-                    CamelToTitle: function (str) {
+                    CamelToTitle: function (str){
                         return str
                         .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, function (str) { return str.toUpperCase(); });
+                        .replace(/^./, function (str){ return str.toUpperCase(); });
                     },
-                    CamelToDash: function (str) {
+                    CamelToDash: function (str){
                         return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
                     },
-                    LabelText: function(field) {
+                    LabelText: function(field){
                         return field.label || helper.CamelToTitle(field.property);
                     }
                 };
@@ -598,7 +598,7 @@
                     priority: 1,
                     replace: true,
                     compile: function(){
-                        return function ($scope, $element, $attr) {
+                        return function ($scope, $element, $attr){
                             // Scope Hooks
                             var directive = {
                                 schemaStr: $attr.fields || $attr.autoFields,
@@ -612,11 +612,11 @@
 
                             //Helper Functions
                             var helper = {
-                                extendDeep: function(dst) {
-                                    angular.forEach(arguments, function(obj) {
-                                        if (obj !== dst) {
-                                            angular.forEach(obj, function(value, key) {
-                                                if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
+                                extendDeep: function(dst){
+                                    angular.forEach(arguments, function(obj){
+                                        if (obj !== dst){
+                                            angular.forEach(obj, function(value, key){
+                                                if (dst[key] && dst[key].constructor && dst[key].constructor === Object){
                                                     helper.extendDeep(dst[key], value);
                                                 } else {
                                                     dst[key] = value;
@@ -654,17 +654,17 @@
                             };
 
                             // Init and Watch
-                            $scope.$watch(directive.optionsStr, function (newOptions, oldOptions) {
+                            $scope.$watch(directive.optionsStr, function (newOptions, oldOptions){
                                 helper.extendDeep(directive.options, newOptions);
                                 if(newOptions !== oldOptions) build();
                             }, true);
-                            $scope.$watch(directive.schemaStr, function (schema) {
+                            $scope.$watch(directive.schemaStr, function (schema){
                                 build(schema);
                             }, true);
-                            $scope.$watch(directive.formStr, function (form) {
+                            $scope.$watch(directive.formStr, function (form){
                                 directive.container.attr('name',directive.formStr);
                             });
-                            $scope.$watch(function(){return $attr['class'];}, function (form) {
+                            $scope.$watch(function(){return $attr['class'];}, function (form){
                                 directive.classes = $attr['class'];
                                 directive.container.attr('class', directive.classes);
                             });
@@ -677,7 +677,7 @@
                     }
                 }
             }]);
-    })();
+    }());
     (function(){
         angular.module('autofields.standard',['autofields.core'])
             .config(['$autofieldsProvider', function($autofieldsProvider){
@@ -749,14 +749,14 @@
                 return {
                     restrict: 'A',
                     require: 'ngModel',
-                    link: function (scope, element, attr, ngModel) {
+                    link: function (scope, element, attr, ngModel){
                         var urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-\?\=\&]*)$/i;
 
                         //Render formatters on blur...
                         var render = function(){
                             var viewValue = ngModel.$modelValue;
                             if (viewValue == null) return;
-                            angular.forEach(ngModel.$formatters, function (formatter) {
+                            angular.forEach(ngModel.$formatters, function (formatter){
                                 viewValue = formatter(viewValue);
                             })
                             ngModel.$viewValue = viewValue;
@@ -764,9 +764,9 @@
                         };
                         element.bind('blur', render);
 
-                        var formatUrl = function (value) {
+                        var formatUrl = function (value){
                             var test = urlRegex.test(value);
-                            if (test) {
+                            if (test){
                                 var matches = value.match(urlRegex);
                                 var reformatted = (matches[1] != null && matches[1] != '') ? matches[1] : 'http://';
                                 reformatted += matches[2] + '.' + matches[3];
@@ -780,15 +780,15 @@
                     }
                 };
             }]);
-    })();
+    }());
     (function(){
         angular.module('autofields.validation', ['autofields.core'])
             .config(['$autofieldsProvider', function($autofieldsProvider){
                 var helper = {
-                    CamelToTitle: function (str) {
+                    CamelToTitle: function (str){
                         return str
                         .replace(/([A-Z])/g, ' $1')
-                        .replace(/^./, function (str) { return str.toUpperCase(); });
+                        .replace(/^./, function (str){ return str.toUpperCase(); });
                     }
                 };
 
@@ -849,11 +849,11 @@
                     return fieldElements;
                 });
             }]);
-    })();
+    }());
     (function(){
         angular.module('autofields',['autofields.standard','autofields.validation']);
         angular.module('autoFields',['autofields']); // Deprecated module name
-    })();
+    }());
     /*
     @license textAngular
     Author : Austin Anderson

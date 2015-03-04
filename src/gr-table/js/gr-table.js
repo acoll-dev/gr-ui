@@ -271,7 +271,7 @@
                 }
             }
         }]);
-})();
+}());
 (function(){
     angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
-})();
+}());
