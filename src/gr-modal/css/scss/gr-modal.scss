@@ -7,13 +7,6 @@
             font-size: 0.875rem;
             .modal-content{
                 border-radius: 0;
-                form{
-                    .form-group{
-                        &:last-child{
-                            margin-bottom: 0;
-                        }
-                    }
-                }
             }
             &.modal-sm{
                 width: 300px;

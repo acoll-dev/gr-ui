@@ -131,9 +131,17 @@ $input-border: #CCCCCC;
                 margin-bottom: 10px;
                 margin-top: 25px;
             }
-			.form-group:last-child{
-				margin-bottom: 15px;
+			.form-group{
+				margin-bottom: 0;
 			}
+        }
+    }
+    > .form-group,
+    > .row{
+        margin-top: 15px;
+        margin-bottom: 15px;
+        &:first-child{
+            margin-top: 0;
         }
     }
 	.date{

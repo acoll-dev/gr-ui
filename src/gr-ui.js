@@ -1926,6 +1926,7 @@
                         $http.get(src).then(function(r){
                             if(r.status === 200 && r.data.response){
                                 $scope.grTable.dataSet = r.data.response;
+                                $scope.grTable.reload();
                                 if(!reload){
                                     alert.hide();
                                 }else{
@@ -2023,6 +2024,10 @@
                                     }
                                     return -1;
                                 };
+                if($scope.$parent.modal && $scope.$parent.modal.element){
+                    alert.destroy();
+                    alert = $grAlert.new($scope.$parent.modal.element);
+                }
                 $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope.grTable.defaults = grTable.defaults;
                 $scope.grTable.reloadData = function(src){
@@ -2032,17 +2037,6 @@
                         getData(src, true);
                     }
                 };
-                $attrs.$observe('grDataSource', function(source){
-                    if(source && angular.isDefined(source)){
-                        var src = $parse(source)($scope);
-                        if(angular.isString(src)){
-                            dataSource = src;
-                            getData(dataSource);
-                        }else if(angular.isObject(src) || angular.isArray(src)){
-                            $scope.grTable.dataSet = src;
-                        }
-                    }
-                });
                 $attrs.$observe('exportCsv', function(name){ $scope.grTable.csv = angular.copy(name); });
                 $attrs.$observe('sortby', function(sort){
                     if(sort){
@@ -2060,7 +2054,24 @@
                         }
                     }
                 });
-                $scope.$watch('grTable.dataSet', function(){ $scope.grTable.reload(); }, true);
+                $scope.$watch($attrs.list, function(list){ if(list){ $scope.dataSet = list; } }, true)
+                $attrs.$observe('remote', function(remote){
+                    if(remote){
+                        $scope.dataSet = $parse(remote)($scope);
+                    }
+                });
+                $attrs.$observe('grDataSource', function(remote){ if(remote){ $scope.dataSet = $parse(remote)($scope); } });
+                $scope.$watch('dataSet', function(data){
+                    if(data){
+                        if(angular.isString(data)){
+                            dataSource = data;
+                            getData(dataSource);
+                        }else if(angular.isObject(data) || angular.isArray(data)){
+                            $scope.grTable.dataSet = data;
+                            $scope.grTable.reload();
+                        }
+                    };
+                }, true);
                 setFunctions($scope, $element, $attrs);
                 $scope.$parent[$attrs.name || 'grTable'] = $scope.grTable;
             },
