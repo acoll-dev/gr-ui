@@ -187,6 +187,22 @@ $input-border: #CCCCCC;
             }
         }
     }
+    @media screen and (max-width: 768px){
+        .row{
+            [class*="col-"]{
+                .form-group{
+                    padding-bottom: 15px;
+                }
+            }
+        }
+        > .form-group{
+            margin-top: 0;
+        }
+        > .row{
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+    }
 }
 /*
 @license textAngular
