@@ -2126,39 +2126,85 @@
             }
         }])
         .directive('grTableClearSorting', function(){
-                return {
-                    restrict: 'E',
-                    transclude: true,
-                    scope: false,
-                    template: '<button class="gr-table-clear-sorting" ng-click="grTable.sorting(grTable.defaults.sorting)" ng-transclude></button>',
-                    replace: true
+            return {
+                restrict: 'E',
+                transclude: true,
+                scope: {
+                    for: '='
+                },
+                template: '<button class="gr-table-clear-sorting" ng-click="grTable.sorting(grTable.defaults.sorting)" ng-transclude></button>',
+                replace: true,
+                compile: function($element){
+                    return function($scope, $element, $attrs){
+                        if(!$scope.for){
+                            $scope.grTable = $scope.$parent.grTable;
+                        }else{
+                            $scope.grTable = $scope.for;
+                        }
+                    }
                 }
+            }
         })
         .directive('grTableClearFilter', function(){
             return {
                 restrict: 'E',
                 transclude: true,
-                scope: false,
+                scope: {
+                    for: '='
+                },
                 template: '<button class="gr-table-clear-filter" ng-click="grTable.filter({})" ng-transclude></button>',
-                replace: true
+                replace: true,
+                compile: function($element){
+                    return function($scope, $element, $attrs){
+                        if(!$scope.for){
+                            $scope.grTable = $scope.$parent.grTable;
+                        }else{
+                            $scope.grTable = $scope.for;
+                        }
+                    }
+                }
             }
         })
         .directive('grTableCount', function(){
             return {
                 restrict: 'E',
-                transclude: true,
-                scope: false,
+                scope: {
+                    for: '='
+                },
                 template: '<div class="btn-group gr-table-count"><button ng-repeat="count in grTable.settings().counts" type="button" ng-class="{\'active\':grTable.count()==count}" ng-click="grTable.count(count)" class="btn btn-default"><span ng-bind="count"></span></button></div>',
-                replace: true
+                replace: true,
+                compile: function($element){
+                    return function($scope, $element, $attrs){
+                        if(!$scope.for){
+                            $scope.grTable = $scope.$parent.grTable;
+                        }else{
+                            $scope.grTable = $scope.for;
+                        }
+                    }
+                }
             }
         })
         .directive('grTablePager', function(){
             return {
                 restrict: 'E',
-                transclude: true,
-                scope: false,
-                template: '<div class="gr-table-pager" ng-table-pagination="grTable" template-url="\'ng-table/pager-nav.html\'"></div>',
-                replace: true
+                scope: {
+                    for: '='
+                },
+                template: '<div class="gr-table-pager"></div>',
+                replace: true,
+                compile: function($element){
+                    return function($scope, $element, $attrs){
+                        if(!$scope.for){
+                            $scope.grTable = $scope.$parent.grTable;
+                        }else{
+                            $scope.grTable = $scope.for;
+                        }
+                        $element.attr({
+                            'ng-table-pagination': 'grTable',
+                            'template-url': '\'ng-table/pager-nav.html\''
+                        });
+                    }
+                }
             }
         })
         .directive('grChange', ['$parse', '$timeout', function($parse, $timeout){
