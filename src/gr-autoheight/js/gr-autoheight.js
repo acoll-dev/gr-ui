@@ -1,153 +1,136 @@
 'use strict';
 (function(){
     angular.module('gr.ui.autoheight', [])
-        .directive('grAutoheight', ['$window', '$document', '$timeout',
-            function ($window, $document, $timeout){
-                return {
-                    link: function ($scope, $element, $attrs){
-                        var siblingsMaxHeigth, sizes = false, viewPort, setHeight, clearHeight, ignore = false;
-                        viewPort = function(){
-                            var e = $window, a = 'inner';
-                            if (!('innerWidth' in $window )){
-                                a = 'client';
-                                e = $document.documentElement || $document.body;
-                            }
-                            return { width : e[ a+'Width' ] , height : e[ a+'Height' ] };
-                        };
-                        setHeight = function(){
-                            var _sbl = $element.parent().children('[gr-auto-height]'), _nth = 0, _nthAux = 0, maxHeight = 0, tmpChilds = [], foundCurrent = false, bsSize = '', width = viewPort().width;
-                            if(sizes){
-                                if(width < 768){
-                                    _nth = sizes[0];
-                                    bsSize = 'xs';
-                                }else if(width >= 768 && width < 992){
-                                    _nth = sizes[1];
-                                    bsSize = 'sm';
-                                }else if(width >= 992 && width < 1200){
-                                    _nth = sizes[2];
-                                    bsSize = 'md';
-                                }else if(width >= 1200){
-                                    _nth = sizes[3];
-                                    bsSize = 'lg';
-                                }
-                                if(ignore && (ignore.indexOf(bsSize) > -1)){
-                                    angular.element(elm).innerHeight('');
-                                    return false;
-                                }
-                                angular.forEach(_sbl, function(elm, id){
-                                    if(_nth === 0){
-                                        tmpChilds.push(elm);
-                                    }else {
-                                        if(angular.isUndefined(tmpChilds[_nthAux])){
-                                            tmpChilds[_nthAux] = [];
-                                        }
-                                        tmpChilds[_nthAux].push(elm);
-                                        if((id + 1) % _nth === 0 && id > 1 && elm !== _sbl.last()[0]){
-                                            _nthAux ++;
-                                            tmpChilds[_nthAux] = [];
-                                        }
+        .directive('grAutoheight', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
+            return {
+                link: function ($scope, $element, $attrs) {
+                    var settings = {
+                            bsCols: {
+                                xs: 1,
+                                sm: 1,
+                                md: 1,
+                                lg: 1
+                            },
+                            height: 0
+                        },
+                        viewPort = function(el){
+                            var w = el || $window,
+                                d = $window.document,
+                                viewPort = {
+                                    width: 0,
+                                    height: 0
+                                },
+                                setBs = function(){
+                                    if(viewPort.width < 768){
+                                        viewPort.bs = 'xs';
                                     }
-                                });
-                                angular.forEach(tmpChilds, function(c, cId){
-                                    if(!foundCurrent){
-                                        var hasCurrent = false;
-                                        angular.forEach(c, function(cc){
-                                            if(cc === $element[0]){
-                                                hasCurrent = true;
-                                            }
-                                        });
-                                        if(hasCurrent){
-                                            tmpChilds = tmpChilds[cId];
-                                            foundCurrent = true;
-                                        }
+                                    if(viewPort.width >= 768){
+                                        viewPort.bs = 'sm';
                                     }
-                                });
-                                angular.forEach(tmpChilds, function(elm){
-                                    clearHeight(angular.element(elm));
-                                });
-                                angular.forEach(tmpChilds, function(elm){
-                                    maxHeight = elm.offsetHeight > maxHeight ? elm.offsetHeight : maxHeight;
-                                });
-                                angular.forEach(tmpChilds, function(elm){
-                                    angular.element(elm).innerHeight(maxHeight);
-                                });
+                                    if(viewPort.width >= 990){
+                                        viewPort.bs = 'md';
+                                    }
+                                    if(viewPort.width >= 1200){
+                                        viewPort.bs = 'lg';
+                                    };
+                                };
+                            if (w.innerWidth != null){
+                                viewPort.width = w.innerWidth;
+                                viewPort.height = w.innerHeight;
+                                setBs();
+                            }else if (document.compatMode == "CSS1Compat"){
+                                viewPort.width =  d.documentElement.clientWidth;
+                                viewPort.height = d.documentElement.clientHeight;
+                                setBs();
+                                return viewPort;
                             }else{
-                                if(width < 768){
-                                    bsSize = 'xs';
-                                }else if(width >= 768 && width < 992){
-                                    bsSize = 'sm';
-                                }else if(width >= 992 && width < 1200){
-                                    bsSize = 'md';
-                                }else if(width >= 1200){
-                                    bsSize = 'lg';
-                                }
-                                if(ignore && (ignore.indexOf(bsSize) > -1)){
-                                    $element.innerHeight('');
-                                    return false;
-                                }
-                                if($element.attr('gr-auto-height-ajust')){
-                                    $element.innerHeight($element.parent().innerHeight() + parseFloat($element.attr('gr-auto-height-ajust')));
-                                }else{
-                                    $element.innerHeight($element.parent().innerHeight());
-                                }
-                                $timeout(function(){ //compatibility for element parents with directive gr-auto-height
-                                    clearHeight();
-                                    if($element.attr('gr-auto-height-ajust')){
-                                        $element.innerHeight($element.parent().innerHeight() + parseFloat($element.attr('gr-auto-height-ajust')));
-                                    }else{
-                                        $element.innerHeight($element.parent().innerHeight());
-                                    }
-                                });
+                                viewPort.width = d.body.clientWidth;
+                                viewPort.height = d.body.clientHeight;
+                                setBs();
                             }
-                        };
-                        clearHeight = function($elm){
-                            if(!$elm){
-                                $element.height('');
+                            return viewPort;
+                        },
+                        maxHeight = function(elements){
+                            var max = 0;
+                            angular.forEach(elements, function(el){
+                                if(el.outerHeight() > max){
+                                    max = el.outerHeight();
+                                }
+                            });
+                            return max;
+                        },
+                        ajust = function(){
+                            var cols = settings.bsCols[viewPort().bs];
+                            console.debug(cols);
+                            if(cols === 0){
+                                $element.outerHeight($element.parent().innerHeight());
+                            }else if(cols === 1){
+                                $element[0].style.height = null;
                             }else{
-                                $elm.height('');
-                            }
-                        };
-                        angular.element($window).bind('resize', function(){
-                            clearHeight();
-                            setHeight();
-                        });
-                        $attrs.$observe('grAutoHeightIgnore', function(v){
-                            if(angular.isDefined(v) && v !== ''){
-                                if(v.indexOf(',') > -1){
-                                    v = v.split(',');
-                                    angular.forEach(v, function(_v){
-                                        _v = _v.trim();
+                                var siblings = $element.parent().children(),
+                                    map = [],
+                                    elSiblings = [];
+                                for(var aux = 0, pos = 0; aux < siblings.length; aux++){
+                                    if(!map[pos]){
+                                        map[pos] = [];
+                                    }
+                                    if(map[pos].length === cols){
+                                        pos++;
+                                        map[pos] = [];
+                                    }
+                                    map[pos].push(aux);
+                                }
+                                angular.forEach(map, function(subMap, id){
+                                    var found = false;
+                                    angular.forEach(subMap, function(item){
+                                        if(item === $element.index()){
+                                            found = true;
+                                        }
                                     });
-                                }else{
-                                    v = [v];
-                                }
-                                ignore = v;
-                            }else{
-                                ignore = false;
-                            }
-                        });
-                        $attrs.$observe('grAutoHeight', function(v){
-                            if(angular.isDefined(v) && v !== ''){
-                                if(v.match(/,/g).length === 3){
-                                    var c = 0;
-                                    sizes = v.split(',');
-                                    angular.forEach(sizes, function(){
-                                        c++;
-                                    });
-                                    if(c !== 4){
-                                        sizes = false;
+                                    if(!found){
+                                        delete map[id];
                                     }
-                                }else{
-                                    sizes = false;
-                                }
-                            }else{
-                                sizes = false;
+                                });
+                                angular.forEach(map, function(subMap){ map = subMap; });
+                                angular.forEach(siblings, function(el, id){
+                                    var elm = angular.element(el);
+                                    if(map.indexOf(id) > -1){
+                                        elSiblings.push(elm);
+                                    }
+                                });
+                                angular.forEach(elSiblings, function(el){
+                                    el[0].style.height = null;
+                                });
+                                $timeout(function(){
+                                    var max = maxHeight(elSiblings);
+                                    angular.forEach(elSiblings, function(el){
+                                        var elm = angular.element(el);
+                                        elm.outerHeight(max);
+                                    });
+                                });
                             }
-                            $timeout(setHeight);
-                        });
-                        $timeout(setHeight);
-                        $timeout(setHeight, 1000);
-                    }
-                };
-            }]);
+                        }
+                    angular.element($window).on('resize', function(){
+                        $timeout(ajust);
+                    });
+                    $timeout(ajust);
+                    $timeout(ajust, 100);
+                    $attrs.$observe('grAutoheight', function(args){
+                        if(args){
+                            while(args.indexOf('\'') > -1){ args = args.replace('\'',''); }
+                            while(args.indexOf('"') > -1){ args = args.replace('"',''); }
+                            args = angular.fromJson(args.replace('xs', '"xs"').replace('sm', '"sm"').replace('md', '"md"').replace('lg', '"lg"'));
+                            angular.extend(settings.bsCols, args);
+                        }else{
+                            settings.bsCols = {
+                                xs:0,
+                                sm:0,
+                                md:0,
+                                lg:0
+                            };
+                        }
+                    });
+                }
+            };
+        }]);
 }());

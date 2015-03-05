@@ -61,7 +61,7 @@
                                     carousel.items.outerWidth(width);
                                     carousel.scroller.width(width * carousel.items.length);
                                     carousel.itemWidth = width;
-                                    $timeout(function(){ $element.height(carousel.scroller.height()); },100);
+                                    if($element.find('img:visible').length > 0){ $timeout(function(){ $element.height(carousel.scroller.height()); },100); }else{ $element[0].style.height = null; }
                                     carousel.reset();
                                 }
                             },
@@ -292,13 +292,13 @@
                             var w = el || $window,
                                 d = w.document,
                                 _return = {};
-                            if (w.innerWidth != null){
+                            if(w.innerWidth != null){
                                 _return = {
                                     width: w.innerWidth,
                                     height: w.innerHeight
                                 };
                             };
-                            if (document.compatMode == "CSS1Compat"){
+                            if(document.compatMode == "CSS1Compat"){
                                 _return = {
                                     width: d.documentElement.clientWidth,
                                     height: d.documentElement.clientHeight
