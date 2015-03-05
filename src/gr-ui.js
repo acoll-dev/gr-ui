@@ -209,9 +209,6 @@
                                 'novalidate': true,
                                 'ng-submit': 'Autofields.submit()'
                             });
-                            if($element.find('[type="submit"]').length === 0){
-                                $element.append('<button type="submit" class="hidden" />');
-                            }
                             $scope.$watch(function(){
                                 if($scope[$attrs.name].autofields){
                                     return $scope[$attrs.name].autofields.$error;
@@ -311,6 +308,7 @@
                             function hasChange(){
                                 return !angular.equals(defaults.data, grAutofields.data);
                             };
+                            $element.bind('submit', submit);
                             $compile($element)($scope);
                             $timeout(function(){
                                 $scope[$attrs.name].submit = submit;

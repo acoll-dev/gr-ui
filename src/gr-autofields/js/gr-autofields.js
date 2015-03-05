@@ -1,6 +1,5 @@
 'use strict';
 
-
 (function(){
     angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
         .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
@@ -38,9 +37,6 @@
                                 'novalidate': true,
                                 'ng-submit': 'Autofields.submit()'
                             });
-                            if($element.find('[type="submit"]').length === 0){
-                                $element.append('<button type="submit" class="hidden" />');
-                            }
                             $scope.$watch(function(){
                                 if($scope[$attrs.name].autofields){
                                     return $scope[$attrs.name].autofields.$error;
@@ -140,6 +136,7 @@
                             function hasChange(){
                                 return !angular.equals(defaults.data, grAutofields.data);
                             };
+                            $element.bind('submit', submit);
                             $compile($element)($scope);
                             $timeout(function(){
                                 $scope[$attrs.name].submit = submit;
@@ -163,7 +160,6 @@
             }
         }]);
 }());
-
 (function(){
     angular.module('gr.ui.autofields.bootstrap', ['autofields.standard','ui.bootstrap'])
         .config(['$autofieldsProvider', function($autofieldsProvider){
@@ -367,7 +363,6 @@
             }, {require:'helpBlock'});
         }]);
 }());
-
 (function(){
     angular.module('gr.ui.autofields.bootstrap.validation',['autofields.validation'])
         .config(['$tooltipProvider', function($tooltipProvider){
@@ -408,7 +403,6 @@
             }, {require:'validation', override:true});
         }]);
 }());
-
 (function(){
     angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap','gr.ui.autofields.bootstrap.validation']);
 }());
