@@ -406,6 +406,11 @@
                 return fieldElements;
             }, {require:'validation', override:true});
         }]);
+<<<<<<< HEAD
+=======
+}());
+(function(){
+>>>>>>> 544ae3bfaddd46cb0f998ce13faffe27fde1bab5
     angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap','gr.ui.autofields.bootstrap.validation']);
 }());
 
