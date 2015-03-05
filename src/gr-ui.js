@@ -207,11 +207,8 @@
                             }
                             $element.prepend($input).removeAttr('gr-autofields').attr({
                                 'novalidate': true,
-                                'ng-submit': 'Autofields.submit()'
+                                'ng-submit': $attrs.name + '.submit()'
                             });
-                            if($element.find('[type="submit"]').length === 0){
-                                $element.append('<button type="submit" class="hidden" />');
-                            }
                             $scope.$watch(function(){
                                 if($scope[$attrs.name].autofields){
                                     return $scope[$attrs.name].autofields.$error;
@@ -275,6 +272,7 @@
                                 return angular.copy(_errors);
                             };
                             function submit(){
+                                console.debug('teste');
                                 var field;
                                 angular.forEach(getError($scope[$attrs.name].autofields.$error), function(value, id){
                                     if(!field){
@@ -311,6 +309,10 @@
                             function hasChange(){
                                 return !angular.equals(defaults.data, grAutofields.data);
                             };
+                            if($element.find('[tye="submit"]').length === 0){
+                                $element.append('<button type="submit" class="hidden"/>');
+                            }
+                            //$element.bind('submit', submit);
                             $compile($element)($scope);
                             $timeout(function(){
                                 $scope[$attrs.name].submit = submit;
