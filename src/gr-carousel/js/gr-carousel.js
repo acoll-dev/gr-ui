@@ -6,7 +6,6 @@
                 restrict: 'EA',
                 transclude: true,
                 replace: true,
-                scope: true,
                 template: function(){ return $templateCache.get('gr-carousel/carousel.html'); },
                 link: function($scope, $element, $attrs, $ctrl, $transclude){
                     $transclude($scope, function($clone){

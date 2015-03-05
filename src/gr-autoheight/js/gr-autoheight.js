@@ -3,6 +3,7 @@
     angular.module('gr.ui.autoheight', [])
         .directive('grAutoheight', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
             return {
+                restrict: 'A',
                 link: function ($scope, $element, $attrs) {
                     var settings = {
                             bsCols: {
@@ -61,7 +62,6 @@
                         },
                         ajust = function(){
                             var cols = settings.bsCols[viewPort().bs];
-                            console.debug(cols);
                             if(cols === 0){
                                 $element.outerHeight($element.parent().innerHeight());
                             }else if(cols === 1){
