@@ -309,14 +309,10 @@
                             function hasChange(){
                                 return !angular.equals(defaults.data, grAutofields.data);
                             };
-<<<<<<< HEAD
                             if($element.find('[tye="submit"]').length === 0){
                                 $element.append('<button type="submit" class="hidden"/>');
                             }
                             //$element.bind('submit', submit);
-=======
-                            $element.bind('submit', submit);
->>>>>>> 544ae3bfaddd46cb0f998ce13faffe27fde1bab5
                             $compile($element)($scope);
                             $timeout(function(){
                                 $scope[$attrs.name].submit = submit;
