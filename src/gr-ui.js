@@ -272,7 +272,6 @@
                                 return angular.copy(_errors);
                             };
                             function submit(){
-                                console.debug('teste');
                                 var field;
                                 angular.forEach(getError($scope[$attrs.name].autofields.$error), function(value, id){
                                     if(!field){
