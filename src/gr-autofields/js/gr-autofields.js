@@ -38,6 +38,9 @@
                                 'ng-submit': $attrs.name + '.submit()'
                             });
                             $scope.$watch(function(){
+                                return grAutofields.schema;
+                            }, setErrors, true);
+                            $scope.$watch(function(){
                                 if($scope[$attrs.name].autofields){
                                     return $scope[$attrs.name].autofields.$error;
                                 }else{
@@ -50,54 +53,47 @@
                                     $alert = $grAlert.new(modalScope.modal.element);
                                 }
                             }, true);
-                            function getError($error){
-                                var _errors = {};
-                                angular.forEach($error, function(errors, errorId){
-                                    angular.forEach(errors, function(field, id){
-                                        angular.forEach(grAutofields.schema, function(item){
-                                            if(item.type !== 'multiple'){
-                                                if(item.property === field.$name && item.msgs && item.msgs[errorId]){
-                                                    _errors[item.property] = angular.copy(item.msgs[errorId]);
+                            function setErrors(schema){
+                                var errors = {};
+                                function multipleRecursive(schema){
+                                    var aux = {};
+                                    angular.forEach(schema, function(item){
+                                        if(item.type === 'multiple'){
+                                            angular.forEach(multipleRecursive(item.fields), function(subitem){
+                                                if(subitem.msgs){
+                                                    aux[subitem.property] = subitem;
                                                 }
-                                            } else {
-                                                angular.forEach(item.fields, function(subitem){
-                                                    if(subitem.property === field.$name && subitem.msgs && subitem.msgs[errorId]){
-                                                        _errors[subitem.property] = angular.copy(subitem.msgs[errorId]);
-                                                    }
-                                                });
-                                            }
-                                        });
+                                            });
+                                        }else if(item.msgs){
+                                            aux[item.property] = item;
+                                        }
+                                    });
+                                    return aux;
+                                }
+                                angular.forEach(multipleRecursive(schema), function(item, id){
+                                    errors[id] = item.msgs;
+                                });
+                                grAutofields.errors = errors;
+                                checkError();
+                            }
+                            function getError($error){
+                                var _errors = [];
+                                angular.forEach($error, function(errors, errorId){
+                                    angular.forEach(errors, function(field){
+                                        _errors.push(grAutofields.errors[field.$name][errorId]);
                                     });
                                 });
                                 return _errors;
                             };
                             function checkError($error){
-                                var _errors = sort(getError($error));
-                                if(_errors !== $errors){
-                                    $errors = _errors;
-                                }
+                                var errors;
+                                if($error){ errors = getError($error); }else{ errors = $errors; }
+                                if(errors !== $errors){ $errors = errors; }
                                 if($errors.length > 0 && $scope[$attrs.name].$submitted){
                                     $alert.show('danger', $errors);
                                 }else{
                                     $alert.hide();
                                 }
-                            };
-                            function sort(errors){
-                                var _errors = [];
-                                angular.forEach(grAutofields.schema, function(item){
-                                    if(item.type !== 'multiple'){
-                                        if(errors[item.property]){
-                                            _errors.push(angular.copy(errors[item.property]));
-                                        };
-                                    } else {
-                                        angular.forEach(item.fields, function(subitem){
-                                            if(errors[subitem.property]){
-                                                _errors.push(angular.copy(errors[subitem.property]));
-                                            }
-                                        });
-                                    }
-                                });
-                                return angular.copy(_errors);
                             };
                             function submit(){
                                 var field;
@@ -136,10 +132,9 @@
                             function hasChange(){
                                 return !angular.equals(defaults.data, grAutofields.data);
                             };
-                            if($element.find('[tye="submit"]').length === 0){
+                            if($element.find('[type="submit"]').length === 0){
                                 $element.append('<button type="submit" class="hidden"/>');
                             }
-                            //$element.bind('submit', submit);
                             $compile($element)($scope);
                             $timeout(function(){
                                 $scope[$attrs.name].submit = submit;
