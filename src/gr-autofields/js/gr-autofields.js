@@ -80,7 +80,9 @@
                                 var _errors = [];
                                 angular.forEach($error, function(errors, errorId){
                                     angular.forEach(errors, function(field){
-                                        _errors.push(grAutofields.errors[field.$name][errorId]);
+                                        if(grAutofields.errors[field.$name]){
+                                            _errors.push(grAutofields.errors[field.$name][errorId]);
+                                        }
                                     });
                                 });
                                 return _errors;

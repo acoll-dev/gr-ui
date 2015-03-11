@@ -235,7 +235,7 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 
 .ta-root{
 	position: relative;
-	display: table;
+	display: block;
 	width: 100%;
 	padding: 10px;
 	background: #F6F6F6;
@@ -255,7 +255,8 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 	.ta-editor.ta-html,
 	.ta-scroll-window.form-control {
 		min-height: 300px;
-		height: auto;
+        height: auto;
+		max-height: 500px;
 		overflow: auto;
 		font-family: inherit;
 		font-size: 100%;
@@ -268,6 +269,7 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 		> .ta-bind {
 			height: auto;
 			min-height: 300px;
+		    max-height: 500px;
 			padding: 6px 12px;
 		}
 	}

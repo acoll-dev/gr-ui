@@ -252,7 +252,9 @@
                                 var _errors = [];
                                 angular.forEach($error, function(errors, errorId){
                                     angular.forEach(errors, function(field){
-                                        _errors.push(grAutofields.errors[field.$name][errorId]);
+                                        if(grAutofields.errors[field.$name]){
+                                            _errors.push(grAutofields.errors[field.$name][errorId]);
+                                        }
                                     });
                                 });
                                 return _errors;
@@ -1323,24 +1325,12 @@
                     'onClose': function(){}
                 }
             };
-            this.config = function(config){
-                if(angular.isString(config.base)){
-                    grModal.template.base = config.base;
-                }
-                if(angular.isFunction(config.onClose)){
-                    grModal.events.onClose = config.onClose;
-                }
-                if(angular.isFunction(config.onOpen)){
-                    grModal.events.onOpen = config.onOpen;
-                }
-            };
             setup = function(injector){
                 $injector = injector;
                 $modal = $injector.get('$grModal.ui');
                 $templateCache = $injector.get('$templateCache');
             };
-            this.$get = ['$injector',
-            function(injector){
+            this.$get = ['$injector', function(injector){
                     setup(injector);
                     return {
                         'new': grModal.new,
@@ -1622,7 +1612,7 @@
                     if(currBackdropIndex >= 0 && !backdropDomEl){
                         backdropScope = $rootScope.$new(true);
                         backdropScope.index = currBackdropIndex;
-                        backdropScope.zIndex = modal.zIndex;
+                        backdropScope.zIndex = parseInt(modal.zIndex);
                         var angularBackgroundDomEl = angular.element('<div gr-modal-backdrop></div>');
                         angularBackgroundDomEl.attr('backdrop-class', modal.backdropClass);
                         backdropDomEl = $compile(angularBackgroundDomEl)(backdropScope);
@@ -1861,7 +1851,7 @@
     angular.module('gr.ui.modal.template', [])
         .run(['$templateCache', function($templaceCache){
             $templaceCache.put('grModal/window.html',
-               '<div tabindex="-1" role="dialog" class="modal fade" ng-class="{in: animate}" ng-style="{\'z-index\': (zIndex && zIndex > 0 ? (zIndex + 10) : (100050 + index*10)), display: \'block\'}" ng-click="close($event)">' +
+               '<div tabindex="-1" role="dialog" class="modal fade" ng-class="{in: animate}" ng-style="{\'z-index\': (zIndex && zIndex > 0 ? ((zIndex*1) + 10) : (100050 + index*10)), display: \'block\'}" ng-click="close($event)">' +
                     '<div class="modal-dialog" ng-class="{\'modal-sm\': size == \'sm\', \'modal-lg\': size == \'lg\', \'modal-responsive\': size == \'responsive\'}">' +
                         '<div class="modal-content">' +
                             '<div class="modal-header" ng-if="title">' +
