@@ -1207,7 +1207,7 @@
                         var element = {
                             'id': id,
                             'name': config.name,
-                            'title': config.title || false,
+                            'title': config.title || undefined,
                             'size': config.size,
                             'model': config.model,
                             'text': config.text,
