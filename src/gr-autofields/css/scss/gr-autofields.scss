@@ -267,6 +267,7 @@ See README.md or https://github.com/fraywing/textAngular/wiki for requirements a
 			padding: 0;
 		}
 		> .ta-bind {
+            display: table;
 			height: auto;
 			min-height: 300px;
 		    max-height: 500px;
