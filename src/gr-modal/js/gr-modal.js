@@ -7,7 +7,9 @@
         .provider('$grModal', function(){
             var setup,
                 $injector,
+                $grStackedMap,
                 $modal,
+                $q,
                 $templateCache,
                 grModal,
                 id = 0;
@@ -47,16 +49,36 @@
                                 onOpen: config.onOpen || false,
                                 onClose: config.onClose || false
                             }
-                        };
+                        },
+                        grModalInstance;
                         grModal.element[element.name] = element;
-                        var ModalInstanceCtrl = ['$scope', '$modalInstance',
-                            function($scope, $modalInstance){
-                                if(typeof config.define === 'object'){
-                                    angular.forEach(config.define, function(d, i){
-                                        $scope[i] = d;
-                                    });
-                                }
-                                $scope.modal = $modalInstance;
+                        var modalClose = function(fn){
+                            if(fn && angular.isObject(fn) && element.backdrop && config.beforeClose){
+                                if((fn.target !== fn.currentTarget)){ return false; }
+                                if(element.backdrop === 'static' && (fn.target === fn.currentTarget)){ return false; }
+                            }
+                            fn = ((!fn || (fn && !angular.isFunction(fn))) && config.beforeClose) ? config.beforeClose : fn;
+                            if(!fn){
+                                grModalInstance.forceClose(fn);
+                            }else{
+                                var promise = $q(function(resolve, reject){
+                                    fn(resolve, reject);
+                                });
+                                promise.then(function(){
+                                     grModalInstance.forceClose();
+                                });
+                            }
+                        };
+                        var ModalInstanceCtrl = ['$scope', '$modalInstance', function($scope, $modalInstance){
+                            if(typeof config.define === 'object'){
+                                angular.forEach(config.define, function(d, i){
+                                    $scope[i] = d;
+                                });
+                            }
+                            if(config.beforeClose){
+                                $scope.close = modalClose;
+                            }
+                            $scope.modal = $modalInstance;
                         }];
                         id++;
                         return {
@@ -90,7 +112,8 @@
                                 }else if(element.model){
                                     options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
                                 }
-                                var grModalInstance = $modal.open(options);
+                                grModalInstance = $modal.open(options);
+                                grModalInstance.close = modalClose;
                                 return grModalInstance;
                             }
                         }
@@ -153,8 +176,10 @@
             };
             setup = function(injector){
                 $injector = injector;
+                $grStackedMap = $injector.get('$$grStackedMap');
                 $modal = $injector.get('$grModal.ui');
                 $templateCache = $injector.get('$templateCache');
+                $q = $injector.get('$q');
             };
             this.$get = ['$injector', function(injector){
                     setup(injector);
@@ -209,7 +234,7 @@
                             var modalInstance = {
                                 result: modalResultDeferred.promise,
                                 opened: modalOpenedDeferred.promise,
-                                close: function(result){
+                                forceClose: function(result){
                                     $grModalStack.close(modalInstance, result);
                                 },
                                 dismiss: function(reason){
@@ -303,7 +328,7 @@
                                 value: value
                             });
                         },
-                        get: function(key){
+                        get: function(key, test){
                             for (var i = 0; i < stack.length; i++){
                                 if(key == stack[i].key){
                                     return stack[i];
@@ -614,14 +639,17 @@
                             // focus a freshly-opened modal
                             element[0].focus();
                         });
-
-                        scope.close = function(evt){
-                            if(!evt || evt === true){
-                                $grModalStack.close(modal.key);
-                            } else if(modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)){
-                                evt.preventDefault();
-                                evt.stopPropagation();
-                                $grModalStack.dismiss(modal.key, 'backdrop click');
+                        if(scope.$parent.close){
+                            scope.close = scope.$parent.close;
+                        }else{
+                            scope.close = function(evt){
+                                if(!evt || evt === true){
+                                    $grModalStack.close(modal.key);
+                                } else if(modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)){
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    $grModalStack.dismiss(modal.key, 'backdrop click');
+                                }
                             }
                         }
                     }

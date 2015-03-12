@@ -1181,7 +1181,9 @@
         .provider('$grModal', function(){
             var setup,
                 $injector,
+                $grStackedMap,
                 $modal,
+                $q,
                 $templateCache,
                 grModal,
                 id = 0;
@@ -1221,16 +1223,36 @@
                                 onOpen: config.onOpen || false,
                                 onClose: config.onClose || false
                             }
-                        };
+                        },
+                        grModalInstance;
                         grModal.element[element.name] = element;
-                        var ModalInstanceCtrl = ['$scope', '$modalInstance',
-                            function($scope, $modalInstance){
-                                if(typeof config.define === 'object'){
-                                    angular.forEach(config.define, function(d, i){
-                                        $scope[i] = d;
-                                    });
-                                }
-                                $scope.modal = $modalInstance;
+                        var modalClose = function(fn){
+                            if(fn && angular.isObject(fn) && element.backdrop && config.beforeClose){
+                                if((fn.target !== fn.currentTarget)){ return false; }
+                                if(element.backdrop === 'static' && (fn.target === fn.currentTarget)){ return false; }
+                            }
+                            fn = ((!fn || (fn && !angular.isFunction(fn))) && config.beforeClose) ? config.beforeClose : fn;
+                            if(!fn){
+                                grModalInstance.forceClose(fn);
+                            }else{
+                                var promise = $q(function(resolve, reject){
+                                    fn(resolve, reject);
+                                });
+                                promise.then(function(){
+                                     grModalInstance.forceClose();
+                                });
+                            }
+                        };
+                        var ModalInstanceCtrl = ['$scope', '$modalInstance', function($scope, $modalInstance){
+                            if(typeof config.define === 'object'){
+                                angular.forEach(config.define, function(d, i){
+                                    $scope[i] = d;
+                                });
+                            }
+                            if(config.beforeClose){
+                                $scope.close = modalClose;
+                            }
+                            $scope.modal = $modalInstance;
                         }];
                         id++;
                         return {
@@ -1264,7 +1286,8 @@
                                 }else if(element.model){
                                     options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
                                 }
-                                var grModalInstance = $modal.open(options);
+                                grModalInstance = $modal.open(options);
+                                grModalInstance.close = modalClose;
                                 return grModalInstance;
                             }
                         }
@@ -1327,8 +1350,10 @@
             };
             setup = function(injector){
                 $injector = injector;
+                $grStackedMap = $injector.get('$$grStackedMap');
                 $modal = $injector.get('$grModal.ui');
                 $templateCache = $injector.get('$templateCache');
+                $q = $injector.get('$q');
             };
             this.$get = ['$injector', function(injector){
                     setup(injector);
@@ -1383,7 +1408,7 @@
                             var modalInstance = {
                                 result: modalResultDeferred.promise,
                                 opened: modalOpenedDeferred.promise,
-                                close: function(result){
+                                forceClose: function(result){
                                     $grModalStack.close(modalInstance, result);
                                 },
                                 dismiss: function(reason){
@@ -1475,7 +1500,7 @@
                                 value: value
                             });
                         },
-                        get: function(key){
+                        get: function(key, test){
                             for (var i = 0; i < stack.length; i++){
                                 if(key == stack[i].key){
                                     return stack[i];
@@ -1784,14 +1809,17 @@
                             // focus a freshly-opened modal
                             element[0].focus();
                         });
-
-                        scope.close = function(evt){
-                            if(!evt || evt === true){
-                                $grModalStack.close(modal.key);
-                            } else if(modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)){
-                                evt.preventDefault();
-                                evt.stopPropagation();
-                                $grModalStack.dismiss(modal.key, 'backdrop click');
+                        if(scope.$parent.close){
+                            scope.close = scope.$parent.close;
+                        }else{
+                            scope.close = function(evt){
+                                if(!evt || evt === true){
+                                    $grModalStack.close(modal.key);
+                                } else if(modal && modal.value.backdrop && modal.value.backdrop != 'static' && (evt.target === evt.currentTarget)){
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    $grModalStack.dismiss(modal.key, 'backdrop click');
+                                }
                             }
                         }
                     }
@@ -1882,7 +1910,8 @@
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .directive('grTable', ['ngTableParams', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
-                var alert = $grAlert.new(),
+                var $name = $attrs.name || 'grTable',
+                    alert = $grAlert.new(),
                     defaultSorting = {},
                     dataSource = '',
                     getData = function(src, reload){
@@ -1924,7 +1953,7 @@
                             orderBy: '',
                             counts: [5, 10, 25, 50, 100],
                             getFilterData: function($defer, params){
-                                var grFormData = $scope.grTable.dataSet,
+                                var grFormData = $scope[$name].dataSet,
                                     arr = [],
                                     data = [];
                                 angular.forEach(grFormData, function(item, id){
@@ -1956,13 +1985,13 @@
                                 return $defer;
                             },
                             getData: function($defer, params){
-                                var data = $scope.grTable.dataSet;
+                                var data = $scope[$name].dataSet;
                                 if(data){
                                     var filteredData = $filter('filter')(data, params.filter());
                                     var orderedData = params.filter() ? (params.sorting() ? $filter('orderBy')(filteredData, params.orderBy()) : filteredData) : data,
                                         newData = orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count());
-                                    $scope.grTable.data = newData;
-                                    $scope.grTable.allData = data;
+                                    $scope[$name].data = newData;
+                                    $scope[$name].allData = data;
                                     var aux = false;
                                     angular.forEach(newData[0], function(el, id){
                                         if(!aux){
@@ -1996,21 +2025,21 @@
                     alert.destroy();
                     alert = $grAlert.new($scope.$parent.modal.element);
                 }
-                $scope.grTable = new ngTableParams(grTable.defaults, grTable.settings);
-                $scope.grTable.defaults = grTable.defaults;
-                $scope.grTable.reloadData = function(src){
+                $scope[$name] = new ngTableParams(grTable.defaults, grTable.settings);
+                $scope[$name].defaults = grTable.defaults;
+                $scope[$name].reloadData = function(src){
                     if((!src || src === '') && dataSource !== ''){
                         getData(dataSource, true);
                     }else if(src && src !== ''){
                         getData(src, true);
                     }
                 };
-                $attrs.$observe('exportCsv', function(name){ $scope.grTable.csv = angular.copy(name); });
+                $attrs.$observe('exportCsv', function(name){ $scope[$name].csv = angular.copy(name); });
                 $attrs.$observe('sortby', function(sort){
                     if(sort){
                         var sortArr = $parse(sort)($scope);
                         if(angular.isObject(sortArr)){
-                            $scope.grTable.sorting(sortArr);
+                            $scope[$name].sorting(sortArr);
                         }
                     }
                 });
@@ -2018,39 +2047,49 @@
                     if(filter){
                         var filterArr = $parse(filter)($scope);
                         if(angular.isObject(filterArr)){
-                            $scope.grTable.filter(filterArr);
+                            $scope[$name].filter(filterArr);
                         }
                     }
                 });
-                $scope.$watch($attrs.list, function(list){ if(list){ $scope.dataSet = list; } }, true)
                 $attrs.$observe('remote', function(remote){
                     if(remote){
                         $scope.dataSet = $parse(remote)($scope);
                     }
                 });
                 $attrs.$observe('grDataSource', function(remote){ if(remote){ $scope.dataSet = $parse(remote)($scope); } });
+                $attrs.$observe('shareParent', function(share){
+                    if(share){
+                        $scope.$parent[$name] = $scope[$name];
+                    }
+                });
+                $scope.$watch($attrs.list, function(list){
+                    if(list){
+                        $scope.dataSet = list;
+                    }
+                }, true);
                 $scope.$watch('dataSet', function(data){
                     if(data){
                         if(angular.isString(data)){
                             dataSource = data;
                             getData(dataSource);
                         }else if(angular.isObject(data) || angular.isArray(data)){
-                            $scope.grTable.dataSet = data;
-                            $scope.grTable.reload();
+                            $scope[$name].dataSet = data;
+                            $scope[$name].reload();
                         }
                     };
                 }, true);
                 setFunctions($scope, $element, $attrs);
-                $scope.$parent[$attrs.name || 'grTable'] = $scope.grTable;
+                $compile($element)($scope);
             },
             setFunctions= function($scope, $element, $attrs){
-                $scope.grTable.fn = {};
-                var fns = {};
+                var $name = $attrs.name || 'grTable',
+                    fns = {};
+                $scope[$name].fn = {};
                 if($injector.has('$grTable.config')){
                     fns = $injector.get('$grTable.config');//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
                 }
                 angular.forEach(fns, function(fn, key){
-                    $scope.grTable.fn[key] = function(){
+                    $scope[$name].fn[key] = function(){
                         var injector, i = [], _fn = fn($scope);
                         if(_fn.inject){ injector = angular.injector(_fn.inject); }else{ injector = $injector; }
                         if(angular.isArray(_fn.fn)){
@@ -2069,27 +2108,38 @@
             };
             return {
                 restrict: 'A',
-                priority: 1002,
-                scope: true,
-                compile: function($element){
-                    return function($scope, $element, $attrs){
-                        $attrs.$set('ngTable', 'grTable');
-                        $element.addClass('gr-table table table-bordered table-striped');
-                        $element.removeAttr($attrs.$attr.grTable);
-                        $element.append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length}}">{{\'No data found...\' | grTranslate}}</td></tr>');
-                        init($scope, $element, $attrs);
-                        $compile($element)($scope);
-                    }
-                }
-            }
-        }])
-        .directive('grRepeat', ['$compile', function($compile){
-            return {
-                priority: 1001,
                 scope: false,
-                compile: function($element, $attrs){
-                    $element.removeAttr($attrs.$attr.grRepeat);
-                    $attrs.$set('ngRepeat', $attrs.grRepeat);
+                transclude: 'element',
+                template: '<div class="gr-table-wrapper table-responsive" />',
+                replace: true,
+                compile: function($tElement, $tAttrs, $transclude){
+                    $tElement.removeAttr('gr-table');
+                    return {
+                        pre: function($scope, $element, $attrs){
+                            $transclude($scope, function(clone){
+                                var table = angular.element('<table ng-table="' + ($attrs.name || 'grTable') + '" class="gr-table table table-bordered table-striped" />'),
+                                    tbody;
+                                tbody = clone.html();
+                                table.append(tbody).find('tbody').append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length}}">{{\'No data found...\' | grTranslate}}</td></tr>');
+                                var repeater = table.find('[gr-repeat]');
+                                if(repeater){
+                                    var rAttr = repeater.attr('gr-repeat');
+                                    repeater.removeAttr('gr-repeat').attr('ng-repeat', rAttr);
+                                }
+                                if(table.find('[filter]').length > 0){
+                                    table.attr('show-filter', true);
+                                }
+                                if(table.find('tfoot').length <= 0){
+                                    var colLength = table.find('tbody').eq(0).find('tr').eq(0).find('td').length;
+                                    console.debug();
+                                    table.append('<tfoot><tr><td colspan="' + colLength + '"/></tr></tfoot>');
+                                }
+                                $element.empty();
+                                $element.html(table);
+                                init($scope, table, $attrs);
+                            });
+                        }
+                    }
                 }
             }
         }])
@@ -2104,11 +2154,8 @@
                 replace: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
-                        if(!$scope.for){
-                            $scope.grTable = $scope.$parent.grTable;
-                        }else{
-                            $scope.grTable = $scope.for;
-                        }
+                        $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                        $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
                     }
                 }
             }
@@ -2124,11 +2171,8 @@
                 replace: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
-                        if(!$scope.for){
-                            $scope.grTable = $scope.$parent.grTable;
-                        }else{
-                            $scope.grTable = $scope.for;
-                        }
+                        $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                        $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
                     }
                 }
             }
@@ -2143,599 +2187,43 @@
                 replace: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
-                        if(!$scope.for){
-                            $scope.grTable = $scope.$parent.grTable;
-                        }else{
-                            $scope.grTable = $scope.for;
-                        }
+                        $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                        $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
                     }
                 }
             }
         })
-        .directive('grTablePager', function(){
+        .directive('grTablePager', ['$compile', '$timeout', function($compile, $timeout){
             return {
                 restrict: 'E',
                 scope: {
                     for: '='
                 },
-                template: '<div class="gr-table-pager"></div>',
+                template: '<div class="ng-cloak gr-table-pager"></div> ',
                 replace: true,
-                compile: function($element){
-                    return function($scope, $element, $attrs){
-                        if(!$scope.for){
-                            $scope.grTable = $scope.$parent.grTable;
-                        }else{
-                            $scope.grTable = $scope.for;
-                        }
-                        $element.attr({
-                            'ng-table-pagination': 'grTable',
-                            'template-url': '\'ng-table/pager-nav.html\''
-                        });
-                    }
-                }
-            }
-        })
-        .directive('grChange', ['$parse', '$timeout', function($parse, $timeout){
-            return {
-                restrict: 'A',
-                scope: false,
-                require: 'ngModel',
-                link: function($scope, $element, $attrs, $controller){
-                    var firstTime = true;
-                    $scope.$watch(function(){
-                        return $controller.$viewValue;
-                    }, function(newValue){
-                        if(!firstTime){
+                link: function($scope, $element, $attrs){
+                    $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                    $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                    $scope.$watch('grTable', function(grTable){
+                        if(grTable){
                             $timeout(function(){
-                                $scope.$apply($attrs.grChange);
+                                $element.attr({
+                                    'ng-table-pagination': 'grTable',
+                                    'template-url': '\'gr-table/pager.html\''
+                                });
+                                $compile($element)($scope);
                             });
-                        }else{
-                            firstTime = false;
                         }
                     });
                 }
             }
-        }]);
-    angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
-}());
-
-/*
- *
- * GR-TRANSLATE
- *
- */
-
-(function(){
-    angular.module('gr.ui.translate', [])
-        .filter('grTranslate', ['$injector', function($injector){
-            return function(value){
-                if(angular.isString(value)){
-                    if($injector.has('$translate')){
-                        var $filter = $injector.get('$filter');
-                        value = $filter('translate')(value);
-                    }
-                }
-                return value;
-            }
-        }]);
-}());
-
-/*
- *
- * DEPENDENCIES
- *
- */
- 
-/*! jQuery UI - v1.11.2 - 2015-01-23
-* http://jqueryui.com
-* Includes: effect.js
-* Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
-
-(function(){
-    (function(e){
-        "function"==typeof define&&define.amd?define(["jquery"],e):e(jQuery)})(function(e){var t="ui-effects-",i=e;e.effects={effect:{}},function(e,t){function i(e,t,i){var s=d[t.type]||{};return null==e?i||!t.def?null:t.def:(e=s.floor?~~e:parseFloat(e),isNaN(e)?t.def:s.mod?(e+s.mod)%s.mod:0>e?0:e>s.max?s.max:e)}function s(i){var s=l(),n=s._rgba=[];return i=i.toLowerCase(),f(h,function(e,a){var o,r=a.re.exec(i),h=r&&a.parse(r),l=a.space||"rgba";return h?(o=s[l](h),s[u[l].cache]=o[u[l].cache],n=s._rgba=o._rgba,!1):t}),n.length?("0,0,0,0"===n.join()&&e.extend(n,a.transparent),s):a[i]}function n(e,t,i){return i=(i+1)%1,1>6*i?e+6*(t-e)*i:1>2*i?t:2>3*i?e+6*(t-e)*(2/3-i):e}var a,o="backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",r=/^([\-+])=\s*(\d+\.?\d*)/,h=[{re:/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[e[1],e[2],e[3],e[4]]}},{re:/rgba?\(\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[2.55*e[1],2.55*e[2],2.55*e[3],e[4]]}},{re:/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/,parse:function(e){return[parseInt(e[1],16),parseInt(e[2],16),parseInt(e[3],16)]}},{re:/#([a-f0-9])([a-f0-9])([a-f0-9])/,parse:function(e){return[parseInt(e[1]+e[1],16),parseInt(e[2]+e[2],16),parseInt(e[3]+e[3],16)]}},{re:/hsla?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,space:"hsla",parse:function(e){return[e[1],e[2]/100,e[3]/100,e[4]]}}],l=e.Color=function(t,i,s,n){return new e.Color.fn.parse(t,i,s,n)},u={rgba:{props:{red:{idx:0,type:"byte"},green:{idx:1,type:"byte"},blue:{idx:2,type:"byte"}}},hsla:{props:{hue:{idx:0,type:"degrees"},saturation:{idx:1,type:"percent"},lightness:{idx:2,type:"percent"}}}},d={"byte":{floor:!0,max:255},percent:{max:1},degrees:{mod:360,floor:!0}},c=l.support={},p=e("<p>")[0],f=e.each;p.style.cssText="background-color:rgba(1,1,1,.5)",c.rgba=p.style.backgroundColor.indexOf("rgba")>-1,f(u,function(e,t){t.cache="_"+e,t.props.alpha={idx:3,type:"percent",def:1}}),l.fn=e.extend(l.prototype,{parse:function(n,o,r,h){if(n===t)return this._rgba=[null,null,null,null],this;(n.jquery||n.nodeType)&&(n=e(n).css(o),o=t);var d=this,c=e.type(n),p=this._rgba=[];return o!==t&&(n=[n,o,r,h],c="array"),"string"===c?this.parse(s(n)||a._default):"array"===c?(f(u.rgba.props,function(e,t){p[t.idx]=i(n[t.idx],t)}),this):"object"===c?(n instanceof l?f(u,function(e,t){n[t.cache]&&(d[t.cache]=n[t.cache].slice())}):f(u,function(t,s){var a=s.cache;f(s.props,function(e,t){if(!d[a]&&s.to){if("alpha"===e||null==n[e])return;d[a]=s.to(d._rgba)}d[a][t.idx]=i(n[e],t,!0)}),d[a]&&0>e.inArray(null,d[a].slice(0,3))&&(d[a][3]=1,s.from&&(d._rgba=s.from(d[a])))}),this):t},is:function(e){var i=l(e),s=!0,n=this;return f(u,function(e,a){var o,r=i[a.cache];return r&&(o=n[a.cache]||a.to&&a.to(n._rgba)||[],f(a.props,function(e,i){return null!=r[i.idx]?s=r[i.idx]===o[i.idx]:t})),s}),s},_space:function(){var e=[],t=this;return f(u,function(i,s){t[s.cache]&&e.push(i)}),e.pop()},transition:function(e,t){var s=l(e),n=s._space(),a=u[n],o=0===this.alpha()?l("transparent"):this,r=o[a.cache]||a.to(o._rgba),h=r.slice();return s=s[a.cache],f(a.props,function(e,n){var a=n.idx,o=r[a],l=s[a],u=d[n.type]||{};null!==l&&(null===o?h[a]=l:(u.mod&&(l-o>u.mod/2?o+=u.mod:o-l>u.mod/2&&(o-=u.mod)),h[a]=i((l-o)*t+o,n)))}),this[n](h)},blend:function(t){if(1===this._rgba[3])return this;var i=this._rgba.slice(),s=i.pop(),n=l(t)._rgba;return l(e.map(i,function(e,t){return(1-s)*n[t]+s*e}))},toRgbaString:function(){var t="rgba(",i=e.map(this._rgba,function(e,t){return null==e?t>2?1:0:e});return 1===i[3]&&(i.pop(),t="rgb("),t+i.join()+")"},toHslaString:function(){var t="hsla(",i=e.map(this.hsla(),function(e,t){return null==e&&(e=t>2?1:0),t&&3>t&&(e=Math.round(100*e)+"%"),e});return 1===i[3]&&(i.pop(),t="hsl("),t+i.join()+")"},toHexString:function(t){var i=this._rgba.slice(),s=i.pop();return t&&i.push(~~(255*s)),"#"+e.map(i,function(e){return e=(e||0).toString(16),1===e.length?"0"+e:e}).join("")},toString:function(){return 0===this._rgba[3]?"transparent":this.toRgbaString()}}),l.fn.parse.prototype=l.fn,u.hsla.to=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t,i,s=e[0]/255,n=e[1]/255,a=e[2]/255,o=e[3],r=Math.max(s,n,a),h=Math.min(s,n,a),l=r-h,u=r+h,d=.5*u;return t=h===r?0:s===r?60*(n-a)/l+360:n===r?60*(a-s)/l+120:60*(s-n)/l+240,i=0===l?0:.5>=d?l/u:l/(2-u),[Math.round(t)%360,i,d,null==o?1:o]},u.hsla.from=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t=e[0]/360,i=e[1],s=e[2],a=e[3],o=.5>=s?s*(1+i):s+i-s*i,r=2*s-o;return[Math.round(255*n(r,o,t+1/3)),Math.round(255*n(r,o,t)),Math.round(255*n(r,o,t-1/3)),a]},f(u,function(s,n){var a=n.props,o=n.cache,h=n.to,u=n.from;l.fn[s]=function(s){if(h&&!this[o]&&(this[o]=h(this._rgba)),s===t)return this[o].slice();var n,r=e.type(s),d="array"===r||"object"===r?s:arguments,c=this[o].slice();return f(a,function(e,t){var s=d["object"===r?e:t.idx];null==s&&(s=c[t.idx]),c[t.idx]=i(s,t)}),u?(n=l(u(c)),n[o]=c,n):l(c)},f(a,function(t,i){l.fn[t]||(l.fn[t]=function(n){var a,o=e.type(n),h="alpha"===t?this._hsla?"hsla":"rgba":s,l=this[h](),u=l[i.idx];return"undefined"===o?u:("function"===o&&(n=n.call(this,u),o=e.type(n)),null==n&&i.empty?this:("string"===o&&(a=r.exec(n),a&&(n=u+parseFloat(a[2])*("+"===a[1]?1:-1))),l[i.idx]=n,this[h](l)))})})}),l.hook=function(t){var i=t.split(" ");f(i,function(t,i){e.cssHooks[i]={set:function(t,n){var a,o,r="";if("transparent"!==n&&("string"!==e.type(n)||(a=s(n)))){if(n=l(a||n),!c.rgba&&1!==n._rgba[3]){for(o="backgroundColor"===i?t.parentNode:t;(""===r||"transparent"===r)&&o&&o.style;)try{r=e.css(o,"backgroundColor"),o=o.parentNode}catch(h){}n=n.blend(r&&"transparent"!==r?r:"_default")}n=n.toRgbaString()}try{t.style[i]=n}catch(h){}}},e.fx.step[i]=function(t){t.colorInit||(t.start=l(t.elem,i),t.end=l(t.end),t.colorInit=!0),e.cssHooks[i].set(t.elem,t.start.transition(t.end,t.pos))}})},l.hook(o),e.cssHooks.borderColor={expand:function(e){var t={};return f(["Top","Right","Bottom","Left"],function(i,s){t["border"+s+"Color"]=e}),t}},a=e.Color.names={aqua:"#00ffff",black:"#000000",blue:"#0000ff",fuchsia:"#ff00ff",gray:"#808080",green:"#008000",lime:"#00ff00",maroon:"#800000",navy:"#000080",olive:"#808000",purple:"#800080",red:"#ff0000",silver:"#c0c0c0",teal:"#008080",white:"#ffffff",yellow:"#ffff00",transparent:[null,null,null,0],_default:"#ffffff"}}(i),function(){function t(t){var i,s,n=t.ownerDocument.defaultView?t.ownerDocument.defaultView.getComputedStyle(t,null):t.currentStyle,a={};if(n&&n.length&&n[0]&&n[n[0]])for(s=n.length;s--;)i=n[s],"string"==typeof n[i]&&(a[e.camelCase(i)]=n[i]);else for(i in n)"string"==typeof n[i]&&(a[i]=n[i]);return a}function s(t,i){var s,n,o={};for(s in i)n=i[s],t[s]!==n&&(a[s]||(e.fx.step[s]||!isNaN(parseFloat(n)))&&(o[s]=n));return o}var n=["add","remove","toggle"],a={border:1,borderBottom:1,borderColor:1,borderLeft:1,borderRight:1,borderTop:1,borderWidth:1,margin:1,padding:1};e.each(["borderLeftStyle","borderRightStyle","borderBottomStyle","borderTopStyle"],function(t,s){e.fx.step[s]=function(e){("none"!==e.end&&!e.setAttr||1===e.pos&&!e.setAttr)&&(i.style(e.elem,s,e.end),e.setAttr=!0)}}),e.fn.addBack||(e.fn.addBack=function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}),e.effects.animateClass=function(i,a,o,r){var h=e.speed(a,o,r);return this.queue(function(){var a,o=e(this),r=o.attr("class")||"",l=h.children?o.find("*").addBack():o;l=l.map(function(){var i=e(this);return{el:i,start:t(this)}}),a=function(){e.each(n,function(e,t){i[t]&&o[t+"Class"](i[t])})},a(),l=l.map(function(){return this.end=t(this.el[0]),this.diff=s(this.start,this.end),this}),o.attr("class",r),l=l.map(function(){var t=this,i=e.Deferred(),s=e.extend({},h,{queue:!1,complete:function(){i.resolve(t)}});return this.el.animate(this.diff,s),i.promise()}),e.when.apply(e,l.get()).done(function(){a(),e.each(arguments,function(){var t=this.el;e.each(this.diff,function(e){t.css(e,"")})}),h.complete.call(o[0])})})},e.fn.extend({addClass:function(t){return function(i,s,n,a){return s?e.effects.animateClass.call(this,{add:i},s,n,a):t.apply(this,arguments)}}(e.fn.addClass),removeClass:function(t){return function(i,s,n,a){return arguments.length>1?e.effects.animateClass.call(this,{remove:i},s,n,a):t.apply(this,arguments)}}(e.fn.removeClass),toggleClass:function(t){return function(i,s,n,a,o){return"boolean"==typeof s||void 0===s?n?e.effects.animateClass.call(this,s?{add:i}:{remove:i},n,a,o):t.apply(this,arguments):e.effects.animateClass.call(this,{toggle:i},s,n,a)}}(e.fn.toggleClass),switchClass:function(t,i,s,n,a){return e.effects.animateClass.call(this,{add:i,remove:t},s,n,a)}})}(),function(){function i(t,i,s,n){return e.isPlainObject(t)&&(i=t,t=t.effect),t={effect:t},null==i&&(i={}),e.isFunction(i)&&(n=i,s=null,i={}),("number"==typeof i||e.fx.speeds[i])&&(n=s,s=i,i={}),e.isFunction(s)&&(n=s,s=null),i&&e.extend(t,i),s=s||i.duration,t.duration=e.fx.off?0:"number"==typeof s?s:s in e.fx.speeds?e.fx.speeds[s]:e.fx.speeds._default,t.complete=n||i.complete,t}function s(t){return!t||"number"==typeof t||e.fx.speeds[t]?!0:"string"!=typeof t||e.effects.effect[t]?e.isFunction(t)?!0:"object"!=typeof t||t.effect?!1:!0:!0}e.extend(e.effects,{version:"1.11.2",save:function(e,i){for(var s=0;i.length>s;s++)null!==i[s]&&e.data(t+i[s],e[0].style[i[s]])},restore:function(e,i){var s,n;for(n=0;i.length>n;n++)null!==i[n]&&(s=e.data(t+i[n]),void 0===s&&(s=""),e.css(i[n],s))},setMode:function(e,t){return"toggle"===t&&(t=e.is(":hidden")?"show":"hide"),t},getBaseline:function(e,t){var i,s;switch(e[0]){case"top":i=0;break;case"middle":i=.5;break;case"bottom":i=1;break;default:i=e[0]/t.height}switch(e[1]){case"left":s=0;break;case"center":s=.5;break;case"right":s=1;break;default:s=e[1]/t.width}return{x:s,y:i}},createWrapper:function(t){if(t.parent().is(".ui-effects-wrapper"))return t.parent();var i={width:t.outerWidth(!0),height:t.outerHeight(!0),"float":t.css("float")},s=e("<div></div>").addClass("ui-effects-wrapper").css({fontSize:"100%",background:"transparent",border:"none",margin:0,padding:0}),n={width:t.width(),height:t.height()},a=document.activeElement;try{a.id}catch(o){a=document.body}return t.wrap(s),(t[0]===a||e.contains(t[0],a))&&e(a).focus(),s=t.parent(),"static"===t.css("position")?(s.css({position:"relative"}),t.css({position:"relative"})):(e.extend(i,{position:t.css("position"),zIndex:t.css("z-index")}),e.each(["top","left","bottom","right"],function(e,s){i[s]=t.css(s),isNaN(parseInt(i[s],10))&&(i[s]="auto")}),t.css({position:"relative",top:0,left:0,right:"auto",bottom:"auto"})),t.css(n),s.css(i).show()},removeWrapper:function(t){var i=document.activeElement;return t.parent().is(".ui-effects-wrapper")&&(t.parent().replaceWith(t),(t[0]===i||e.contains(t[0],i))&&e(i).focus()),t},setTransition:function(t,i,s,n){return n=n||{},e.each(i,function(e,i){var a=t.cssUnit(i);a[0]>0&&(n[i]=a[0]*s+a[1])}),n}}),e.fn.extend({effect:function(){function t(t){function i(){e.isFunction(a)&&a.call(n[0]),e.isFunction(t)&&t()}var n=e(this),a=s.complete,r=s.mode;(n.is(":hidden")?"hide"===r:"show"===r)?(n[r](),i()):o.call(n[0],s,i)}var s=i.apply(this,arguments),n=s.mode,a=s.queue,o=e.effects.effect[s.effect];return e.fx.off||!o?n?this[n](s.duration,s.complete):this.each(function(){s.complete&&s.complete.call(this)}):a===!1?this.each(t):this.queue(a||"fx",t)},show:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="show",this.effect.call(this,n)}}(e.fn.show),hide:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="hide",this.effect.call(this,n)}}(e.fn.hide),toggle:function(e){return function(t){if(s(t)||"boolean"==typeof t)return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="toggle",this.effect.call(this,n)}}(e.fn.toggle),cssUnit:function(t){var i=this.css(t),s=[];return e.each(["em","px","%","pt"],function(e,t){i.indexOf(t)>0&&(s=[parseFloat(i),t])}),s}})}(),function(){var t={};e.each(["Quad","Cubic","Quart","Quint","Expo"],function(e,i){t[i]=function(t){return Math.pow(t,e+2)}}),e.extend(t,{Sine:function(e){return 1-Math.cos(e*Math.PI/2)},Circ:function(e){return 1-Math.sqrt(1-e*e)},Elastic:function(e){return 0===e||1===e?e:-Math.pow(2,8*(e-1))*Math.sin((80*(e-1)-7.5)*Math.PI/15)},Back:function(e){return e*e*(3*e-2)},Bounce:function(e){for(var t,i=4;((t=Math.pow(2,--i))-1)/11>e;);return 1/Math.pow(4,3-i)-7.5625*Math.pow((3*t-2)/22-e,2)}}),e.each(t,function(t,i){e.easing["easeIn"+t]=i,e.easing["easeOut"+t]=function(e){return 1-i(1-e)},e.easing["easeInOut"+t]=function(e){return.5>e?i(2*e)/2:1-i(-2*e+2)/2}})}(),e.effects});
-}());
-
-/**
- * ngTable v0.4.3 by Vitalii Savchuk(esvit666@gmail.com)
- * https://github.com/esvit/ng-table - New BSD License
- */
-
-(function(){
-    angular.module('ngTable', [])
-        .factory('ngTableParams', ['$q', '$log',
-            function($q, $log){
-                var isNumber = function(n){
-                    return !isNaN(parseFloat(n)) && isFinite(n);
-                };
-                var ngTableParams = function(baseParameters, baseSettings){
-                    var self = this,
-                        log = function(){
-                            if(settings.debugMode && $log.debug){
-                                $log.debug.apply(this, arguments);
-                            }
-                        };
-                    this.data = [];
-                    this.filterData = [];
-                    this.parameters = function(newParameters, parseParamsFromUrl){
-                        parseParamsFromUrl = parseParamsFromUrl || false;
-                        if(angular.isDefined(newParameters)){
-                            for (var key in newParameters){
-                                var value = newParameters[key];
-                                if(parseParamsFromUrl && key.indexOf('[') >= 0){
-                                    var keys = key.split(/\[(.*)\]/).reverse()
-                                    var lastKey = '';
-                                    for (var i = 0, len = keys.length; i < len; i++){
-                                        var name = keys[i];
-                                        if(name !== ''){
-                                            var v = value;
-                                            value = {};
-                                            value[lastKey = name] = (isNumber(v) ? parseFloat(v) : v);
-                                        }
-                                    }
-                                    if(lastKey === 'sorting'){
-                                        params[lastKey] = {};
-                                    }
-                                    params[lastKey] = angular.extend(params[lastKey] || {}, value[lastKey]);
-                                } else {
-                                    params[key] = (isNumber(newParameters[key]) ? parseFloat(newParameters[key]) : newParameters[key]);
-                                }
-                            }
-                            log('ngTable: set parameters', params);
-                            return this;
-                        }
-                        return params;
-                    };
-                    this.settings = function(newSettings){
-                        if(angular.isDefined(newSettings)){
-                            if(angular.isArray(newSettings.data)){
-                                //auto-set the total from passed in data
-                                newSettings.total = newSettings.data.length;
-                            }
-                            settings = angular.extend(settings, newSettings);
-                            log('ngTable: set settings', settings);
-                            return this;
-                        }
-                        return settings;
-                    };
-                    this.page = function(page){
-                        return angular.isDefined(page) ? this.parameters({
-                            'page': page
-                        }) : params.page;
-                    };
-                    this.total = function(total){
-                        return angular.isDefined(total) ? this.settings({
-                            'total': total
-                        }) : settings.total;
-                    };
-                    this.count = function(count){
-                        return angular.isDefined(count) ? this.parameters({
-                            'count': count,
-                            'page': 1
-                        }) : params.count;
-                    };
-                    this.filter = function(filter){
-                        return angular.isDefined(filter) ? this.parameters({
-                            'filter': filter
-                        }) : params.filter;
-                    };
-                    this.sorting = function(sorting){
-                        if(arguments.length == 2){
-                            var sortArray = {};
-                            sortArray[sorting] = arguments[1];
-                            this.parameters({
-                                'sorting': sortArray
-                            });
-                            return this;
-                        }
-                        return angular.isDefined(sorting) ? this.parameters({
-                            'sorting': sorting
-                        }) : params.sorting;
-                    };
-                    this.isSortBy = function(field, direction){
-                        return angular.isDefined(params.sorting[field]) && params.sorting[field] == direction;
-                    };
-                    this.orderBy = function(){
-                        var sorting = [];
-                        for (var column in params.sorting){
-                            sorting.push((params.sorting[column] === "asc" ? "+" : "-") + column);
-                        }
-                        return sorting;
-                    };
-                    this.getData = function($defer, params){
-                        if(angular.isArray(this.data) && angular.isObject(params)){
-                            $defer.resolve(this.data.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                        } else {
-                            $defer.resolve([]);
-                        }
-                    };
-                    this.getFilterData = function($defer, params){
-                        if(angular.isArray(this.filterData) && angular.isObject(params)){
-                            $defer.resolve(this.filterData);
-                        } else {
-                            $defer.resolve([]);
-                        }
-                    };
-                    this.getGroups = function($defer, column){
-                        var defer = $q.defer();
-                        defer.promise.then(function(data){
-                            var groups = {};
-                            angular.forEach(data, function(item){
-                                var groupName = angular.isFunction(column) ? column(item) : item[column];
-
-                                groups[groupName] = groups[groupName] || {
-                                    data: []
-                                };
-                                groups[groupName]['value'] = groupName;
-                                groups[groupName].data.push(item);
-                            });
-                            var result = [];
-                            for (var i in groups){
-                                result.push(groups[i]);
-                            }
-                            log('ngTable: refresh groups', result);
-                            $defer.resolve(result);
-                        });
-                        this.getData(defer, self);
-                    };
-                    this.generatePagesArray = function(currentPage, totalItems, pageSize){
-                        var maxBlocks, maxPage, maxPivotPages, minPage, numPages, pages;
-                        maxBlocks = 11;
-                        pages = [];
-                        numPages = Math.ceil(totalItems / pageSize);
-                        if(numPages > 1){
-                            pages.push({
-                                type: 'prev',
-                                number: Math.max(1, currentPage - 1),
-                                active: currentPage > 1
-                            });
-                            pages.push({
-                                type: 'first',
-                                number: 1,
-                                active: currentPage > 1
-                            });
-                            maxPivotPages = Math.round((maxBlocks - 5) / 2);
-                            minPage = Math.max(2, currentPage - maxPivotPages);
-                            maxPage = Math.min(numPages - 1, currentPage + maxPivotPages * 2 - (currentPage - minPage));
-                            minPage = Math.max(2, minPage - (maxPivotPages * 2 - (maxPage - minPage)));
-                            var i = minPage;
-                            while (i <= maxPage){
-                                if((i === minPage && i !== 2) || (i === maxPage && i !== numPages - 1)){
-                                    pages.push({
-                                        type: 'more',
-                                        active: false
-                                    });
-                                } else {
-                                    pages.push({
-                                        type: 'page',
-                                        number: i,
-                                        active: currentPage !== i
-                                    });
-                                }
-                                i++;
-                            }
-                            pages.push({
-                                type: 'last',
-                                number: numPages,
-                                active: currentPage !== numPages
-                            });
-                            pages.push({
-                                type: 'next',
-                                number: Math.min(numPages, currentPage + 1),
-                                active: currentPage < numPages
-                            });
-                        }
-                        return pages;
-                    };
-                    this.url = function(asString){
-                        asString = asString || false;
-                        var pairs = (asString ? [] : {});
-                        for (var key in params){
-                            if(params.hasOwnProperty(key)){
-                                var item = params[key],
-                                    name = encodeURIComponent(key);
-                                if(typeof item === "object"){
-                                    for (var subkey in item){
-                                        if(!angular.isUndefined(item[subkey]) && item[subkey] !== ""){
-                                            var pname = name + "[" + encodeURIComponent(subkey) + "]";
-                                            if(asString){
-                                                pairs.push(pname + "=" + item[subkey]);
-                                            } else {
-                                                pairs[pname] = item[subkey];
-                                            }
-                                        }
-                                    }
-                                } else if(!angular.isFunction(item) && !angular.isUndefined(item) && item !== ""){
-                                    if(asString){
-                                        pairs.push(name + "=" + encodeURIComponent(item));
-                                    } else {
-                                        pairs[name] = encodeURIComponent(item);
-                                    }
-                                }
-                            }
-                        }
-                        return pairs;
-                    };
-                    this.reload = function(){
-                        var $deferColumns = $q.defer();
-                        var $deferData = $q.defer(),
-                            self = this;
-                        settings.$loading = true;
-                        if(settings.groupBy){
-                            settings.getGroups($deferData, settings.groupBy, this);
-                        } else {
-                            settings.getData($deferData, this);
-                        }
-                        settings.getFilterData($deferColumns, this);
-                        log('ngTable: reload data');
-                        $q.all([$deferData.promise, $deferColumns.promise]).then(function(data){
-                            settings.$loading = false;
-                            log('ngTable: current scope', settings.$scope);
-                            if(settings.groupBy){
-                                self.data = settings.$scope.$groups = data[0];
-                            } else {
-                                self.data = settings.$scope.$data = data[0];
-                            }
-                            self.filterData = data[1];
-                            settings.$scope.pages = self.generatePagesArray(self.page(), self.total(), self.count());
-                            settings.$scope.$emit('ngTableAfterReloadData');
-                        });
-                    };
-                    this.reloadPages = function(){
-                        var self = this;
-                        settings.$scope.pages = self.generatePagesArray(self.page(), self.total(), self.count());
-                    };
-                    var params = this.$params = {
-                        page: 1,
-                        count: 1,
-                        filter: {},
-                        sorting: {},
-                        group: {},
-                        groupBy: null
-                    };
-                    var settings = {
-                        $scope: null,
-                        $loading: false,
-                        data: null,
-                        total: 0,
-                        defaultSort: 'desc',
-                        filterDelay: 750,
-                        counts: [10, 25, 50, 100],
-                        getFilterData: this.getFilterData,
-                        getGroups: this.getGroups,
-                        getData: this.getData
-                    };
-                    this.settings(baseSettings);
-                    this.parameters(baseParameters, true);
-                    return this;
-                };
-                return ngTableParams;
-        }])
-        .directive('ngTable', ['$compile', '$q', '$parse',
-            function($compile, $q, $parse){
-                'use strict';
-                return {
-                    restrict: 'A',
-                    priority: 1001,
-                    scope: true,
-                    controller: ['$scope', 'ngTableParams', '$timeout',
-                        function($scope, ngTableParams, $timeout){
-
-                            $scope.$loading = false;
-
-                            if(!$scope.params){
-                                $scope.params = new ngTableParams();
-                            }
-                            $scope.params.settings().$scope = $scope;
-
-                            var delayFilter = (function(){
-                                var timer = 0;
-                                return function(callback, ms){
-                                    $timeout.cancel(timer);
-                                    timer = $timeout(callback, ms);
-                                };
-                            }());
-
-                            $scope.$watch('params.$params', function(newParams, oldParams){
-                                $scope.params.settings().$scope = $scope;
-
-                                if(!angular.equals(newParams.filter, oldParams.filter)){
-                                    delayFilter(function(){
-                                        $scope.params.$params.page = 1;
-                                        $scope.params.reload();
-                                    }, $scope.params.settings().filterDelay);
-                                } else {
-                                    $scope.params.reload();
-                                }
-                            }, true);
-
-                            $scope.sortBy = function(column, event){
-                                var parsedSortable = $scope.parse(column.sortable);
-                                if(!parsedSortable){
-                                    return;
-                                }
-                                var defaultSort = $scope.params.settings().defaultSort;
-                                var inverseSort = (defaultSort === 'asc' ? 'desc' : 'asc');
-                                var sorting = $scope.params.sorting() && $scope.params.sorting()[parsedSortable] && ($scope.params.sorting()[parsedSortable] === defaultSort);
-                                var sortingParams = (event.ctrlKey || event.metaKey) ? $scope.params.sorting() : {};
-                                sortingParams[parsedSortable] = (sorting ? inverseSort : defaultSort);
-                                $scope.params.parameters({
-                                    sorting: sortingParams
-                                });
-                            };
-                    }],
-                    compile: function(element){
-                        var columns = [],
-                            i = 0,
-                            row = null,
-                            filters = 0;
-
-                        // custom header
-                        var thead = element.find('thead');
-
-                        // IE 8 fix :not(.ng-table-group) selector
-                        angular.forEach(angular.element(element.find('tr')), function(tr){
-                            tr = angular.element(tr);
-                            if(!tr.hasClass('ng-table-group') && !row){
-                                row = tr;
-                            }
-                        });
-                        if(!row){
-                            return;
-                        }
-                        angular.forEach(row.find('td'), function(item){
-                            var el = angular.element(item);
-                            if(el.attr('ignore-cell') && 'true' === el.attr('ignore-cell')){
-                                return;
-                            }
-                            var parsedAttribute = function(attr, defaultValue){
-                                return function(scope){
-                                    var _attr = (el.attr('x-data-' + attr) || el.attr('data-' + attr) || el.attr(attr));
-//                                        _attr = _attr ? ('\'' + _attr + '\'') : '';
-                                    return $parse(_attr)(scope, { $columns: columns }) || defaultValue;
-                                };
-                            };
-
-                            var parsedTitle = parsedAttribute('title', ' '),
-                                headerTemplateURL = parsedAttribute('header', false),
-                                filter = parsedAttribute('filter', false)(),
-                                filterPlaceholder = parsedAttribute('filter-placeholder', false)() || parsedTitle(),
-                                filterTemplateURL = false,
-                                filterName = false;
-
-                            if(filter && filter.$$name){
-                                filterName = filter.$$name;
-                                delete filter.$$name;
-                            }
-                            if(filter && filter.templateURL){
-                                filterTemplateURL = filter.templateURL;
-                                delete filter.templateURL;
-                            }
-
-                            el.attr('data-title-text', parsedTitle()); // this used in responsive table
-                            columns.push({
-                                id: i++,
-                                title: parsedTitle,
-                                sortable: parsedAttribute('sortable', false),
-                                'class': el.attr('x-data-header-class') || el.attr('data-header-class') || el.attr('header-class'),
-                                filter: filter,
-                                filterTemplateURL: filterTemplateURL,
-                                filterName: filterName,
-                                filterPlaceholder: filterPlaceholder,
-                                headerTemplateURL: headerTemplateURL,
-                                filterData: (el.attr("filter-data") ? el.attr("filter-data") : null),
-                                show: (el.attr("ng-show") ? function(scope){
-                                    return $parse(el.attr("ng-show"))(scope);
-                                } : function(){
-                                    return true;
-                                })
-                            });
-                            for(var aux in filter){ filters++; }
-                        });
-                        return function(scope, element, attrs){
-                            scope.$loading = false;
-                            scope.$columns = columns;
-                            if(filters > 0){
-                                scope.show_filter = true;
-                            }else{
-                                scope.show_filter = false;
-                            }
-                            scope.$watch(attrs.ngTable, (function(params){
-                                if(angular.isUndefined(params)){
-                                    return;
-                                }
-                                scope.paramsModel = $parse(attrs.ngTable);
-                                scope.params = params;
-                            }), true);
-                            scope.parse = function(text){
-                                return angular.isDefined(text) ? text(scope) : '';
-                            };
-//                            if(attrs.showFilter){
-//                                scope.$parent.$watch(attrs.showFilter, function(value){
-//                                    scope.show_filter = value;
-//                                });
-//                            }
-                            if(!element.hasClass('ng-table')){
-                                scope.templates = {
-                                    header: (attrs.templateHeader ? attrs.templateHeader : 'ng-table/header.html'),
-                                    pagination: (attrs.templatePagination ? attrs.templatePagination : 'ng-table/pager.html')
-                                };
-                                var headerTemplate = thead.length > 0 ? thead : angular.element(document.createElement('thead')).attr('ng-include', 'templates.header');
-                                var paginationRow = angular.element(document.createElement('tr'))
-                                    .append(angular.element(document.createElement('td'))
-                                        .attr({
-                                            //'ng-table-pagination': 'params',
-                                            'template-url': 'templates.pagination',
-                                            'colspan': columns.length
-                                        })),
-                                    paginationTemplate = angular.element(document.createElement('tfoot')).append(paginationRow);
-
-                                element.find('thead').remove();
-
-                                element.addClass('ng-table')
-                                    .prepend(headerTemplate)
-                                    .append(paginationTemplate);
-
-                                $compile(headerTemplate)(scope);
-                                $compile(paginationTemplate)(scope);
-                            }
-                        };
-                    }
-                }
-        }])
-        .directive('ngTablePagination', ['$compile',
-            function($compile){
-                'use strict';
-                return {
-                    restrict: 'A',
-                    scope: {
-                        'params': '=ngTablePagination',
-                        'templateUrl': '='
-                    },
-                    replace: false,
-                    link: function(scope, element, attrs){
-                        scope.params.settings().$scope.$on('ngTableAfterReloadData', function(){
-                            scope.pages = scope.params.generatePagesArray(scope.params.page(), scope.params.total(), scope.params.count());
-                        }, true);
-                        scope.$watch('templateUrl', function(templateUrl){
-                            if(angular.isUndefined(templateUrl)){
-                                return;
-                            }
-                            var template = angular.element(document.createElement('div'))
-                            template.attr({
-                                'ng-include': 'templateUrl'
-                            });
-                            element.append(template);
-                            $compile(template)(scope);
-                        });
-                    }
-                };
-        }])
-        .run(['$templateCache',
-            function($templateCache){
-                $templateCache.put('ng-table/filters/select-multiple.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" multiple ng-multiple="true" ng-model="params.filter()[name]" ng-show="filter==\'select-multiple\'" class="filter filter-select-multiple form-control" name="{{column.filterName}}"> </select>');
-                $templateCache.put('ng-table/filters/select.html', '<select ng-options="data.id as data.title for data in params.filterData[name]" ng-model="params.filter()[name]" ng-show="filter==\'select\'" class="filter filter-select form-control" name="{{column.filterName}}"> </select>');
-                $templateCache.put('ng-table/filters/text.html', '<input type="text" name="{{column.filterName}}" ng-model="params.filter()[name]" ng-if="filter==\'text\'" class="input-filter form-control" placeholder="{{column.filterPlaceholder | grTranslate}}"/>');
-                $templateCache.put('ng-table/header.html', '<tr> <th ng-repeat="column in $columns" ng-class="{ \'sortable\': parse(column.sortable), \'sort-asc\': params.sorting()[parse(column.sortable)]==\'asc\', \'sort-desc\': params.sorting()[parse(column.sortable)]==\'desc\' }" ng-click="sortBy(column, $event)" ng-show="column.show(this)" ng-init="template=column.headerTemplateURL(this)" class="header {{column.class}}"> <div ng-if="!template" ng-show="!template" ng-bind="parse(column.title)"></div> <div ng-if="template" ng-show="template"><div ng-include="template"></div></div> </th> </tr> <tr ng-show="show_filter" class="ng-table-filters"> <th ng-repeat="column in $columns" ng-show="column.show(this)" class="filter"> <div ng-repeat="(name, filter) in column.filter"> <div ng-if="column.filterTemplateURL" ng-show="column.filterTemplateURL"> <div ng-include="column.filterTemplateURL"></div> </div> <div ng-if="!column.filterTemplateURL" ng-show="!column.filterTemplateURL"> <div ng-include="\'ng-table/filters/\' + filter + \'.html\'"></div> </div> </div> </th> </tr>');
-                $templateCache.put('ng-table/pager.html', '<div class="ng-cloak ng-table-pager"> <div ng-if="params.settings().counts.length" class="ng-table-counts btn-group pull-right"> <button ng-repeat="count in params.settings().counts" type="button" ng-class="{\'active\':params.count()==count}" ng-click="params.count(count)" class="btn btn-default"> <span ng-bind="count"></span> </button> </div> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-left"></i></a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-right"></i></a> </li> </ul> </div> ');
-                $templateCache.put('ng-table/pager-nav.html', '<ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-left"></i></a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href=""><i class="fa fa-fw fa-angle-right"></i></a> </li> </ul>');
-        }]);
-}());
-
-/**
- * ngTableExport v0.1.0 by Vitalii Savchuk(esvit666@gmail.com)
- * https://github.com/esvit/ng-table-export - New BSD License
- */
-
-(function(){
-    angular.module('ngTableExport', [])
-        .config(['$compileProvider', function($compileProvider){
-                $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/);
         }])
         .directive('grTableExportCsv', ['$parse', function(){
                 return {
                     restrict: 'E',
-                    scope: false,
+                    scope: {
+                        for: '='
+                    },
                     transclude: true,
                     template: '<a class="gr-table-export-csv" ng-mousedown="grTable.csv.generate()" ng-href="{{grTable.csv.link()}}" download="{{grTable.csv.name + \'.csv\'}}" ng-show="grTable.csv && grTable.csv.name" ng-disabled="grTable.data.length <= 0" ng-transclude></a>',
                     replace: true,
@@ -2775,9 +2263,77 @@
                             };
                         };
                         $scope.$watch('grTable.csv', function(csv){ if(csv && csv !== '' && !angular.isObject(csv)){ init(csv); } }, true);
+                        $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
+                        $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
                     }
                 };
+        }])
+        .directive('grChange', ['$parse', '$timeout', function($parse, $timeout){
+            return {
+                restrict: 'A',
+                scope: false,
+                require: 'ngModel',
+                link: function($scope, $element, $attrs, $controller){
+                    var firstTime = true;
+                    $scope.$watch(function(){
+                        return $controller.$viewValue;
+                    }, function(newValue){
+                        if(!firstTime){
+                            $timeout(function(){
+                                $scope.$apply($attrs.grChange);
+                            });
+                        }else{
+                            firstTime = false;
+                        }
+                    });
+                }
+            }
+        }])
+        .run(['$templateCache', function ($templateCache) {
+            $templateCache.put('gr-table/pager.html', '<div class="ng-cloak ng-table-pager" ng-if="params.data.length"> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active && !page.current, \'active\': page.current}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo;</a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href="">&raquo;</a> </li> </ul> </div> ');
+            $templateCache.put('ng-table/pager.html', '');
         }]);
+    angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
+}());
+
+/*
+ *
+ * GR-TRANSLATE
+ *
+ */
+
+(function(){
+    angular.module('gr.ui.translate', [])
+        .filter('grTranslate', ['$injector', function($injector){
+            return function(value){
+                if(angular.isString(value)){
+                    if($injector.has('$translate')){
+                        var $filter = $injector.get('$filter');
+                        value = $filter('translate')(value);
+                    }
+                }
+                return value;
+            }
+        }]);
+}());
+
+/*
+ *
+ * DEPENDENCIES
+ *
+ */
+
+/** gr-table dependencies **/
+
+(function(){
+    (function(){
+        /*! ngTable v0.5.3 by Vitalii Savchuk(esvit666@gmail.com) - https://github.com/esvit/ng-table - New BSD License */
+        !function(a,b){"use strict";return"function"==typeof define&&define.amd?void define(["angular"],function(a){return b(a)}):b(a)}(angular||null,function(a){"use strict";var b=a.module("ngTable",[]);return b.value("ngTableDefaults",{params:{},settings:{}}),b.factory("NgTableParams",["$q","$log","ngTableDefaults",function(b,c,d){var e=function(a){return!isNaN(parseFloat(a))&&isFinite(a)},f=function(f,g){var h=this,i=function(){k.debugMode&&c.debug&&c.debug.apply(this,arguments)};this.data=[],this.parameters=function(b,c){if(c=c||!1,a.isDefined(b)){for(var d in b){var f=b[d];if(c&&d.indexOf("[")>=0){for(var g=d.split(/\[(.*)\]/).reverse(),h="",k=0,l=g.length;l>k;k++){var m=g[k];if(""!==m){var n=f;f={},f[h=m]=e(n)?parseFloat(n):n}}"sorting"===h&&(j[h]={}),j[h]=a.extend(j[h]||{},f[h])}else j[d]=e(b[d])?parseFloat(b[d]):b[d]}return i("ngTable: set parameters",j),this}return j},this.settings=function(b){return a.isDefined(b)?(a.isArray(b.data)&&(b.total=b.data.length),k=a.extend(k,b),i("ngTable: set settings",k),this):k},this.page=function(b){return a.isDefined(b)?this.parameters({page:b}):j.page},this.total=function(b){return a.isDefined(b)?this.settings({total:b}):k.total},this.count=function(b){return a.isDefined(b)?this.parameters({count:b,page:1}):j.count},this.filter=function(b){return a.isDefined(b)?this.parameters({filter:b,page:1}):j.filter},this.sorting=function(b){if(2==arguments.length){var c={};return c[b]=arguments[1],this.parameters({sorting:c}),this}return a.isDefined(b)?this.parameters({sorting:b}):j.sorting},this.isSortBy=function(b,c){return a.isDefined(j.sorting[b])&&a.equals(j.sorting[b],c)},this.orderBy=function(){var a=[];for(var b in j.sorting)a.push(("asc"===j.sorting[b]?"+":"-")+b);return a},this.getData=function(b,c){return b.resolve(a.isArray(this.data)&&a.isObject(c)?this.data.slice((c.page()-1)*c.count(),c.page()*c.count()):[]),b.promise},this.getGroups=function(c,d){var e=b.defer();return e.promise.then(function(b){var e={};a.forEach(b,function(b){var c=a.isFunction(d)?d(b):b[d];e[c]=e[c]||{data:[]},e[c].value=c,e[c].data.push(b)});var f=[];for(var g in e)f.push(e[g]);i("ngTable: refresh groups",f),c.resolve(f)}),this.getData(e,h)},this.generatePagesArray=function(a,b,c){var d,e,f,g,h,i;if(d=11,i=[],h=Math.ceil(b/c),h>1){i.push({type:"prev",number:Math.max(1,a-1),active:a>1}),i.push({type:"first",number:1,active:a>1,current:1===a}),f=Math.round((d-5)/2),g=Math.max(2,a-f),e=Math.min(h-1,a+2*f-(a-g)),g=Math.max(2,g-(2*f-(e-g)));for(var j=g;e>=j;)i.push(j===g&&2!==j||j===e&&j!==h-1?{type:"more",active:!1}:{type:"page",number:j,active:a!==j,current:a===j}),j++;i.push({type:"last",number:h,active:a!==h,current:a===h}),i.push({type:"next",number:Math.min(h,a+1),active:h>a})}return i},this.url=function(b){b=b||!1;var c=b?[]:{};for(var d in j)if(j.hasOwnProperty(d)){var e=j[d],f=encodeURIComponent(d);if("object"==typeof e){for(var g in e)if(!a.isUndefined(e[g])&&""!==e[g]){var h=f+"["+encodeURIComponent(g)+"]";b?c.push(h+"="+e[g]):c[h]=e[g]}}else a.isFunction(e)||a.isUndefined(e)||""===e||(b?c.push(f+"="+encodeURIComponent(e)):c[f]=encodeURIComponent(e))}return c},this.reload=function(){var a=b.defer(),c=this,d=null;if(k.$scope)return k.$loading=!0,d=k.groupBy?k.getGroups(a,k.groupBy,this):k.getData(a,this),i("ngTable: reload data"),d||(d=a.promise),d.then(function(a){return k.$loading=!1,i("ngTable: current scope",k.$scope),k.groupBy?(c.data=a,k.$scope&&(k.$scope.$groups=a)):(c.data=a,k.$scope&&(k.$scope.$data=a)),k.$scope&&(k.$scope.pages=c.generatePagesArray(c.page(),c.total(),c.count())),k.$scope.$emit("ngTableAfterReloadData"),a})},this.reloadPages=function(){var a=this;k.$scope.pages=a.generatePagesArray(a.page(),a.total(),a.count())};var j=this.$params={page:1,count:1,filter:{},sorting:{},group:{},groupBy:null};a.extend(j,d.params);var k={$scope:null,$loading:!1,data:null,total:0,defaultSort:"desc",filterDelay:750,counts:[10,25,50,100],sortingIndicator:"span",getGroups:this.getGroups,getData:this.getData};return a.extend(k,d.settings),this.settings(g),this.parameters(f,!0),this};return f}]),b.factory("ngTableParams",["NgTableParams",function(a){return a}]),b.controller("ngTableController",["$scope","NgTableParams","$timeout","$parse","$compile","$attrs","$element","ngTableColumn",function(b,c,d,e,f,g,h,i){function j(){b.params.$params.page=1}var k=!0;b.$filterRow={},b.$loading=!1,b.hasOwnProperty("params")||(b.params=new c,b.params.isNullInstance=!0),b.params.settings().$scope=b;var l=function(){var a=0;return function(b,c){d.cancel(a),a=d(b,c)}}();b.$watch("params.$params",function(c,d){if(c!==d){if(b.params.settings().$scope=b,a.equals(c.filter,d.filter))b.params.reload();else{var e=k?a.noop:j;l(function(){e(),b.params.reload()},b.params.settings().filterDelay)}b.params.isNullInstance||(k=!1)}},!0),this.compileDirectiveTemplates=function(){if(!h.hasClass("ng-table")){b.templates={header:g.templateHeader?g.templateHeader:"ng-table/header.html",pagination:g.templatePagination?g.templatePagination:"ng-table/pager.html"},h.addClass("ng-table");var c=null;0===h.find("> thead").length&&(c=a.element(document.createElement("thead")).attr("ng-include","templates.header"),h.prepend(c));var d=a.element(document.createElement("div")).attr({"ng-table-pagination":"params","template-url":"templates.pagination"});h.after(d),c&&f(c)(b),f(d)(b)}},this.loadFilterData=function(c){a.forEach(c,function(c){var d;return d=c.filterData(b,{$column:c}),d?a.isObject(d)&&a.isObject(d.promise)?(delete c.filterData,d.promise.then(function(b){a.isArray(b)||a.isFunction(b)||a.isObject(b)?a.isArray(b)&&b.unshift({title:"-",id:""}):b=[],c.data=b})):c.data=d:void delete c.filterData})},this.buildColumns=function(a){return a.map(function(a){return i.buildColumn(a,b)})},this.setupBindingsToInternalScope=function(c){var d=e(c);b.$watch(d,function(c){a.isUndefined(c)||(b.paramsModel=d,b.params=c)},!1),g.showFilter&&b.$parent.$watch(g.showFilter,function(a){b.show_filter=a}),g.disableFilter&&b.$parent.$watch(g.disableFilter,function(a){b.$filterRow.disabled=a})},b.sortBy=function(a,c){var d=a.sortable&&a.sortable();if(d){var e=b.params.settings().defaultSort,f="asc"===e?"desc":"asc",g=b.params.sorting()&&b.params.sorting()[d]&&b.params.sorting()[d]===e,h=c.ctrlKey||c.metaKey?b.params.sorting():{};h[d]=g?f:e,b.params.parameters({sorting:h})}}}]),b.factory("ngTableColumn",[function(){function b(b,d){var e=Object.create(b);for(var f in c)void 0===e[f]&&(e[f]=c[f]),a.isFunction(e[f])||!function(a){e[a]=function(){return b[a]}}(f),function(a){var c=e[a];e[a]=function(){return 0===arguments.length?c.call(b,d):c.apply(b,arguments)}}(f);return e}var c={"class":function(){return""},filter:function(){return!1},filterData:a.noop,headerTemplateURL:function(){return!1},headerTitle:function(){return" "},sortable:function(){return!1},show:function(){return!0},title:function(){return" "},titleAlt:function(){return""}};return{buildColumn:b}}]),b.directive("ngTable",["$q","$parse",function(b,c){return{restrict:"A",priority:1001,scope:!0,controller:"ngTableController",compile:function(b){var d=[],e=0,f=null;return a.forEach(a.element(b.find("tr")),function(b){b=a.element(b),b.hasClass("ng-table-group")||f||(f=b)}),f?(a.forEach(f.find("td"),function(b){var f=a.element(b);if(!f.attr("ignore-cell")||"true"!==f.attr("ignore-cell")){var g=function(a){return f.attr("x-data-"+a)||f.attr("data-"+a)||f.attr(a)},h=function(b){var e=g(b);return e?function(b,f){return c(e)(b,a.extend(f||{},{$columns:d}))}:void 0},i=g("title-alt")||g("title");i&&f.attr("data-title-text","{{"+i+"}}"),d.push({id:e++,title:h("title"),titleAlt:h("title-alt"),headerTitle:h("header-title"),sortable:h("sortable"),"class":h("header-class"),filter:h("filter"),headerTemplateURL:h("header"),filterData:h("filter-data"),show:f.attr("ng-show")?function(a){return c(f.attr("ng-show"))(a)}:void 0})}}),function(a,b,c,e){a.$columns=d=e.buildColumns(d),e.setupBindingsToInternalScope(c.ngTable),e.loadFilterData(d),e.compileDirectiveTemplates()}):void 0}}}]),b.directive("ngTableDynamic",["$parse",function(b){function c(a){if(!a||a.indexOf(" with ")>-1){var b=a.split(/\s+with\s+/);return{tableParams:b[0],columns:b[1]}}throw new Error("Parse error (expected example: ng-table-dynamic='tableParams with cols')")}return{restrict:"A",priority:1001,scope:!0,controller:"ngTableController",compile:function(d){var e;return a.forEach(a.element(d.find("tr")),function(b){b=a.element(b),b.hasClass("ng-table-group")||e||(e=b)}),e?(a.forEach(e.find("td"),function(b){var c=a.element(b),d=function(a){return c.attr("x-data-"+a)||c.attr("data-"+a)||c.attr(a)},e=d("title");e||c.attr("data-title-text","{{$columns[$index].titleAlt(this) || $columns[$index].title(this)}}");var f=c.attr("ng-show");f||c.attr("ng-show","$columns[$index].show(this)")}),function(a,d,e,f){var g=c(e.ngTableDynamic),h=b(g.columns)(a)||[];a.$columns=f.buildColumns(h),f.setupBindingsToInternalScope(g.tableParams),f.loadFilterData(a.$columns),f.compileDirectiveTemplates()}):void 0}}}]),b.directive("ngTablePagination",["$compile",function(b){return{restrict:"A",scope:{params:"=ngTablePagination",templateUrl:"="},replace:!1,link:function(c,d){c.params.settings().$scope.$on("ngTableAfterReloadData",function(){c.pages=c.params.generatePagesArray(c.params.page(),c.params.total(),c.params.count())},!0),c.$watch("templateUrl",function(e){if(!a.isUndefined(e)){var f=a.element(document.createElement("div"));f.attr({"ng-include":"templateUrl"}),d.append(f),b(f)(c)}})}}}]),a.module("ngTable").run(["$templateCache",function(a){a.put("ng-table/filters/select-multiple.html",'<select ng-options="data.id as data.title for data in $column.data" ng-disabled="$filterRow.disabled" multiple ng-multiple="true" ng-model="params.filter()[name]" ng-show="filter==\'select-multiple\'" class="filter filter-select-multiple form-control" name="{{name}}"> </select>'),a.put("ng-table/filters/select.html",'<select ng-options="data.id as data.title for data in $column.data" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" ng-show="filter==\'select\'" class="filter filter-select form-control" name="{{name}}"> </select>'),a.put("ng-table/filters/text.html",'<input type="text" name="{{name}}" ng-disabled="$filterRow.disabled" ng-model="params.filter()[name]" ng-if="filter==\'text\'" class="input-filter form-control"/>'),a.put("ng-table/header.html",'<tr> <th title="{{$column.headerTitle(this)}}" ng-repeat="$column in $columns" ng-class="{ \'sortable\': $column.sortable(this), \'sort-asc\': params.sorting()[$column.sortable(this)]==\'asc\', \'sort-desc\': params.sorting()[$column.sortable(this)]==\'desc\' }" ng-click="sortBy($column, $event)" ng-show="$column.show(this)" ng-init="template=$column.headerTemplateURL(this)" class="header {{$column.class(this)}}"> <div ng-if="!template" ng-show="!template" class="ng-table-header" ng-class="{\'sort-indicator\': params.settings().sortingIndicator==\'div\'}"> <span ng-bind="$column.title(this)" ng-class="{\'sort-indicator\': params.settings().sortingIndicator==\'span\'}"></span> </div> <div ng-if="template" ng-show="template" ng-include="template"></div> </th> </tr> <tr ng-show="show_filter" class="ng-table-filters"> <th data-title-text="{{$column.titleAlt(this) || $column.title(this)}}" ng-repeat="$column in $columns" ng-show="$column.show(this)" class="filter"> <div ng-repeat="(name, filter) in $column.filter(this)"> <div ng-if="filter.indexOf(\'/\') !==-1" ng-include="filter"></div> <div ng-if="filter.indexOf(\'/\')===-1" ng-include="\'ng-table/filters/\' + filter + \'.html\'"></div> </div> </th> </tr> '),a.put("ng-table/pager.html",'<div class="ng-cloak ng-table-pager" ng-if="params.data.length"> <div ng-if="params.settings().counts.length" class="ng-table-counts btn-group pull-right"> <button ng-repeat="count in params.settings().counts" type="button" ng-class="{\'active\':params.count()==count}" ng-click="params.count(count)" class="btn btn-default"> <span ng-bind="count"></span> </button> </div> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active && !page.current, \'active\': page.current}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo;</a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href="">&raquo;</a> </li> </ul> </div> ')}]),b});
+    }());
+    (function(){
+        /*! ngTableExport v0.1.0 by Vitalii Savchuk(esvit666@gmail.com) - https://github.com/esvit/ng-table-export - New BSD License */
+        angular.module("ngTableExport",[]).config(["$compileProvider",function(a){a.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|data):/)}]).directive("exportCsv",["$parse",function(a){return{restrict:"A",scope:!1,link:function(b,c,d){var e="",f={stringify:function(a){return'"'+a.replace(/^\s\s*/,"").replace(/\s*\s$/,"").replace(/"/g,'""')+'"'},generate:function(){e="";var a=c.find("tr");angular.forEach(a,function(a,b){var c=angular.element(a),d=c.find("th"),g="";c.hasClass("ng-table-filters")||(0==d.length&&(d=c.find("td")),1!=b&&(angular.forEach(d,function(a){g+=f.stringify(angular.element(a).text())+";"}),g=g.slice(0,g.length-1)),e+=g+"\n")})},link:function(){return"data:text/csv;charset=UTF-8,"+encodeURIComponent(e)}};a(d.exportCsv).assign(b.$parent,f)}}}]);
+    }());
 }());
 
 /** gr-autofields dependencies **/
@@ -3270,4 +2826,14 @@
      * Build date: 26 February 2012
      */
      rangy.createModule("SaveRestore",function(a,b){function c(a,b){return(b||document).getElementById(a)}function d(a,b){var c,d="selectionBoundary_"+ +new Date+"_"+(""+Math.random()).slice(2),e=k.getDocument(a.startContainer),f=a.cloneRange();return f.collapse(b),c=e.createElement("span"),c.id=d,c.style.lineHeight="0",c.style.display="none",c.className="rangySelectionBoundary",c.appendChild(e.createTextNode(l)),f.insertNode(c),f.detach(),c}function e(a,d,e,f){var g=c(e,a);g?(d[f?"setStartBefore":"setEndBefore"](g),g.parentNode.removeChild(g)):b.warn("Marker element has been removed. Cannot restore selection.")}function f(a,b){return b.compareBoundaryPoints(a.START_TO_START,a)}function g(e){e=e||window;var g=e.document;if(!a.isSelectionValid(e))return void b.warn("Cannot save selection. This usually happens when the selection is collapsed and the selection document has lost focus.");var h,i,j,k=a.getSelection(e),l=k.getAllRanges(),m=[];l.sort(f);for(var n=0,o=l.length;o>n;++n)j=l[n],j.collapsed?(i=d(j,!1),m.push({markerId:i.id,collapsed:!0})):(i=d(j,!1),h=d(j,!0),m[n]={startMarkerId:h.id,endMarkerId:i.id,collapsed:!1,backwards:1==l.length&&k.isBackwards()});for(n=o-1;n>=0;--n)j=l[n],j.collapsed?j.collapseBefore(c(m[n].markerId,g)):(j.setEndBefore(c(m[n].endMarkerId,g)),j.setStartAfter(c(m[n].startMarkerId,g)));return k.setRanges(l),{win:e,doc:g,rangeInfos:m,restored:!1}}function h(d,f){if(!d.restored){for(var g,h,i=d.rangeInfos,j=a.getSelection(d.win),k=[],l=i.length,m=l-1;m>=0;--m){if(g=i[m],h=a.createRange(d.doc),g.collapsed){var n=c(g.markerId,d.doc);if(n){n.style.display="inline";var o=n.previousSibling;o&&3==o.nodeType?(n.parentNode.removeChild(n),h.collapseToPoint(o,o.length)):(h.collapseBefore(n),n.parentNode.removeChild(n))}else b.warn("Marker element has been removed. Cannot restore selection.")}else e(d.doc,h,g.startMarkerId,!0),e(d.doc,h,g.endMarkerId,!1);1==l&&h.normalizeBoundaries(),k[m]=h}1==l&&f&&a.features.selectionHasExtend&&i[0].backwards?(j.removeAllRanges(),j.addRange(k[0],!0)):j.setRanges(k),d.restored=!0}}function i(a,b){var d=c(b,a);d&&d.parentNode.removeChild(d)}function j(a){for(var b,c=a.rangeInfos,d=0,e=c.length;e>d;++d)b=c[d],b.collapsed?i(a.doc,b.markerId):(i(a.doc,b.startMarkerId),i(a.doc,b.endMarkerId))}a.requireModules(["DomUtil","DomRange","WrappedRange"]);var k=a.dom,l="";a.saveSelection=g,a.restoreSelection=h,a.removeMarkerElement=i,a.removeMarkers=j})}({},function(){return this}());
+}());
+ 
+/*! jQuery UI - v1.11.2 - 2015-01-23
+* http://jqueryui.com
+* Includes: effect.js
+* Copyright 2015 jQuery Foundation and other contributors; Licensed MIT */
+
+(function(){
+    (function(e){
+        "function"==typeof define&&define.amd?define(["jquery"],e):e(jQuery)})(function(e){var t="ui-effects-",i=e;e.effects={effect:{}},function(e,t){function i(e,t,i){var s=d[t.type]||{};return null==e?i||!t.def?null:t.def:(e=s.floor?~~e:parseFloat(e),isNaN(e)?t.def:s.mod?(e+s.mod)%s.mod:0>e?0:e>s.max?s.max:e)}function s(i){var s=l(),n=s._rgba=[];return i=i.toLowerCase(),f(h,function(e,a){var o,r=a.re.exec(i),h=r&&a.parse(r),l=a.space||"rgba";return h?(o=s[l](h),s[u[l].cache]=o[u[l].cache],n=s._rgba=o._rgba,!1):t}),n.length?("0,0,0,0"===n.join()&&e.extend(n,a.transparent),s):a[i]}function n(e,t,i){return i=(i+1)%1,1>6*i?e+6*(t-e)*i:1>2*i?t:2>3*i?e+6*(t-e)*(2/3-i):e}var a,o="backgroundColor borderBottomColor borderLeftColor borderRightColor borderTopColor color columnRuleColor outlineColor textDecorationColor textEmphasisColor",r=/^([\-+])=\s*(\d+\.?\d*)/,h=[{re:/rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[e[1],e[2],e[3],e[4]]}},{re:/rgba?\(\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,parse:function(e){return[2.55*e[1],2.55*e[2],2.55*e[3],e[4]]}},{re:/#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})/,parse:function(e){return[parseInt(e[1],16),parseInt(e[2],16),parseInt(e[3],16)]}},{re:/#([a-f0-9])([a-f0-9])([a-f0-9])/,parse:function(e){return[parseInt(e[1]+e[1],16),parseInt(e[2]+e[2],16),parseInt(e[3]+e[3],16)]}},{re:/hsla?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\%\s*,\s*(\d+(?:\.\d+)?)\%\s*(?:,\s*(\d?(?:\.\d+)?)\s*)?\)/,space:"hsla",parse:function(e){return[e[1],e[2]/100,e[3]/100,e[4]]}}],l=e.Color=function(t,i,s,n){return new e.Color.fn.parse(t,i,s,n)},u={rgba:{props:{red:{idx:0,type:"byte"},green:{idx:1,type:"byte"},blue:{idx:2,type:"byte"}}},hsla:{props:{hue:{idx:0,type:"degrees"},saturation:{idx:1,type:"percent"},lightness:{idx:2,type:"percent"}}}},d={"byte":{floor:!0,max:255},percent:{max:1},degrees:{mod:360,floor:!0}},c=l.support={},p=e("<p>")[0],f=e.each;p.style.cssText="background-color:rgba(1,1,1,.5)",c.rgba=p.style.backgroundColor.indexOf("rgba")>-1,f(u,function(e,t){t.cache="_"+e,t.props.alpha={idx:3,type:"percent",def:1}}),l.fn=e.extend(l.prototype,{parse:function(n,o,r,h){if(n===t)return this._rgba=[null,null,null,null],this;(n.jquery||n.nodeType)&&(n=e(n).css(o),o=t);var d=this,c=e.type(n),p=this._rgba=[];return o!==t&&(n=[n,o,r,h],c="array"),"string"===c?this.parse(s(n)||a._default):"array"===c?(f(u.rgba.props,function(e,t){p[t.idx]=i(n[t.idx],t)}),this):"object"===c?(n instanceof l?f(u,function(e,t){n[t.cache]&&(d[t.cache]=n[t.cache].slice())}):f(u,function(t,s){var a=s.cache;f(s.props,function(e,t){if(!d[a]&&s.to){if("alpha"===e||null==n[e])return;d[a]=s.to(d._rgba)}d[a][t.idx]=i(n[e],t,!0)}),d[a]&&0>e.inArray(null,d[a].slice(0,3))&&(d[a][3]=1,s.from&&(d._rgba=s.from(d[a])))}),this):t},is:function(e){var i=l(e),s=!0,n=this;return f(u,function(e,a){var o,r=i[a.cache];return r&&(o=n[a.cache]||a.to&&a.to(n._rgba)||[],f(a.props,function(e,i){return null!=r[i.idx]?s=r[i.idx]===o[i.idx]:t})),s}),s},_space:function(){var e=[],t=this;return f(u,function(i,s){t[s.cache]&&e.push(i)}),e.pop()},transition:function(e,t){var s=l(e),n=s._space(),a=u[n],o=0===this.alpha()?l("transparent"):this,r=o[a.cache]||a.to(o._rgba),h=r.slice();return s=s[a.cache],f(a.props,function(e,n){var a=n.idx,o=r[a],l=s[a],u=d[n.type]||{};null!==l&&(null===o?h[a]=l:(u.mod&&(l-o>u.mod/2?o+=u.mod:o-l>u.mod/2&&(o-=u.mod)),h[a]=i((l-o)*t+o,n)))}),this[n](h)},blend:function(t){if(1===this._rgba[3])return this;var i=this._rgba.slice(),s=i.pop(),n=l(t)._rgba;return l(e.map(i,function(e,t){return(1-s)*n[t]+s*e}))},toRgbaString:function(){var t="rgba(",i=e.map(this._rgba,function(e,t){return null==e?t>2?1:0:e});return 1===i[3]&&(i.pop(),t="rgb("),t+i.join()+")"},toHslaString:function(){var t="hsla(",i=e.map(this.hsla(),function(e,t){return null==e&&(e=t>2?1:0),t&&3>t&&(e=Math.round(100*e)+"%"),e});return 1===i[3]&&(i.pop(),t="hsl("),t+i.join()+")"},toHexString:function(t){var i=this._rgba.slice(),s=i.pop();return t&&i.push(~~(255*s)),"#"+e.map(i,function(e){return e=(e||0).toString(16),1===e.length?"0"+e:e}).join("")},toString:function(){return 0===this._rgba[3]?"transparent":this.toRgbaString()}}),l.fn.parse.prototype=l.fn,u.hsla.to=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t,i,s=e[0]/255,n=e[1]/255,a=e[2]/255,o=e[3],r=Math.max(s,n,a),h=Math.min(s,n,a),l=r-h,u=r+h,d=.5*u;return t=h===r?0:s===r?60*(n-a)/l+360:n===r?60*(a-s)/l+120:60*(s-n)/l+240,i=0===l?0:.5>=d?l/u:l/(2-u),[Math.round(t)%360,i,d,null==o?1:o]},u.hsla.from=function(e){if(null==e[0]||null==e[1]||null==e[2])return[null,null,null,e[3]];var t=e[0]/360,i=e[1],s=e[2],a=e[3],o=.5>=s?s*(1+i):s+i-s*i,r=2*s-o;return[Math.round(255*n(r,o,t+1/3)),Math.round(255*n(r,o,t)),Math.round(255*n(r,o,t-1/3)),a]},f(u,function(s,n){var a=n.props,o=n.cache,h=n.to,u=n.from;l.fn[s]=function(s){if(h&&!this[o]&&(this[o]=h(this._rgba)),s===t)return this[o].slice();var n,r=e.type(s),d="array"===r||"object"===r?s:arguments,c=this[o].slice();return f(a,function(e,t){var s=d["object"===r?e:t.idx];null==s&&(s=c[t.idx]),c[t.idx]=i(s,t)}),u?(n=l(u(c)),n[o]=c,n):l(c)},f(a,function(t,i){l.fn[t]||(l.fn[t]=function(n){var a,o=e.type(n),h="alpha"===t?this._hsla?"hsla":"rgba":s,l=this[h](),u=l[i.idx];return"undefined"===o?u:("function"===o&&(n=n.call(this,u),o=e.type(n)),null==n&&i.empty?this:("string"===o&&(a=r.exec(n),a&&(n=u+parseFloat(a[2])*("+"===a[1]?1:-1))),l[i.idx]=n,this[h](l)))})})}),l.hook=function(t){var i=t.split(" ");f(i,function(t,i){e.cssHooks[i]={set:function(t,n){var a,o,r="";if("transparent"!==n&&("string"!==e.type(n)||(a=s(n)))){if(n=l(a||n),!c.rgba&&1!==n._rgba[3]){for(o="backgroundColor"===i?t.parentNode:t;(""===r||"transparent"===r)&&o&&o.style;)try{r=e.css(o,"backgroundColor"),o=o.parentNode}catch(h){}n=n.blend(r&&"transparent"!==r?r:"_default")}n=n.toRgbaString()}try{t.style[i]=n}catch(h){}}},e.fx.step[i]=function(t){t.colorInit||(t.start=l(t.elem,i),t.end=l(t.end),t.colorInit=!0),e.cssHooks[i].set(t.elem,t.start.transition(t.end,t.pos))}})},l.hook(o),e.cssHooks.borderColor={expand:function(e){var t={};return f(["Top","Right","Bottom","Left"],function(i,s){t["border"+s+"Color"]=e}),t}},a=e.Color.names={aqua:"#00ffff",black:"#000000",blue:"#0000ff",fuchsia:"#ff00ff",gray:"#808080",green:"#008000",lime:"#00ff00",maroon:"#800000",navy:"#000080",olive:"#808000",purple:"#800080",red:"#ff0000",silver:"#c0c0c0",teal:"#008080",white:"#ffffff",yellow:"#ffff00",transparent:[null,null,null,0],_default:"#ffffff"}}(i),function(){function t(t){var i,s,n=t.ownerDocument.defaultView?t.ownerDocument.defaultView.getComputedStyle(t,null):t.currentStyle,a={};if(n&&n.length&&n[0]&&n[n[0]])for(s=n.length;s--;)i=n[s],"string"==typeof n[i]&&(a[e.camelCase(i)]=n[i]);else for(i in n)"string"==typeof n[i]&&(a[i]=n[i]);return a}function s(t,i){var s,n,o={};for(s in i)n=i[s],t[s]!==n&&(a[s]||(e.fx.step[s]||!isNaN(parseFloat(n)))&&(o[s]=n));return o}var n=["add","remove","toggle"],a={border:1,borderBottom:1,borderColor:1,borderLeft:1,borderRight:1,borderTop:1,borderWidth:1,margin:1,padding:1};e.each(["borderLeftStyle","borderRightStyle","borderBottomStyle","borderTopStyle"],function(t,s){e.fx.step[s]=function(e){("none"!==e.end&&!e.setAttr||1===e.pos&&!e.setAttr)&&(i.style(e.elem,s,e.end),e.setAttr=!0)}}),e.fn.addBack||(e.fn.addBack=function(e){return this.add(null==e?this.prevObject:this.prevObject.filter(e))}),e.effects.animateClass=function(i,a,o,r){var h=e.speed(a,o,r);return this.queue(function(){var a,o=e(this),r=o.attr("class")||"",l=h.children?o.find("*").addBack():o;l=l.map(function(){var i=e(this);return{el:i,start:t(this)}}),a=function(){e.each(n,function(e,t){i[t]&&o[t+"Class"](i[t])})},a(),l=l.map(function(){return this.end=t(this.el[0]),this.diff=s(this.start,this.end),this}),o.attr("class",r),l=l.map(function(){var t=this,i=e.Deferred(),s=e.extend({},h,{queue:!1,complete:function(){i.resolve(t)}});return this.el.animate(this.diff,s),i.promise()}),e.when.apply(e,l.get()).done(function(){a(),e.each(arguments,function(){var t=this.el;e.each(this.diff,function(e){t.css(e,"")})}),h.complete.call(o[0])})})},e.fn.extend({addClass:function(t){return function(i,s,n,a){return s?e.effects.animateClass.call(this,{add:i},s,n,a):t.apply(this,arguments)}}(e.fn.addClass),removeClass:function(t){return function(i,s,n,a){return arguments.length>1?e.effects.animateClass.call(this,{remove:i},s,n,a):t.apply(this,arguments)}}(e.fn.removeClass),toggleClass:function(t){return function(i,s,n,a,o){return"boolean"==typeof s||void 0===s?n?e.effects.animateClass.call(this,s?{add:i}:{remove:i},n,a,o):t.apply(this,arguments):e.effects.animateClass.call(this,{toggle:i},s,n,a)}}(e.fn.toggleClass),switchClass:function(t,i,s,n,a){return e.effects.animateClass.call(this,{add:i,remove:t},s,n,a)}})}(),function(){function i(t,i,s,n){return e.isPlainObject(t)&&(i=t,t=t.effect),t={effect:t},null==i&&(i={}),e.isFunction(i)&&(n=i,s=null,i={}),("number"==typeof i||e.fx.speeds[i])&&(n=s,s=i,i={}),e.isFunction(s)&&(n=s,s=null),i&&e.extend(t,i),s=s||i.duration,t.duration=e.fx.off?0:"number"==typeof s?s:s in e.fx.speeds?e.fx.speeds[s]:e.fx.speeds._default,t.complete=n||i.complete,t}function s(t){return!t||"number"==typeof t||e.fx.speeds[t]?!0:"string"!=typeof t||e.effects.effect[t]?e.isFunction(t)?!0:"object"!=typeof t||t.effect?!1:!0:!0}e.extend(e.effects,{version:"1.11.2",save:function(e,i){for(var s=0;i.length>s;s++)null!==i[s]&&e.data(t+i[s],e[0].style[i[s]])},restore:function(e,i){var s,n;for(n=0;i.length>n;n++)null!==i[n]&&(s=e.data(t+i[n]),void 0===s&&(s=""),e.css(i[n],s))},setMode:function(e,t){return"toggle"===t&&(t=e.is(":hidden")?"show":"hide"),t},getBaseline:function(e,t){var i,s;switch(e[0]){case"top":i=0;break;case"middle":i=.5;break;case"bottom":i=1;break;default:i=e[0]/t.height}switch(e[1]){case"left":s=0;break;case"center":s=.5;break;case"right":s=1;break;default:s=e[1]/t.width}return{x:s,y:i}},createWrapper:function(t){if(t.parent().is(".ui-effects-wrapper"))return t.parent();var i={width:t.outerWidth(!0),height:t.outerHeight(!0),"float":t.css("float")},s=e("<div></div>").addClass("ui-effects-wrapper").css({fontSize:"100%",background:"transparent",border:"none",margin:0,padding:0}),n={width:t.width(),height:t.height()},a=document.activeElement;try{a.id}catch(o){a=document.body}return t.wrap(s),(t[0]===a||e.contains(t[0],a))&&e(a).focus(),s=t.parent(),"static"===t.css("position")?(s.css({position:"relative"}),t.css({position:"relative"})):(e.extend(i,{position:t.css("position"),zIndex:t.css("z-index")}),e.each(["top","left","bottom","right"],function(e,s){i[s]=t.css(s),isNaN(parseInt(i[s],10))&&(i[s]="auto")}),t.css({position:"relative",top:0,left:0,right:"auto",bottom:"auto"})),t.css(n),s.css(i).show()},removeWrapper:function(t){var i=document.activeElement;return t.parent().is(".ui-effects-wrapper")&&(t.parent().replaceWith(t),(t[0]===i||e.contains(t[0],i))&&e(i).focus()),t},setTransition:function(t,i,s,n){return n=n||{},e.each(i,function(e,i){var a=t.cssUnit(i);a[0]>0&&(n[i]=a[0]*s+a[1])}),n}}),e.fn.extend({effect:function(){function t(t){function i(){e.isFunction(a)&&a.call(n[0]),e.isFunction(t)&&t()}var n=e(this),a=s.complete,r=s.mode;(n.is(":hidden")?"hide"===r:"show"===r)?(n[r](),i()):o.call(n[0],s,i)}var s=i.apply(this,arguments),n=s.mode,a=s.queue,o=e.effects.effect[s.effect];return e.fx.off||!o?n?this[n](s.duration,s.complete):this.each(function(){s.complete&&s.complete.call(this)}):a===!1?this.each(t):this.queue(a||"fx",t)},show:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="show",this.effect.call(this,n)}}(e.fn.show),hide:function(e){return function(t){if(s(t))return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="hide",this.effect.call(this,n)}}(e.fn.hide),toggle:function(e){return function(t){if(s(t)||"boolean"==typeof t)return e.apply(this,arguments);var n=i.apply(this,arguments);return n.mode="toggle",this.effect.call(this,n)}}(e.fn.toggle),cssUnit:function(t){var i=this.css(t),s=[];return e.each(["em","px","%","pt"],function(e,t){i.indexOf(t)>0&&(s=[parseFloat(i),t])}),s}})}(),function(){var t={};e.each(["Quad","Cubic","Quart","Quint","Expo"],function(e,i){t[i]=function(t){return Math.pow(t,e+2)}}),e.extend(t,{Sine:function(e){return 1-Math.cos(e*Math.PI/2)},Circ:function(e){return 1-Math.sqrt(1-e*e)},Elastic:function(e){return 0===e||1===e?e:-Math.pow(2,8*(e-1))*Math.sin((80*(e-1)-7.5)*Math.PI/15)},Back:function(e){return e*e*(3*e-2)},Bounce:function(e){for(var t,i=4;((t=Math.pow(2,--i))-1)/11>e;);return 1/Math.pow(4,3-i)-7.5625*Math.pow((3*t-2)/22-e,2)}}),e.each(t,function(t,i){e.easing["easeIn"+t]=i,e.easing["easeOut"+t]=function(e){return 1-i(1-e)},e.easing["easeInOut"+t]=function(e){return.5>e?i(2*e)/2:1-i(-2*e+2)/2}})}(),e.effects});
 }());
