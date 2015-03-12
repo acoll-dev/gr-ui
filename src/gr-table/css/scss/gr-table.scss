@@ -216,17 +216,54 @@
         }
     }
 }
-.gr-table-pager{
-    display: table;
-    .pagination{
-        position: relative;
+body{
+    .gr-table-count{
+        .btn.btn-default{
+            color: #428bca;
+            box-shadow: none;
+            outline: none;
+            border: solid 1px #DDDDDD;
+            border-right: none;
+            &:last-child{
+                border-right: solid 1px #DDDDDD;
+            }
+            -webkit-transition: none;
+            -moz-transition: none;
+            -ie-transition: none;
+            -o-transition: none;
+            transition: none;
+            &:hover,
+            &:active,
+            &:focus{
+                color: #2a6496;
+                background-color: #EEEEEE;
+            }
+            &.active{
+                background: #428bca;
+                border-color: #428bca;
+                color: #FFFFFF;
+                cursor: default;
+                z-index: 3;
+                &:hover{
+                    background: #428bca;
+                    border-color: #428bca;
+                    color: #FFFFFF;
+                }
+            }
+        }
+    }
+    .gr-table-pager{
         display: table;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        li{
-            display: block;
-            float: left;
+        .pagination{
+            position: relative;
+            display: table;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            li{
+                display: block;
+                float: left;
+            }
         }
     }
 }
