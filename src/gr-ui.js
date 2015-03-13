@@ -1,4 +1,11 @@
 'use strict';
+
+(function(window){
+    window.griffoUI = {
+        version: '0.1.0'
+    };
+}(window));
+
 (function(){
     angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.table', 'gr.ui.translate']);
 }());
