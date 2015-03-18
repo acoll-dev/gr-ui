@@ -1,8 +1,13 @@
 'use strict';
 (function(){
     angular.module('gr.ui.alert', [])
-        .factory('$grAlert', ['$compile', '$timeout', '$window', function($compile, $timeout, $window){
+        .provider('$grAlert', function(){
             var id = 1,
+                $handlers = [],
+                $injector,
+                $compile,
+                $timeout,
+                $window,
                 defaults = {
                     index: 10000,
                     timeout: 8000
@@ -44,12 +49,21 @@
                                     }
                                 },
                                 show: function(type, obj, timeout){
-                                    if(angular.isString(type) && angular.isArray(obj)){
+                                    if(angular.isString(type)){
                                         instance.message.content = [];
                                         instance.hide();
                                         $timeout.cancel(instance.timeoutFn);
                                         instance.message.type = type;
-                                        instance.message.content = obj;
+                                        if(angular.isArray(obj)){
+                                            instance.message.content = obj;
+                                        }else if(angular.isString(obj)){
+                                            instance.message.content = [obj];
+                                        }
+                                        if($handlers.length > 0){
+                                            angular.forEach($handlers, function(fn){
+                                                instance.message.content = $injector.invoke(fn, null, {$object: obj});
+                                            });
+                                        }
                                         instance.message.visible = true;
                                         instance.timeout = angular.isDefined(timeout) ? timeout : defaults.timeout;
                                         instance.setTimeout();
@@ -119,11 +133,22 @@
                         return grAlert.alert[instance.id];
                     }
                 };
-            return {
-                new: grAlert.new
+            this.registerHandler = function(fn){
+                if(fn){
+                    $handlers.push(fn);
+                }
             }
-        }])
-        .directive('grAlert', ['$templateCache', '$timeout', function ($templateCache, $timeout){
+            this.$get = ['$injector', '$compile', '$timeout', '$window', function(injector, compile, timeout, window){
+                $injector = injector;
+                $compile = compile;
+                $timeout = timeout;
+                $window = window;
+                return {
+                    new: grAlert.new
+                }
+            }];
+        })
+        .directive('grAlert', ['$templateCache', '$timeout', function($templateCache, $timeout){
                 return {
                     restrict: 'E',
                     scope: true,
