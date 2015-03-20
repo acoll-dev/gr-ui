@@ -12,6 +12,12 @@ $input-border: #CCCCCC;
 	box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
 }
 .autofields{
+    .btn {
+        border-radius: 0;
+    }
+    .input-group-addon{
+        border-radius: 0;
+    }
 	.form-group{
         &,
         > [class*="col-"]{
@@ -204,6 +210,7 @@ $input-border: #CCCCCC;
         }
     }
 }
+
 /*
 @license textAngular
 Author : Austin Anderson

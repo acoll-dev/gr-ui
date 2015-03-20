@@ -9,7 +9,7 @@
                 $timeout,
                 $window,
                 defaults = {
-                    index: 10000,
+                    index: 1000000,
                     timeout: 8000
                 },
                 grAlert = {
@@ -61,7 +61,7 @@
                                         }
                                         if($handlers.length > 0){
                                             angular.forEach($handlers, function(fn){
-                                                instance.message.content = $injector.invoke(fn, null, {$object: obj});
+                                                instance.message.content = $injector.invoke(fn, null, {$object: instance.message.content});
                                             });
                                         }
                                         instance.message.visible = true;

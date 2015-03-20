@@ -140,35 +140,35 @@
                     });
                     alert.open();
                 },
-				'confirm': function(message, confirm, cancel, size){
-					var alert = grModal.new({
-						'name': 'confirm',
-						'size': size || 'sm',
-						'text': message || '',
-						'buttons': [{
-							'type': 'primary',
-							'label': 'Confirm',
-							'onClick': function(scope, element, controller){
-								if(confirm && angular.isFunction(confirm)){
-									confirm();
-								}
-								controller.close();
-							}
-                    	}, {
-							'type': 'default',
-							'label': 'Cancel',
-							'onClick': function(scope, element, controller){
-								if(cancel && angular.isFunction(cancel)){
-									cancel();
-								}
-								controller.close();
-								
-							}
-                    	}],
-						'backdrop': 'static'
-					});
-					alert.open();
-				},
+        'confirm': function(message, confirm, cancel, size){
+          var alert = grModal.new({
+            'name': 'confirm',
+            'size': size || 'sm',
+            'text': message || '',
+            'buttons': [{
+              'type': 'primary',
+              'label': 'Confirm',
+              'onClick': function(scope, element, controller){
+                if(confirm && angular.isFunction(confirm)){
+                  confirm();
+                }
+                controller.close();
+              }
+                      }, {
+              'type': 'default',
+              'label': 'Cancel',
+              'onClick': function(scope, element, controller){
+                if(cancel && angular.isFunction(cancel)){
+                  cancel();
+                }
+                controller.close();
+                
+              }
+                      }],
+            'backdrop': 'static'
+          });
+          alert.open();
+        },
                 'events': {
                     'onOpen': function(){},
                     'onClose': function(){}
@@ -186,7 +186,7 @@
                     return {
                         'new': grModal.new,
                         'alert': grModal.alert,
-						'confirm': grModal.confirm,
+            'confirm': grModal.confirm,
                         'template': {
                             'get': function(name){
                                 if(angular.isString(name)){

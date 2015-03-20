@@ -1,5 +1,4 @@
 'use strict';
-
 (function(){
     angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
         .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
@@ -80,7 +79,7 @@
                                 var _errors = [];
                                 angular.forEach($error, function(errors, errorId){
                                     angular.forEach(errors, function(field){
-                                        if(grAutofields.errors[field.$name]){
+                                        if(grAutofields.errors && grAutofields.errors[field.$name]){
                                             _errors.push(grAutofields.errors[field.$name][errorId]);
                                         }
                                     });
@@ -122,6 +121,7 @@
                             function reset(){
                                 $timeout(function(){
                                     grAutofields = angular.copy(defaults);
+                                    setErrors(grAutofields.schema);
                                     $scope[$attrs.name].$setPristine();
                                     $scope[$attrs.name].$submitted = false;
                                     $scope.$apply();

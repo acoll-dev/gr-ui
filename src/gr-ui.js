@@ -26,7 +26,7 @@
                 $timeout,
                 $window,
                 defaults = {
-                    index: 10000,
+                    index: 1000000,
                     timeout: 8000
                 },
                 grAlert = {
@@ -78,7 +78,7 @@
                                         }
                                         if($handlers.length > 0){
                                             angular.forEach($handlers, function(fn){
-                                                instance.message.content = $injector.invoke(fn, null, {$object: obj});
+                                                instance.message.content = $injector.invoke(fn, null, {$object: instance.message.content});
                                             });
                                         }
                                         instance.message.visible = true;
@@ -284,7 +284,7 @@
                                 var _errors = [];
                                 angular.forEach($error, function(errors, errorId){
                                     angular.forEach(errors, function(field){
-                                        if(grAutofields.errors[field.$name]){
+                                        if(grAutofields.errors && grAutofields.errors[field.$name]){
                                             _errors.push(grAutofields.errors[field.$name][errorId]);
                                         }
                                     });
@@ -326,6 +326,7 @@
                             function reset(){
                                 $timeout(function(){
                                     grAutofields = angular.copy(defaults);
+                                    setErrors(grAutofields.schema);
                                     $scope[$attrs.name].$setPristine();
                                     $scope[$attrs.name].$submitted = false;
                                     $scope.$apply();
@@ -2342,7 +2343,19 @@
                     var _return;
                     if(angular.isString(value)){
                         if($injector.has('$translate')){
-                            _return = $injector.get('$translate').instant(value);
+                            if(value.indexOf('[[') > -1){
+                                var newValue = value.split('[[')[0],
+                                    vars = value.split('[[')[1].split(']]')[0].split(','),
+                                    translatedValue = $injector.get('$translate').instant(newValue);
+                                angular.forEach(vars, function(v, id){
+                                    while(translatedValue.indexOf('[[$' + (id + 1) + ']]') > -1){
+                                        translatedValue = translatedValue.replace('[[$' + (id + 1) + ']]', v);
+                                    }
+                                });
+                                _return = translatedValue;
+                            }else{
+                                _return = $injector.get('$translate').instant(value);
+                            }
                         }else{
                             _return = value;
                         }
@@ -2361,11 +2374,6 @@
             return function(value){
                 if(angular.isString(value)){
                     var newValue, vars;
-                    if(value.indexOf('[[') > -1){
-                        newValue = value.split('[[')[0];
-                        vars = value.split('[[')[1].split(']]')[0].split(',');
-                        console.debug(vars);
-                    };
                     value = $grTranslate(value);
                 }
                 return value;
