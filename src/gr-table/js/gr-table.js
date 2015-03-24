@@ -1,7 +1,40 @@
-'use strict'; 
+'use strict';
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
-        .directive('grTable', ['ngTableParams', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+        .provider('$grTable', function(){
+            var fns = {},
+                messages = {
+                    'ALERT.LOADING.TABLE.DATA': 'Loading table data...',
+                    'ALERT.RELOADING.TABLE.DATA': 'Reloading table data...',
+                    'ALERT.SUCCESS.LOAD.DATA': 'Table data, is loaded successfully!',
+                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!'
+                };
+            this.registerFunctions = function(f){
+                if(f && angular.isObject(f)){
+                    fns = f;
+                }
+            };
+            this.setMessages = function(fn){
+                messages = fn(messages);
+            }
+            this.$get = ['$grTranslate', function($grTranslate){
+                return {
+                    translate: function(msg){
+                        var r = '';
+                        if(msg && angular.isString(msg)){
+                            if(messages[msg]){
+                                r = $grTranslate(messages[msg]);
+                            }
+                        }
+                        return r;
+                    },
+                    functions: function(){
+                        return fns;
+                    }
+                };
+            }];
+        })
+        .directive('grTable', ['ngTableParams', '$grTable', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grTable, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
                 var $name = $attrs.name || 'grTable',
                     alert = $grAlert.new(),
@@ -9,9 +42,9 @@
                     dataSource = '',
                     getData = function(src, reload){
                         if(!reload){
-                            alert.show('loading', ['Loading table data...'], 0);
+                            alert.show('loading', $grTable.translate('ALERT.LOADING.TABLE.DATA'), 0);
                         }else{
-                            alert.show('loading', ['Reloading table data...'], 0);
+                            alert.show('loading', $grTable.translate('ALERT.RELOADING.TABLE.DATA'), 0);
                         }
                         $http.get(src).then(function(r){
                             if(r.status === 200 && r.data.response){
@@ -20,11 +53,11 @@
                                 if(!reload){
                                     alert.hide();
                                 }else{
-                                    alert.show('success', ['Table data is reloaded!'], 2000);
+                                    alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
                                 }
                             }else{
                                 console.debug(r);
-                                alert.show('danger', ['A error occurred when reloading table data, please, try reload page!']);
+                                alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                             }
                         }, function(e){
                             var title = angular.element(angular.element(e.data)[0]).text(),
@@ -176,11 +209,8 @@
             },
             setFunctions= function($scope, $element, $attrs){
                 var $name = $attrs.name || 'grTable',
-                    fns = {};
+                    fns = $grTable.functions();
                 $scope[$name].fn = {};
-                if($injector.has('$grTable.config')){
-                    fns = $injector.get('$grTable.config');//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
-                }
                 angular.forEach(fns, function(fn, key){
                     $scope[$name].fn[key] = function(){
                         var injector, i = [], _fn = fn($scope);
@@ -226,6 +256,9 @@
                                     var colLength = table.find('tbody').eq(0).find('tr').eq(0).find('td').length;
                                     console.debug();
                                     table.append('<tfoot><tr><td colspan="' + colLength + '"/></tr></tfoot>');
+                                }
+                                if($attrs.style){
+                                    table.attr('style', $attrs.style);
                                 }
                                 $element.empty();
                                 $element.html(table);

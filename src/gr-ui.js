@@ -1212,196 +1212,215 @@
     angular.module('gr.ui.modal', ['gr.ui.modal.provider', 'gr.ui.modal.factory', 'gr.ui.modal.directive', 'gr.ui.modal.template', 'gr.ui.translate']);
     angular.module('gr.ui.modal.provider', [])
         .provider('$grModal', function(){
-            var setup,
-                $injector,
+            var $injector,
                 $grStackedMap,
                 $modal,
                 $q,
                 $templateCache,
-                grModal,
-                id = 0;
-            grModal = {
-                'element': {},
-                'template': {
-                    'base': '',
-                    'model': {
-                        'window': '',
-                        'backdrop': '',
-                        'alert': ''
-                    }
-                },
-                'new': function(config){
-                    if(angular.isObject(config)){
-                        if(!config.name){
-                            return;
+                id = 0,
+                grModal = {
+                    'element': {},
+                    'template': {
+                        'base': '',
+                        'model': {
+                            'window': '',
+                            'backdrop': '',
+                            'alert': ''
                         }
-                        if(!config.size){
-                            return;
-                        }
-                        if(!config.model && !config.text){
-                            return;
-                        }
-                        var element = {
-                            'id': id,
-                            'name': config.name,
-                            'title': config.title || undefined,
-                            'size': config.size,
-                            'model': config.model,
-                            'text': config.text,
-                            'element': '',
-                            'zIndex': config.zIndex,
-                            'backdrop': config.backdrop !== undefined ? config.backdrop : true,
-                            'buttons': config.buttons || false,
-                            'events': {
-                                onOpen: config.onOpen || false,
-                                onClose: config.onClose || false
+                    },
+                    'button': {
+                        'confirm': 'Confirm',
+                        'cancel': 'Cancel',
+                        'close': 'Close'
+                    },
+                    'new': function(config){
+                        if(angular.isObject(config)){
+                            if(!config.name){
+                                return;
                             }
-                        },
-                        grModalInstance;
-                        grModal.element[element.name] = element;
-                        var modalClose = function(fn){
-                            if(fn && angular.isObject(fn) && element.backdrop && config.beforeClose){
-                                if((fn.target !== fn.currentTarget)){ return false; }
-                                if(element.backdrop === 'static' && (fn.target === fn.currentTarget)){ return false; }
+                            if(!config.size){
+                                return;
                             }
-                            fn = ((!fn || (fn && !angular.isFunction(fn))) && config.beforeClose) ? config.beforeClose : fn;
-                            if(!fn){
-                                grModalInstance.forceClose(fn);
-                            }else{
-                                var promise = $q(function(resolve, reject){
-                                    fn(resolve, reject);
-                                });
-                                promise.then(function(){
-                                     grModalInstance.forceClose();
-                                });
+                            if(!config.model && !config.text){
+                                return;
                             }
-                        };
-                        var ModalInstanceCtrl = ['$scope', '$modalInstance', function($scope, $modalInstance){
-                            if(typeof config.define === 'object'){
-                                angular.forEach(config.define, function(d, i){
-                                    $scope[i] = d;
-                                });
-                            }
-                            if(config.beforeClose){
-                                $scope.close = modalClose;
-                            }
-                            $scope.modal = $modalInstance;
-                        }];
-                        id++;
-                        return {
-                            'open': function(){
-                                var options = {
-                                    'title': element.title,
-                                    'name': element.name,
-                                    'backdrop': element.backdrop,
-                                    'zIndex': element.zIndex,
-                                    'controller': ModalInstanceCtrl,
-                                    'size': element.size,
-                                    'buttons': element.buttons,
-                                    'events': {
-                                        onOpen: element.events.onOpen || grModal.events.onOpen,
-                                        onClose: element.events.onClose || grModal.events.onClose
-                                    }
-                                };
-                                if(element.text){
-                                    options.template = $templateCache.get('grModal/alert.html');
-                                    if(angular.isUndefined(config.define)){
-                                        config.define = {
-                                            alert: {
+                            var element = {
+                                'id': id,
+                                'name': config.name,
+                                'title': config.title || undefined,
+                                'size': config.size,
+                                'model': config.model,
+                                'text': config.text,
+                                'element': '',
+                                'zIndex': config.zIndex,
+                                'backdrop': config.backdrop !== undefined ? config.backdrop : true,
+                                'buttons': config.buttons || false,
+                                'events': {
+                                    onOpen: config.onOpen || false,
+                                    onClose: config.onClose || false
+                                }
+                            },
+                            grModalInstance;
+                            grModal.element[element.name] = element;
+                            var modalClose = function(fn){
+                                if(fn && angular.isObject(fn) && element.backdrop && config.beforeClose){
+                                    if((fn.target !== fn.currentTarget)){ return false; }
+                                    if(element.backdrop === 'static' && (fn.target === fn.currentTarget)){ return false; }
+                                }
+                                fn = ((!fn || (fn && !angular.isFunction(fn))) && config.beforeClose) ? config.beforeClose : fn;
+                                if(!fn){
+                                    grModalInstance.forceClose(fn);
+                                }else{
+                                    var promise = $q(function(resolve, reject){
+                                        fn(resolve, reject);
+                                    });
+                                    promise.then(function(){
+                                         grModalInstance.forceClose();
+                                    });
+                                }
+                            };
+                            var ModalInstanceCtrl = ['$scope', '$modalInstance', '$timeout', function($scope, $modalInstance, $timeout){
+                                if(config.define && angular.isObject(config.define)){
+                                    angular.forEach(config.define, function(d, i){
+                                        $scope[i] = d;
+                                    });
+                                }
+                                if(config.beforeClose){
+                                    $scope.close = modalClose;
+                                }
+                                $scope.contentReady = false;
+                                if(!config.preload){
+                                    $scope.contentReady = true;
+                                }
+                                $scope.modal = $modalInstance;
+                                $scope.modal.ready = function(){
+                                    $timeout(function(){
+                                        $scope.contentReady = true;
+                                        $scope.$apply();
+                                    });
+                                }
+                            }];
+                            id++;
+                            return {
+                                'open': function(){
+                                    var options = {
+                                        'title': element.title,
+                                        'name': element.name,
+                                        'backdrop': element.backdrop,
+                                        'zIndex': element.zIndex,
+                                        'controller': ModalInstanceCtrl,
+                                        'size': element.size,
+                                        'buttons': element.buttons,
+                                        'events': {
+                                            onOpen: element.events.onOpen || grModal.events.onOpen,
+                                            onClose: element.events.onClose || grModal.events.onClose
+                                        }
+                                    };
+                                    if(element.text){
+                                        options.template = $templateCache.get('grModal/alert.html');
+                                        if(angular.isUndefined(config.define)){
+                                            config.define = {
+                                                alert: {
+                                                    text: element.text
+                                                }
+                                            };
+                                        }else{
+                                            config.define.alert = {
                                                 text: element.text
                                             }
-                                        };
-                                    }else{
-                                        config.define.alert = {
-                                            text: element.text
+                                        }
+                                    }else if(element.model){
+                                        options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
+                                    }
+                                    grModalInstance = $modal.open(options);
+                                    grModalInstance.close = modalClose;
+                                    return grModalInstance;
+                                }
+                            }
+                        } else {
+                            return;
+                        }
+                    },
+                    'set': function(name, el){
+                        grModal.element[name].element = el;
+                    },
+                    'alert': function(message, size){
+                        var alert = grModal.new({
+                            'name': 'alert',
+                            'size': size || 'sm',
+                            'text': message || '',
+                            'buttons': [{
+                                'type': 'default',
+                                'label': grModal.button.close,
+                                'onClick': function(scope, element, controller){
+                                    controller.close();
+                                }
+                            }],
+                            'backdrop': 'static'
+                        });
+                        alert.open();
+                    },
+                    'confirm': function(message, confirm, cancel, size){
+                        var alert = grModal.new({
+                                'name': 'confirm',
+                                'size': size || 'sm',
+                                'text': message || '',
+                                'buttons': [
+                                    {
+                                        'type': 'primary',
+                                        'label': grModal.button.confirm,
+                                        'onClick': function(scope, element, controller){
+                                            if(confirm && angular.isFunction(confirm)){
+                                                confirm();
+                                            }
+                                            controller.close();
+                                        }
+                                    }, {
+                                        'type': 'default',
+                                        'label': grModal.button.cancel,
+                                        'onClick': function(scope, element, controller){
+                                            if(cancel && angular.isFunction(cancel)){
+                                                cancel();
+                                            }
+                                            controller.close();
                                         }
                                     }
-                                }else if(element.model){
-                                    options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
-                                }
-                                grModalInstance = $modal.open(options);
-                                grModalInstance.close = modalClose;
-                                return grModalInstance;
-                            }
-                        }
-                    } else {
-                        return;
+                                ],
+                            'backdrop': 'static'
+                            });
+                        alert.open();
+                    },
+                    'events': {
+                        'onOpen': function(){},
+                        'onClose': function(){}
                     }
                 },
-                'set': function(name, el){
-                    grModal.element[name].element = el;
-                },
-                'alert': function(message, size){
-                    var alert = grModal.new({
-                        'name': 'alert',
-                        'size': size || 'sm',
-                        'text': message || '',
-                        'buttons': [{
-                            'type': 'default',
-                            'label': 'Close',
-                            'onClick': function(scope, element, controller){
-                                controller.close();
-                            }
-                        }],
-                        'backdrop': 'static'
-                    });
-                    alert.open();
-                },
-        'confirm': function(message, confirm, cancel, size){
-          var alert = grModal.new({
-            'name': 'confirm',
-            'size': size || 'sm',
-            'text': message || '',
-            'buttons': [{
-              'type': 'primary',
-              'label': 'Confirm',
-              'onClick': function(scope, element, controller){
-                if(confirm && angular.isFunction(confirm)){
-                  confirm();
+                setup = function(injector){
+                    $injector = injector;
+                    $grStackedMap = $injector.get('$$grStackedMap');
+                    $modal = $injector.get('$grModal.ui');
+                    $templateCache = $injector.get('$templateCache');
+                    $q = $injector.get('$q');
+                };
+            this.setButtons = function(fn){
+                if(fn && angular.isFunction(fn)){
+                    grModal.button = fn(grModal.button);
                 }
-                controller.close();
-              }
-                      }, {
-              'type': 'default',
-              'label': 'Cancel',
-              'onClick': function(scope, element, controller){
-                if(cancel && angular.isFunction(cancel)){
-                  cancel();
-                }
-                controller.close();
-                
-              }
-                      }],
-            'backdrop': 'static'
-          });
-          alert.open();
-        },
-                'events': {
-                    'onOpen': function(){},
-                    'onClose': function(){}
-                }
-            };
-            setup = function(injector){
-                $injector = injector;
-                $grStackedMap = $injector.get('$$grStackedMap');
-                $modal = $injector.get('$grModal.ui');
-                $templateCache = $injector.get('$templateCache');
-                $q = $injector.get('$q');
             };
             this.$get = ['$injector', function(injector){
-                    setup(injector);
-                    return {
-                        'new': grModal.new,
-                        'alert': grModal.alert,
-            'confirm': grModal.confirm,
-                        'template': {
-                            'get': function(name){
-                                if(angular.isString(name)){
-                                    return grModal.template.base + grModal.element[name].model;
-                                }
+                setup(injector);
+                return {
+                    'new': grModal.new,
+                    'alert': grModal.alert,
+                    'confirm': grModal.confirm,
+                    'template': {
+                        'get': function(name){
+                            if(angular.isString(name)){
+                                return grModal.template.base + grModal.element[name].model;
                             }
                         }
-                    };
+                    }
+                };
             }];
         })
         .provider('$grModal.ui', function(){
@@ -1811,10 +1830,16 @@
                     template: $templateCache.get('grModal/window.html'),
                     link: function(scope, element, attrs, ctrl){
                         element.addClass(attrs.windowClass || '');
-
                         scope.size = attrs.size;
                         scope.zIndex = attrs.zIndex;
                         scope.title = attrs.title;
+                        
+                        scope.$watch('$parent.contentReady', function(ready){
+                            $timeout(function(){
+                                scope.contentReady = ready;
+                                scope.$apply();
+                            });
+                        }, true);
                         
                         var modal = $grModalStack.getTop(),
                             opened = true;
@@ -1879,7 +1904,7 @@
                                             }
                                         });
                                     }
-                                    var buttonContent = btn.labelIcon ? '<span class="hidden-xs hidden-sm"><i class="' + btn.labelIcon + '"></i> ' + btn.label + '</span><span class="visible-xs visible-sm"><i class="' + btn.labelIcon + '"></i></span>' : btn.label,
+                                    var buttonContent = btn.labelIcon ? '<span class="hidden-xs hidden-sm"><i class="' + btn.labelIcon + '"></i> ' + btn.label + '</span><span class="visible-xs visible-sm"><i class="' + btn.labelIcon + '"></i></span>' : '{{\'' + btn.label + '\' | grTranslate}}',
                                         button = angular.element(buttonTemplate).addClass('btn-' + btn.type).attr(attrs).html(buttonContent);
                                     $compile(button)(scope);
                                     element.append(button);
@@ -1920,7 +1945,12 @@
                                 '</button>' +
                                 '<h4 class="modal-title">{{title | grTranslate}}</h4>' +
                             '</div>' +
-                            '<div class="modal-body" gr-modal-transclude></div>' +
+                            '<div class="modal-body" gr-modal-transclude ng-show="contentReady"></div>' +
+                            '<div class="modal-body" ng-if="!contentReady">' + 
+                                '<div style="display: table; margin: 50px auto; opacity: .2;">' +
+                                    '<i class="fa fa-fw fa-refresh fa-spin fa-4x"></i>' +
+                                '</div>' +
+                            '</div>' +
                             '<div class="modal-footer">' +
                                 '<gr-modal-button></gr-modal-button>' +
                             '</div>' +
@@ -1941,7 +1971,40 @@
  
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
-        .directive('grTable', ['ngTableParams', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
+        .provider('$grTable', function(){
+            var fns = {},
+                messages = {
+                    'ALERT.LOADING.TABLE.DATA': 'Loading table data...',
+                    'ALERT.RELOADING.TABLE.DATA': 'Reloading table data...',
+                    'ALERT.SUCCESS.LOAD.DATA': 'Table data, is loaded successfully!',
+                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!'
+                };
+            this.registerFunctions = function(f){
+                if(f && angular.isObject(f)){
+                    fns = f;
+                }
+            };
+            this.setMessages = function(fn){
+                messages = fn(messages);
+            }
+            this.$get = ['$grTranslate', function($grTranslate){
+                return {
+                    translate: function(msg){
+                        var r = '';
+                        if(msg && angular.isString(msg)){
+                            if(messages[msg]){
+                                r = $grTranslate(messages[msg]);
+                            }
+                        }
+                        return r;
+                    },
+                    functions: function(){
+                        return fns;
+                    }
+                };
+            }];
+        })
+        .directive('grTable', ['ngTableParams', '$grTable', '$grAlert', '$q', '$compile', '$parse', '$injector', '$filter', '$http', '$window', '$timeout', function(ngTableParams, $grTable, $grAlert, $q, $compile, $parse, $injector, $filter, $http, $window, $timeout){
             var init = function init($scope, $element, $attrs){
                 var $name = $attrs.name || 'grTable',
                     alert = $grAlert.new(),
@@ -1949,9 +2012,9 @@
                     dataSource = '',
                     getData = function(src, reload){
                         if(!reload){
-                            alert.show('loading', ['Loading table data...'], 0);
+                            alert.show('loading', $grTable.translate('ALERT.LOADING.TABLE.DATA'), 0);
                         }else{
-                            alert.show('loading', ['Reloading table data...'], 0);
+                            alert.show('loading', $grTable.translate('ALERT.RELOADING.TABLE.DATA'), 0);
                         }
                         $http.get(src).then(function(r){
                             if(r.status === 200 && r.data.response){
@@ -1960,11 +2023,11 @@
                                 if(!reload){
                                     alert.hide();
                                 }else{
-                                    alert.show('success', ['Table data is reloaded!'], 2000);
+                                    alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
                                 }
                             }else{
                                 console.debug(r);
-                                alert.show('danger', ['A error occurred when reloading table data, please, try reload page!']);
+                                alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                             }
                         }, function(e){
                             var title = angular.element(angular.element(e.data)[0]).text(),
@@ -2116,11 +2179,8 @@
             },
             setFunctions= function($scope, $element, $attrs){
                 var $name = $attrs.name || 'grTable',
-                    fns = {};
+                    fns = $grTable.functions();
                 $scope[$name].fn = {};
-                if($injector.has('$grTable.config')){
-                    fns = $injector.get('$grTable.config');//angular.extend(angular.copy(grScriptBind.get('grTable/function')), grTableConfig);
-                }
                 angular.forEach(fns, function(fn, key){
                     $scope[$name].fn[key] = function(){
                         var injector, i = [], _fn = fn($scope);
@@ -2166,6 +2226,9 @@
                                     var colLength = table.find('tbody').eq(0).find('tr').eq(0).find('td').length;
                                     console.debug();
                                     table.append('<tfoot><tr><td colspan="' + colLength + '"/></tr></tfoot>');
+                                }
+                                if($attrs.style){
+                                    table.attr('style', $attrs.style);
                                 }
                                 $element.empty();
                                 $element.html(table);
