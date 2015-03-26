@@ -6,7 +6,7 @@
                 messages = {
                     'ALERT.LOADING.TABLE.DATA': 'Loading table data...',
                     'ALERT.RELOADING.TABLE.DATA': 'Reloading table data...',
-                    'ALERT.SUCCESS.LOAD.DATA': 'Table data, is loaded successfully!',
+                    'ALERT.SUCCESS.LOAD.TABLE.DATA': 'Table data, is loaded successfully!',
                     'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!'
                 };
             this.registerFunctions = function(f){
@@ -160,7 +160,9 @@
                         getData(src, true);
                     }
                 };
-                $attrs.$observe('exportCsv', function(name){ $scope[$name].csv = angular.copy(name); });
+                $attrs.$observe('exportCsv', function(name){
+                    $scope[$name].csv = angular.copy(name);
+                });
                 $attrs.$observe('sortby', function(sort){
                     if(sort){
                         var sortArr = $parse(sort)($scope);
@@ -182,7 +184,11 @@
                         $scope.dataSet = $parse(remote)($scope);
                     }
                 });
-                $attrs.$observe('grDataSource', function(remote){ if(remote){ $scope.dataSet = $parse(remote)($scope); } });
+                $attrs.$observe('grDataSource', function(remote){
+                    if(remote){
+                        $scope.dataSet = $parse(remote)($scope);
+                    }
+                });
                 $attrs.$observe('shareParent', function(share){
                     if(share){
                         $scope.$parent[$name] = $scope[$name];

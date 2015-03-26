@@ -255,4 +255,4 @@
         ];
         if($location.hash()){ $scope.goTo($location.hash()); }else{ $scope.goTo('gr-autofields'); };
     }]).run(['$anchorScroll', function($anchorScroll) { $anchorScroll.yOffset = 110; }]);
-})();
+}());
