@@ -1887,8 +1887,8 @@
                             scope.$watch('buttons', function(scopeButtons){
                                 angular.forEach(scopeButtons, function(btn, id){
                                     var attrs = {
-                                        'title': btn.label,
-                                        'ng-click': 'exec(buttons[' + id + '].onClick)'
+                                        'ng-click': 'exec(buttons[' + id + '].onClick)',
+                                        'ng-attr-title': '{{\'' + btn.label + '\' | grTranslate}}'
                                     };
                                     if(angular.isObject(btn.attr)){
                                         angular.forEach(btn.attr, function(value, key){
@@ -1897,7 +1897,7 @@
                                             }
                                         });
                                     }
-                                    var buttonContent = btn.labelIcon ? '<span class="hidden-xs hidden-sm"><i class="' + btn.labelIcon + '"></i> ' + btn.label + '</span><span class="visible-xs visible-sm"><i class="' + btn.labelIcon + '"></i></span>' : '{{\'' + btn.label + '\' | grTranslate}}',
+                                    var buttonContent = btn.labelIcon ? '<span class="hidden-xs hidden-sm"><i class="' + btn.labelIcon + '"></i> {{\'' + btn.label + '\' | grTranslate}}</span><span class="visible-xs visible-sm"><i class="' + btn.labelIcon + '"></i></span>' : '{{\'' + btn.label + '\' | grTranslate}}',
                                         button = angular.element(buttonTemplate).addClass('btn-' + btn.type).attr(attrs).html(buttonContent);
                                     $compile(button)(scope);
                                     element.append(button);
