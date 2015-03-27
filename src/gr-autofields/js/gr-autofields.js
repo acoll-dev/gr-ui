@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
+    angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert'])
         .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
             return {
                 restrict: 'A',
@@ -395,6 +395,8 @@
                 return fieldElements;
             }, {require:'validation', override:true});
         }]);
+}());
+(function(){
     angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap','gr.ui.autofields.bootstrap.validation']);
 }());
 

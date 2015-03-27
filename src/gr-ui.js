@@ -205,7 +205,7 @@
  */
 
 (function(){
-    angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'textAngular'])
+    angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert'])
         .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
             return {
                 restrict: 'A',
