@@ -1,6 +1,10 @@
 [gr-repeat]{
     display:none;
 }
+.gr-table-wrapper{
+    max-width: 100%;
+    overflow-x: auto;
+}
 .gr-table{
     position: relative;
     width: 100%;
@@ -13,6 +17,7 @@
         margin: 0;
         padding: 0;
         thead{
+            background: #FFFFFF;
             tr{
                 th {
                     min-width: 55px;
@@ -132,42 +137,6 @@
                     .btn-table{
                         width: 80%;
                     }
-                    &.col-1{
-                        width: (100%/12)*1 !important;
-                    }
-                    &.col-2{
-                        width: (100%/12)*2 !important;
-                    }
-                    &.col-3{
-                        width: (100%/12)*3 !important;
-                    }
-                    &.col-4{
-                        width: (100%/12)*4 !important;
-                    }
-                    &.col-5{
-                        width: (100%/12)*5 !important;
-                    }
-                    &.col-6{
-                        width: (100%/12)*6 !important;
-                    }
-                    &.col-7{
-                        width: (100%/12)*7 !important;
-                    }
-                    &.col-8{
-                        width: (100%/12)*8 !important;
-                    }
-                    &.col-9{
-                        width: (100%/12)*9 !important;
-                    }
-                    &.col-10{
-                        width: (100%/12)*10 !important;
-                    }
-                    &.col-11{
-                        width: (100%/12)*11 !important;
-                    }
-                    &.col-12{
-                        width: (100%/12)*12 !important;
-                    }
                 }
             }
         }
@@ -188,6 +157,45 @@
                         }
                     }
                 }
+            }
+        }
+        td,
+        th{
+            &.col-1{
+                width: (100%/12)*1 !important;
+            }
+            &.col-2{
+                width: (100%/12)*2 !important;
+            }
+            &.col-3{
+                width: (100%/12)*3 !important;
+            }
+            &.col-4{
+                width: (100%/12)*4 !important;
+            }
+            &.col-5{
+                width: (100%/12)*5 !important;
+            }
+            &.col-6{
+                width: (100%/12)*6 !important;
+            }
+            &.col-7{
+                width: (100%/12)*7 !important;
+            }
+            &.col-8{
+                width: (100%/12)*8 !important;
+            }
+            &.col-9{
+                width: (100%/12)*9 !important;
+            }
+            &.col-10{
+                width: (100%/12)*10 !important;
+            }
+            &.col-11{
+                width: (100%/12)*11 !important;
+            }
+            &.col-12{
+                width: (100%/12)*12 !important;
             }
         }
         &.table-hover{
