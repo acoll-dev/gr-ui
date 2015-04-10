@@ -2288,28 +2288,30 @@
                 }
             }
         })
-        .directive('grTablePager', ['$compile', '$timeout', function($compile, $timeout){
-            return {
+        .directive('grTablePager', ['$compile', '$templateCache', function($compile, $templateCache){
+            return{
                 restrict: 'E',
                 scope: {
-                    for: '='
+                    params: '=?for'
                 },
-                template: '<div class="ng-cloak gr-table-pager"></div> ',
                 replace: true,
-                link: function($scope, $element, $attrs){
-                    $scope.$watch('$parent.grTable', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
-                    $scope.$watch('for', function(grTable){ if(grTable){ $scope.grTable = grTable; } }, true);
-                    $scope.$watch('grTable', function(grTable){
-                        if(grTable){
-                            $timeout(function(){
-                                $element.attr({
-                                    'ng-table-pagination': 'grTable',
-                                    'template-url': '\'gr-table/pager.html\''
-                                });
-                                $compile($element)($scope);
-                            });
+                link: function($scope, $element){
+                    $scope.$watch('params', function(p){
+                        if(angular.isUndefined(p)){
+                            $scope.params = $scope.$parent.grTable;
+                        }else{
+                            init();
                         }
                     });
+                    function init(){
+                        $scope.params.settings().$scope.$on('ngTableAfterReloadData',function(){
+                           $scope.pages = $scope.params.generatePagesArray($scope.params.page(),$scope.params.total(),$scope.params.count())
+                        }, true);
+                        var f = angular.element(document.createElement("div"));
+                        f.append($templateCache.get('gr-table/pager.html'));
+                        $element.append(f);
+                        $compile(f)($scope);
+                    };
                 }
             }
         }])
