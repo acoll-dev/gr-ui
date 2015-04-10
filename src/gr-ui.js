@@ -1970,7 +1970,8 @@
                     'ALERT.LOADING.TABLE.DATA': 'Loading table data...',
                     'ALERT.RELOADING.TABLE.DATA': 'Reloading table data...',
                     'ALERT.SUCCESS.LOAD.TABLE.DATA': 'Table data, is loaded successfully!',
-                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!'
+                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!',
+                    'NOTFOUND.DATA': 'No data found...'
                 };
             this.registerFunctions = function(f){
                 if(f && angular.isObject(f)){
@@ -2115,6 +2116,12 @@
                     alert.destroy();
                     alert = $grAlert.new($scope.$parent.modal.element);
                 }
+                if($attrs.counts){
+                    var counts = $parse($attrs.counts)($scope);
+                    if(counts){
+                        grTable.settings.counts = counts;
+                    }
+                };
                 $scope[$name] = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope[$name].defaults = grTable.defaults;
                 $scope[$name].reloadData = function(src){
@@ -2156,11 +2163,6 @@
                 $attrs.$observe('shareParent', function(share){
                     if(share){
                         $scope.$parent[$name] = $scope[$name];
-                    }
-                });
-                $attrs.$observe('settings', function(settings){
-                    if(settings){
-                        console.debug($scope.$parent[$name]);
                     }
                 });
                 $scope.$watch($attrs.list, function(list){
@@ -2209,7 +2211,7 @@
                     $element.removeAttr('gr-table');
                     $element.wrap('<div class="gr-table-wrapper table-responsive" />');
                     $element.addClass('gr-table table table-bordered table-striped');
-                    $element.find('tbody').append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length}}">{{\'No data found...\' | grTranslate}}</td></tr>');
+                    $element.find('tbody').append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length || columns.length}}">' + $grTable.translate('NOTFOUND.DATA') + '</td></tr>');
                     var repeater = $element.find('[gr-repeat]');
                     if(repeater && repeater.length > 0){
                         angular.forEach(repeater, function(el){
@@ -2222,8 +2224,7 @@
                         $attrs.$set('show-filter', true);
                     }
                     if($element.find('tfoot').length <= 0){
-                        var colLength = $element.find('tbody').eq(0).find('tr').eq(0).find('td').length;
-                        $element.append('<tfoot><tr><td colspan="' + colLength + '"/></tr></tfoot>');
+                        $element.append('<tfoot><tr><td colspan="{{$columns.length || columns.length}}"/></tr></tfoot>');
                     }
                     if($attrs.dynamic){
                         $attrs.$set('ngTableDynamic', ($attrs.name || 'grTable') + ' with ' + $attrs.dynamic);

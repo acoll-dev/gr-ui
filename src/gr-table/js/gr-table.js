@@ -1,4 +1,4 @@
-'use strict';
+'use strict'; 
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .provider('$grTable', function(){
@@ -7,7 +7,8 @@
                     'ALERT.LOADING.TABLE.DATA': 'Loading table data...',
                     'ALERT.RELOADING.TABLE.DATA': 'Reloading table data...',
                     'ALERT.SUCCESS.LOAD.TABLE.DATA': 'Table data, is loaded successfully!',
-                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!'
+                    'ALERT.ERROR.LOAD.TABLE.DATA': 'A errors is occurred on load table data, please try reload the page!',
+                    'NOTFOUND.DATA': 'No data found...'
                 };
             this.registerFunctions = function(f){
                 if(f && angular.isObject(f)){
@@ -78,6 +79,7 @@
                             $scope: $scope,
                             orderBy: '',
                             counts: [5, 10, 25, 50, 100],
+                            filterDelay: 0,
                             getFilterData: function($defer, params){
                                 var grFormData = $scope[$name].dataSet,
                                     arr = [],
@@ -151,6 +153,12 @@
                     alert.destroy();
                     alert = $grAlert.new($scope.$parent.modal.element);
                 }
+                if($attrs.counts){
+                    var counts = $parse($attrs.counts)($scope);
+                    if(counts){
+                        grTable.settings.counts = counts;
+                    }
+                };
                 $scope[$name] = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope[$name].defaults = grTable.defaults;
                 $scope[$name].reloadData = function(src){
@@ -210,8 +218,6 @@
                         }
                     };
                 }, true);
-                setFunctions($scope, $element, $attrs);
-                $compile($element)($scope);
             },
             setFunctions= function($scope, $element, $attrs){
                 var $name = $attrs.name || 'grTable',
@@ -237,41 +243,42 @@
             };
             return {
                 restrict: 'A',
-                scope: false,
-                transclude: 'element',
-                template: '<div class="gr-table-wrapper table-responsive" />',
-                replace: true,
-                compile: function($tElement, $tAttrs, $transclude){
-                    $tElement.removeAttr('gr-table');
-                    return {
-                        pre: function($scope, $element, $attrs){
-                            $transclude($scope, function(clone){
-                                var table = angular.element('<table ng-table="' + ($attrs.name || 'grTable') + '" class="gr-table table table-bordered table-striped" />'),
-                                    tbody;
-                                tbody = clone.html();
-                                table.append(tbody).find('tbody').append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length}}">{{\'No data found...\' | grTranslate}}</td></tr>');
-                                var repeater = table.find('[gr-repeat]');
-                                if(repeater){
-                                    var rAttr = repeater.attr('gr-repeat');
-                                    repeater.removeAttr('gr-repeat').attr('ng-repeat', rAttr);
-                                }
-                                if(table.find('[filter]').length > 0){
-                                    table.attr('show-filter', true);
-                                }
-                                if(table.find('tfoot').length <= 0){
-                                    var colLength = table.find('tbody').eq(0).find('tr').eq(0).find('td').length;
-                                    console.debug();
-                                    table.append('<tfoot><tr><td colspan="' + colLength + '"/></tr></tfoot>');
-                                }
-                                if($attrs.style){
-                                    table.attr('style', $attrs.style);
-                                }
-                                $element.empty();
-                                $element.html(table);
-                                init($scope, table, $attrs);
-                            });
+                terminal: true,
+                link: function($scope, $element, $attrs){
+                    $element.removeAttr('gr-table');
+                    $element.wrap('<div class="gr-table-wrapper table-responsive" />');
+                    $element.addClass('gr-table table table-bordered table-striped');
+                    $element.find('tbody').append('<tr ng-if="$data.length <= 0"><td colspan="{{$columns.length || columns.length}}">' + $grTable.translate('NOTFOUND.DATA') + '</td></tr>');
+                    var repeater = $element.find('[gr-repeat]');
+                    if(repeater && repeater.length > 0){
+                        angular.forEach(repeater, function(el){
+                            var elm = angular.element(el),
+                                rAttr = elm.attr('gr-repeat');
+                            elm.removeAttr('gr-repeat').attr('ng-repeat', rAttr);
+                        });
+                    }
+                    if($element.find('[filter]').length > 0){
+                        $attrs.$set('show-filter', true);
+                    }
+                    if($element.find('tfoot').length <= 0){
+                        $element.append('<tfoot><tr><td colspan="{{$columns.length || columns.length}}"/></tr></tfoot>');
+                    }
+                    if($attrs.dynamic){
+                        $attrs.$set('ngTableDynamic', ($attrs.name || 'grTable') + ' with ' + $attrs.dynamic);
+                        var has = false;
+                        angular.forEach($parse($attrs.dynamic)($scope), function(d){
+                            if(d.filter){
+                                has = true;
+                            }
+                        });
+                        if(has){
+                            $attrs.$set('show-filter', true);
                         }
                     }
+                    init($scope, $element, $attrs);
+                    setFunctions($scope, $element, $attrs);
+                    $attrs.$set('ngTable', ($attrs.name || 'grTable'));
+                    $compile($element)($scope);
                 }
             }
         }])

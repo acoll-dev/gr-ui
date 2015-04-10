@@ -5,6 +5,11 @@
     max-width: 100%;
     overflow-x: auto;
 }
+.ng-table-pager{
+    .pagination{
+        margin: 0;
+    }
+}
 .gr-table{
     position: relative;
     width: 100%;
