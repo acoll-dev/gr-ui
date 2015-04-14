@@ -1,6 +1,6 @@
 'use strict';
 (function(){
-    angular.module('gr.ui.autoheight', []).directive('grAutoheight', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
+    angular.module('gr.ui.autoheight', []).directive('grAutoheight', ['$rootScope', '$window', '$document', '$timeout', function ($rootScope, $window, $document, $timeout) {
         return {
             restrict: 'A',
             link: function ($scope, $element, $attrs) {
@@ -64,7 +64,8 @@
                     ajust = function(){
                         var cols = settings.bsCols[viewPort().bs];
                         if(cols === 0){
-                            $element.outerHeight($element.parent().innerHeight());
+                            $element[0].style.height = null;
+                            $element.outerHeight($element.parent().innerHeight() + settings.ajust);
                         }else if(cols === 1){
                             $element[0].style.height = null;
                         }else{
@@ -95,7 +96,7 @@
                             angular.forEach(map, function(subMap){ map = subMap; });
                             angular.forEach(siblings, function(el, id){
                                 var elm = angular.element(el);
-                                if(map.indexOf(id) > -1){
+                                if(map.indexOf(id) > -1 && elm.attr('gr-autoheight')){
                                     elSiblings.push(elm);
                                 }
                             });
@@ -104,11 +105,12 @@
                             });
                             if(settings.ignore.indexOf(viewPort().bs) === -1){
                                 $timeout(function(){
-                                    var max = maxHeight(elSiblings) + settings.ajust;
+                                    var max = maxHeight(elSiblings);
                                     angular.forEach(elSiblings, function(el){
                                         var elm = angular.element(el);
                                         elm.outerHeight(max);
                                     });
+                                    $element.outerHeight(max + settings.ajust);
                                 });
                             }
                         }
@@ -118,14 +120,18 @@
                 });
                 $timeout(ajust);
                 $timeout(ajust, 100);
-                $attrs.$observe('grAutoheightIgnore', function(ignore){
+                $scope.grAutoheightAjust = function(){
+                    $rootScope.$broadcast('gr-autoheight-ajust');
+                }
+                $scope.$on('gr-autoheight-ajust', ajust);
+                $attrs.$observe('ignore', function(ignore){
                     if(ignore){
                         settings.ignore = ignore.split(',');
                     }
                 });
-                $attrs.$observe('grAutoheightAjust', function(ajust){
+                $attrs.$observe('ajust', function(ajust){
                     if(ajust){
-                        settings.ajust = ajust;
+                        settings.ajust = parseFloat(ajust);
                     }
                 });
                 $attrs.$observe('grAutoheight', function(args){
