@@ -32,10 +32,10 @@
                             if(grAutofields.options){
                                 $input.attr('options', $attrs.grAutofields + '.options');
                             }
-                            $element.prepend($input).removeAttr('gr-autofields').attr({
+                            $element.addClass('gr-autofields').removeAttr('gr-autofields').attr({
                                 'novalidate': true,
                                 'ng-submit': $attrs.name + '.submit()'
-                            });
+                            }).prepend($input);
                             $scope.$watch(function(){
                                 return grAutofields.schema;
                             }, setErrors, true);
