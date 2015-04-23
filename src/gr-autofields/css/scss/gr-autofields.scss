@@ -11,6 +11,19 @@ $input-border: #CCCCCC;
 	border: 1px solid #ccc;
 	box-shadow: -4px 0 0 0 darken($error, 54.5%) !important;
 }
+.modal .gr-autofields{
+    margin: 0 -15px;
+    .row{
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 15px;
+        padding-right: 15px;
+        ~ [class*="col-"]{
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
+}
 .gr-autofields{
     position: relative;
     display: block;
