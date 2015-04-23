@@ -163,6 +163,8 @@ $input-border: #CCCCCC;
         }
     }
     > [class*="col-"]{
+        padding-left: 0;
+        padding-right: 0;
         &.form-label{
             label{
                 margin-bottom: 20px;
