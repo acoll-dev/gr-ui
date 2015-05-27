@@ -7,7 +7,7 @@
 }(window));
 
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.table', 'gr.ui.translate']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.pager', 'gr.ui.table', 'gr.ui.translate']);
 }());
 
 /*
@@ -963,7 +963,7 @@
                                 stop: function(){
                                     return (carousel.items.length > carousel.visible) && carousel.running && !carousel.hover && !carousel.drag.dragging && carousel.autoplay && carousel.interval > 0;
                                 },
-                                prev: function(){                                                  
+                                prev: function(){
                                     return (carousel.visible < carousel.items.length) && (carousel.current > 0);
                                 },
                                 next: function(){
@@ -1845,14 +1845,14 @@
                         scope.size = attrs.size;
                         scope.zIndex = attrs.zIndex;
                         scope.title = attrs.title;
-                        
+
                         scope.$watch('$parent.contentReady', function(ready){
                             $timeout(function(){
                                 scope.contentReady = ready;
                                 scope.$apply();
                             });
                         }, true);
-                        
+
                         var modal = $grModalStack.getTop(),
                             opened = true;
 
@@ -1958,7 +1958,7 @@
                                 '<h4 class="modal-title">{{title | grTranslate}}</h4>' +
                             '</div>' +
                             '<div class="modal-body" gr-modal-transclude ng-show="contentReady"></div>' +
-                            '<div class="modal-body" ng-if="!contentReady">' + 
+                            '<div class="modal-body" ng-if="!contentReady">' +
                                 '<div style="display: table; margin: 50px auto; opacity: .2;">' +
                                     '<i class="fa fa-fw fa-refresh fa-spin fa-4x"></i>' +
                                 '</div>' +
@@ -1977,10 +1977,72 @@
 
 /*
  *
+ * GR-PAGER
+ *
+ */
+
+(function(){
+    angular.module('gr.ui.pager', []).directive('grPager', ['$rootScope', '$templateCache', '$compile', '$window', '$location', '$timeout', function($rootScope, $templateCache, $compile, $window, $location, $timeout){
+        return {
+            restrict: 'AE',
+            template: '<div class="pagination-wrapper" ng-show="src.length > perPage"></div>',
+            scope: {
+                src: '=',
+                dest: '=',
+                perPage: '='
+            },
+            replace: true,
+            link: function($scope, $element, $attrs){
+                $scope.$watch('src', filterPages);
+                $scope.$watch('perPage', filterPages);
+                $scope.boundary = function(){
+                    return $rootScope.GRIFFO.viewPort.width > 768 ? true : false;
+                }
+                $scope.$watch('current', function(cur){
+                    if(cur && ($scope.src.length > parseInt($scope.perPage))){
+                        $location.path(cur);
+                    }
+                    filterPages();
+                });
+                function filterPages(){
+                    if($scope.src.length > 0 && parseInt($scope.perPage) > 0){
+                        $timeout(function(){
+                            var begin = (($scope.current - 1) * parseInt($scope.perPage)),
+                                end = begin + parseInt($scope.perPage);
+                            $scope.dest = $scope.src.slice(begin, end);
+                            angular.element($window).trigger('resize');
+                            $rootScope.$apply();
+                        });
+                    }
+                };
+                $timeout(function(){
+                    var pager = angular.element($templateCache.get('gr-pager/pager.html'));
+                    $compile(pager)($scope);
+                    $timeout(function(){
+                        $scope.current = parseInt($location.path().replace('/','')) || 1;
+                        if($scope.current === 1){
+                            $location.path(1);
+                        }
+                    });
+                    $element.append(pager);
+                });
+            }
+        }
+    }]).run(['$templateCache', function($templateCache){
+        $templateCache.put('gr-pager/pager.html', [
+            '<div class="pagination-inner">',
+                '<pagination total-items="src.length" num-pages="total" items-per-page="perPage || 6" max-size="3" ng-model="current" boundary-links="boundary()" rotate="false" first-text="<<" last-text=">>" next-text=">" previous-text="<"></pagination>',
+            '</div>'
+        ].join(''));
+    }]);
+}());
+
+/*
+ *
  * GR-TABLE
  *
  */
- 
+
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .provider('$grTable', function(){
@@ -2932,7 +2994,7 @@
         angular.module('autoFields',['autofields']); // Deprecated module name
     }());
 }());
- 
+
 /*! jQuery UI - v1.11.2 - 2015-01-23
 * http://jqueryui.com
 * Includes: effect.js
