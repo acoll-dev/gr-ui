@@ -13,17 +13,19 @@
             link: function($scope, $element, $attrs){
                 $scope.$watch('src', filterPages);
                 $scope.$watch('perPage', filterPages);
-                $scope.boundary = function(){
-                    return $rootScope.GRIFFO.viewPort.width > 768 ? true : false;
-                }
-                $scope.$watch('current', function(cur){
-                    if(cur && ($scope.src.length > parseInt($scope.perPage))){
-                        $location.path(cur);
+                $scope.$watch('current', filterPages);
+                $scope.$watch(function(){
+                    return $location.path().replace('/','');
+                }, function(path){
+                    if(path){
+                        $scope.current = path;
                     }
-                    filterPages();
                 });
+                $scope.boundary = function(){
+                    return $rootScope.GRIFFO.viewPort.bs !== 'xs' ? true : false;
+                };
                 function filterPages(){
-                    if($scope.src.length > 0 && parseInt($scope.perPage) > 0){
+                    if($scope.src.length > 0 && parseInt($scope.perPage) > 0 && $scope.current > 0){
                         $timeout(function(){
                             var begin = (($scope.current - 1) * parseInt($scope.perPage)),
                                 end = begin + parseInt($scope.perPage);
@@ -31,6 +33,7 @@
                             angular.element($window).trigger('resize');
                             $rootScope.$apply();
                         });
+                        $location.path($scope.current);
                     }
                 };
                 $timeout(function(){
@@ -38,9 +41,6 @@
                     $compile(pager)($scope);
                     $timeout(function(){
                         $scope.current = parseInt($location.path().replace('/','')) || 1;
-                        if($scope.current === 1){
-                            $location.path(1);
-                        }
                     });
                     $element.append(pager);
                 });
