@@ -27,6 +27,14 @@ $input-border: #CCCCCC;
 .gr-autofields{
     position: relative;
     display: block;
+    &:before,
+    &:after{
+        display: table;
+        content: " "
+    }
+    &:after{
+        clear: both;
+    }
 }
 .autofields{
     position: relative;
@@ -273,6 +281,14 @@ $input-border: #CCCCCC;
                 text-align: left;
             }
         }
+    }
+    &:before,
+    &:after{
+        display: table;
+        content: " "
+    }
+    &:after{
+        clear: both;
     }
     @media screen and (max-width: 768px){
         .row{
