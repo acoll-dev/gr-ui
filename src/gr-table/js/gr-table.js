@@ -1,4 +1,4 @@
-'use strict'; 
+'use strict';
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .provider('$grTable', function(){
@@ -194,7 +194,11 @@
                 });
                 $attrs.$observe('grDataSource', function(remote){
                     if(remote){
-                        $scope.dataSet = $parse(remote)($scope);
+                        $scope.$watch(function(){
+                            return $parse(remote)($scope);
+                        }, function(data){
+                            $scope.dataSet = data;
+                        }, true);
                     }
                 });
                 $attrs.$observe('shareParent', function(share){

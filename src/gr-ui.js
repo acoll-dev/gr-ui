@@ -2238,7 +2238,11 @@
                 });
                 $attrs.$observe('grDataSource', function(remote){
                     if(remote){
-                        $scope.dataSet = $parse(remote)($scope);
+                        $scope.$watch(function(){
+                            return $parse(remote)($scope);
+                        }, function(data){
+                            $scope.dataSet = data;
+                        }, true);
                     }
                 });
                 $attrs.$observe('shareParent', function(share){
