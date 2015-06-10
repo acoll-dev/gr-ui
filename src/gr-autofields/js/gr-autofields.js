@@ -1386,7 +1386,6 @@
     (function(){
       'use strict';
       angular.module('ngMask', []);
-
       angular.module('ngMask')
         .directive('mask', ['$log', '$timeout', 'MaskService', function($log, $timeout, MaskService) {
           return {
@@ -1457,7 +1456,7 @@
 
                     function parseViewValue(value) {
                       // set default value equal 0
-                      value = String(value) || '';
+                      value = (typeof value === 'number' ? String(value) : value) || '';
 
                       // get view value object
                       var viewValue = maskService.getViewValue(value);
