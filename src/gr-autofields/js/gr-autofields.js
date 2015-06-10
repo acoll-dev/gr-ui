@@ -236,8 +236,8 @@
                 if(!field.addons){ field.addons = []; }
                 field.attr.mask = '99 ?9? 9999 9999';
                 field.attr.restrict = 'reject';
-                field.attr['mask-validate'] = false;
-                field.placeholder = '';
+                field.attr.maskValidate = field.attr.maskValidate ? field.attr.maskValidate : true;
+                field.placeholder = field.placeholder ? field.placeholder : ' ';
                 field.addons.push({
                     before: true,
                     icon: 'fa fa-fw fa-phone'
