@@ -1384,10 +1384,719 @@
         };
     })(window.jQuery || window.Zepto);
     (function(){
-        angular.module("ngMask",[]);
-        angular.module("ngMask").directive("mask",["$log","$timeout","MaskService",function(a,b,c){return{restrict:"A",require:"ngModel",compile:function(d,e){function f(a){"number"==typeof a&&(b.cancel(g),g=b(function(){var b=a+1,c=d[0];if(c.setSelectionRange)c.focus(),c.setSelectionRange(a,b);else if(c.createTextRange){var e=c.createTextRange();e.collapse(!0),e.moveEnd("character",b),e.moveStart("character",a),e.select()}}))}if(!e.mask||!e.ngModel)return void a.info("Mask and ng-model attributes are required!");var g,h,i=c.create();return{pre:function(a,b,c){h=i.generateRegex({mask:c.mask,repeat:c.repeat||c.maskRepeat,clean:"true"===(c.clean||c.maskClean),limit:"true"===(c.limit||c.maskLimit||"true"),restrict:c.restrict||c.maskRestrict||"select",validate:"true"===(c.validate||c.maskValidate||"true"),model:c.ngModel,value:c.ngValue})},post:function(c,d,e,g){h.then(function(){function h(b){b=b||"";var c=i.getViewValue(b),d=k.maskWithoutOptionals||"",e=c.withDivisors(!0),h=c.withoutDivisors(!0);try{var j=i.getRegex(e.length-1),l=i.getRegex(d.length-1),m=j.test(e)||l.test(e),n=b.length-e.length===1,o=d.length-e.length>0;if("accept"!==k.restrict)if("select"!==k.restrict||m&&!n)"reject"!==k.restrict||m||(c=i.removeWrongPositions(e),e=c.withDivisors(!0),h=c.withoutDivisors(!0));else{var p=b[b.length-1],q=e[e.length-1];p!==q&&o&&(e+=p);var r=i.getFirstWrongPosition(e);angular.isDefined(r)&&f(r)}k.limit||(e=c.withDivisors(!1),h=c.withoutDivisors(!1)),k.validate&&g.$dirty&&(l.test(e)||g.$isEmpty(g.$modelValue)?g.$setValidity("mask",!0):g.$setValidity("mask",!1)),b!==e&&(g.$setViewValue(angular.copy(e),"input"),g.$render())}catch(s){throw a.error("[mask - parseViewValue]"),s}return k.clean?h:e}var j,k=i.getOptions();g.$parsers.push(h),d.on("click input paste keyup",function(){j=b(function(){b.cancel(j),h(d.val()),c.$apply()},100)});var l=c.$watch(e.ngModel,function(a){angular.isDefined(a)&&(h(a),l())});k.value&&c.$evalAsync(function(){g.$setViewValue(angular.copy(k.value),"input"),g.$render()})})}}}}}]);
-        angular.module("ngMask").factory("MaskService",["$q","OptionalService","UtilService",function(a,b,c){function d(){function d(a,b){var c;try{var d=t[a],e=C[d],f=h(a);e?c="("+e.source+")":(i(a)||(z.push(a),A[a]=d),c="(\\"+d+")")}catch(g){throw g}return(f||b)&&(c+="?"),new RegExp(c)}function e(a,b){var c,f;try{var g=d(a,b);c=g;var i=h(a),j=g.source;if(i&&u>a+1){var k=e(a+1,!0).elementOptionalRegex();j+=k.source}f=new RegExp(j)}catch(l){throw l}return{elementRegex:function(){return c},elementOptionalRegex:function(){return f}}}function f(c){var d=a.defer();s=c;try{var f=c.mask,g=c.repeat;g&&(f=Array(parseInt(g)+1).join(f)),w=b.getOptionals(f).fromMaskWithoutOptionals(),s.maskWithoutOptionals=t=b.removeOptionals(f),u=t.length;for(var h,i=0;u>i;i++){var l=e(i),m=l.elementRegex(),n=l.elementOptionalRegex(),o=h?h.source+n.source:n.source;o=new RegExp(o),h=h?h.source+m.source:m.source,h=new RegExp(h),B.push(o)}j(),v=k(t).length,d.resolve({options:s,divisors:z,divisorElements:A,optionalIndexes:w,optionalDivisors:x,optionalDivisorsCombinations:y})}catch(p){throw d.reject(p),p}return d.promise}function g(a){var b;try{b=B[a]?B[a].source:""}catch(c){throw c}return new RegExp("^"+b+"$")}function h(a){return c.inArray(a,w)}function i(a){return c.inArray(a,z)}function j(){function a(a,b){return a-b}for(var b=z.sort(a),c=w.sort(a),d=0;d<b.length;d++)for(var e=b[d],f=1;f<=c.length;f++){var g=c[f-1];if(g>=e)break;x[e]=x[e]?x[e].concat(e-f):[e-f],A[e-f]=A[e]}}function k(a){try{if(z.length>0&&a){for(var b=Object.keys(A),d=[],e=b.length-1;e>=0;e--){var f=A[b[e]];f&&d.push(f)}d=c.uniqueArray(d);var g=new RegExp("[\\"+d.join("\\")+"]","g");return a.replace(g,"")}return a}catch(h){throw h}}function l(a,b){function d(a,b){for(var c=b,d=0;d<a.length;d++){var e=a[d];e<c.length&&c.splice(e,0,A[e])}return c}var e=a,f=z.filter(function(a){var d=Object.keys(x).map(function(a){return parseInt(a)});return!c.inArray(a,b)&&!c.inArray(a,d)});return angular.isArray(a)&&angular.isArray(b)?(e=d(f,e),e=d(b,e)):e}function m(a){var b=a.split(""),d=!0;if(w.length>0){for(var e=[],f=Object.keys(x),h=0;h<f.length;h++){var i=x[f[h]];e.push(i)}0===y.length&&c.lazyProduct(e,function(){y.push(Array.prototype.slice.call(arguments))});for(var h=y.length-1;h>=0;h--){var j=angular.copy(b);j=l(j,y[h]);var k=j.join(""),m=g(t.length-1);if(m.test(k)){d=!1,b=j;break}}}return d&&(b=l(b,z)),b.join("")}function n(){return s}function o(a){try{var b=k(a),c=m(b);return{withDivisors:function(a){return a?c.substr(0,u):c},withoutDivisors:function(a){return a?b.substr(0,v):b}}}catch(d){throw d}}function p(a,b){var c=[];if(!a)return 0;for(var d=0;d<a.length;d++){var e=g(d),f=a.substr(0,d+1);if(e&&!e.test(f)&&(c.push(d),b))break}return c}function q(a){return p(a,!0)[0]}function r(a){var b=p(a,!1),c=a;for(var d in b){var e=b[d],f=a.split("");f.splice(e,1),c=f.join("")}return o(c)}var s,t,u=0,v=0,w=[],x={},y=[],z=[],A={},B=[],C={9:/[0-9]/,8:/[0-8]/,7:/[0-7]/,6:/[0-6]/,5:/[0-5]/,4:/[0-4]/,3:/[0-3]/,2:/[0-2]/,1:/[0-1]/,0:/[0]/,"*":/./,w:/\w/,W:/\W/,d:/\d/,D:/\D/,s:/\s/,S:/\S/,b:/\b/,A:/[A-Z]/,a:/[a-z]/,Z:/[A-ZÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/,z:/[a-zçáàãâéèêẽíìĩîóòôõúùũüû]/,"@":/[a-zA-Z]/,"#":/[a-zA-ZçáàãâéèêẽíìĩîóòôõúùũüûÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/,"%":/[0-9a-zA-ZçáàãâéèêẽíìĩîóòôõúùũüûÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/};return{getViewValue:o,generateRegex:f,getRegex:g,getOptions:n,removeDivisors:k,getFirstWrongPosition:q,removeWrongPositions:r}}return{create:d}}]);
-        angular.module("ngMask").factory("OptionalService",[function(){function a(a){var c=[];try{for(var d=/\?/g,e=[];null!=(e=d.exec(a));)c.push(e.index-1)}catch(f){throw f}return{fromMask:function(){return c},fromMaskWithoutOptionals:function(){return b(c)}}}function b(a){for(var b=[],c=0;c<a.length;c++)b.push(a[c]-c);return b}function c(a){var b;try{b=a.replace(/\?/g,"")}catch(c){throw c}return b}return{removeOptionals:c,getOptionals:a}}]);
-        angular.module("ngMask").factory("UtilService",[function(){function a(a,b,c){function d(h){var i=a[h],j=g[h];if(h===f)for(var k=0;j>k;++k)e[h]=i[k],b.apply(c,e);else for(var k=0;j>k;++k)e[h]=i[k],d(h+1);e.pop()}c||(c=this);for(var e=[],f=a.length-1,g=[],h=a.length;h--;)g[h]=a[h].length;d(0)}function b(a,b){var c;try{c=b.indexOf(a)>-1}catch(d){throw d}return c}function c(a){for(var b={},c=[],d=0,e=a.length;e>d;++d)b.hasOwnProperty(a[d])||(c.push(a[d]),b[a[d]]=1);return c}return{lazyProduct:a,inArray:b,uniqueArray:c}}])
-        }());
+      'use strict';
+      angular.module('ngMask', []);
+
+      angular.module('ngMask')
+        .directive('mask', ['$log', '$timeout', 'MaskService', function($log, $timeout, MaskService) {
+          return {
+            restrict: 'A',
+            require: 'ngModel',
+            compile: function($element, $attrs) {
+             if (!$attrs.mask || !$attrs.ngModel) {
+                $log.info('Mask and ng-model attributes are required!');
+                return;
+              }
+
+              var maskService = MaskService.create();
+              var timeout;
+              var promise;
+
+              function setSelectionRange(selectionStart){
+                if (typeof selectionStart !== 'number') {
+                  return;
+                }
+
+                // using $timeout:
+                // it should run after the DOM has been manipulated by Angular
+                // and after the browser renders (which may cause flicker in some cases)
+                $timeout.cancel(timeout);
+                timeout = $timeout(function(){
+                  var selectionEnd = selectionStart + 1;
+                  var input = $element[0];
+
+                  if (input.setSelectionRange) {
+                    input.focus();
+                    input.setSelectionRange(selectionStart, selectionEnd);
+                  } else if (input.createTextRange) {
+                    var range = input.createTextRange();
+
+                    range.collapse(true);
+                    range.moveEnd('character', selectionEnd);
+                    range.moveStart('character', selectionStart);
+                    range.select();
+                  }
+                });
+              }
+
+              return {
+                pre: function($scope, $element, $attrs, controller) {
+                  promise = maskService.generateRegex({
+                    mask: $attrs.mask,
+                    // repeat mask expression n times
+                    repeat: ($attrs.repeat || $attrs.maskRepeat),
+                    // clean model value - without divisors
+                    clean: (($attrs.clean || $attrs.maskClean) === 'true'),
+                    // limit length based on mask length
+                    limit: (($attrs.limit || $attrs.maskLimit || 'true') === 'true'),
+                    // how to act with a wrong value
+                    restrict: ($attrs.restrict || $attrs.maskRestrict || 'select'), //select, reject, accept
+                    // set validity mask
+                    validate: (($attrs.validate || $attrs.maskValidate || 'true') === 'true'),
+                    // default model value
+                    model: $attrs.ngModel,
+                    // default input value
+                    value: $attrs.ngValue
+                  });
+                },
+                post: function($scope, $element, $attrs, controller) {
+                  promise.then(function() {
+                    // get initial options
+                    var timeout;
+                    var options = maskService.getOptions();
+
+                    function parseViewValue(value) {
+                      // set default value equal 0
+                      value = String(value) || '';
+
+                      // get view value object
+                      var viewValue = maskService.getViewValue(value);
+
+                      // get mask without question marks
+                      var maskWithoutOptionals = options['maskWithoutOptionals'] || '';
+
+                      // get view values capped
+                      // used on view
+                      var viewValueWithDivisors = viewValue.withDivisors(true);
+                      // used on model
+                      var viewValueWithoutDivisors = viewValue.withoutDivisors(true);
+
+                      try {
+                        // get current regex
+                        var regex = maskService.getRegex(viewValueWithDivisors.length - 1);
+                        var fullRegex = maskService.getRegex(maskWithoutOptionals.length - 1);
+
+                        // current position is valid
+                        var validCurrentPosition = regex.test(viewValueWithDivisors) || fullRegex.test(viewValueWithDivisors);
+
+                        // difference means for select option
+                        var diffValueAndViewValueLengthIsOne = (value.length - viewValueWithDivisors.length) === 1;
+                        var diffMaskAndViewValueIsGreaterThanZero = (maskWithoutOptionals.length - viewValueWithDivisors.length) > 0;
+
+                        if (options.restrict !== 'accept') {
+                          if (options.restrict === 'select' && (!validCurrentPosition || diffValueAndViewValueLengthIsOne)) {
+                            var lastCharInputed = value[(value.length-1)];
+                            var lastCharGenerated = viewValueWithDivisors[(viewValueWithDivisors.length-1)];
+
+                            if ((lastCharInputed !== lastCharGenerated) && diffMaskAndViewValueIsGreaterThanZero) {
+                              viewValueWithDivisors = viewValueWithDivisors + lastCharInputed;
+                            }
+
+                            var wrongPosition = maskService.getFirstWrongPosition(viewValueWithDivisors);
+                            if (angular.isDefined(wrongPosition)) {
+                              setSelectionRange(wrongPosition);
+                            }
+                          } else if (options.restrict === 'reject' && !validCurrentPosition) {
+                            viewValue = maskService.removeWrongPositions(viewValueWithDivisors);
+                            viewValueWithDivisors = viewValue.withDivisors(true);
+                            viewValueWithoutDivisors = viewValue.withoutDivisors(true);
+
+                            // setSelectionRange(viewValueWithDivisors.length);
+                          }
+                        }
+
+                        if (!options.limit) {
+                          viewValueWithDivisors = viewValue.withDivisors(false);
+                          viewValueWithoutDivisors = viewValue.withoutDivisors(false);
+                        }
+
+                        // Set validity
+                        if (options.validate && controller.$dirty) {
+                          if (fullRegex.test(viewValueWithDivisors) || controller.$isEmpty(controller.$modelValue)) {
+                            controller.$setValidity('mask', true);
+                          } else {
+                            controller.$setValidity('mask', false);
+                          }
+                        }
+
+                        // Update view and model values
+                        if(value !== viewValueWithDivisors){
+                          controller.$setViewValue(angular.copy(viewValueWithDivisors), 'input');
+                          controller.$render();
+                        }
+                      } catch (e) {
+                        $log.error('[mask - parseViewValue]');
+                        throw e;
+                      }
+
+                      // Update model, can be different of view value
+                      if (options.clean) {
+                        return viewValueWithoutDivisors;
+                      } else {
+                        return viewValueWithDivisors;
+                      }
+                    }
+
+                    controller.$parsers.push(parseViewValue);
+
+                    $element.on('click input paste keyup', function() {
+                      timeout = $timeout(function() {
+                        // Manual debounce to prevent multiple execution
+                        $timeout.cancel(timeout);
+
+                        parseViewValue($element.val());
+                        $scope.$apply();
+                      }, 100);
+                    });
+
+                    // Register the watch to observe remote loading or promised data
+                    // Deregister calling returned function
+                    var watcher = $scope.$watch($attrs.ngModel, function (newValue, oldValue) {
+                      if (angular.isDefined(newValue)) {
+                        parseViewValue(newValue);
+                        watcher();
+                      }
+                    });
+
+                    // $evalAsync from a directive
+                    // it should run after the DOM has been manipulated by Angular
+                    // but before the browser renders
+                    if(options.value) {
+                      $scope.$evalAsync(function($scope) {
+                        controller.$setViewValue(angular.copy(options.value), 'input');
+                        controller.$render();
+                      });
+                    }
+                  });
+                }
+              }
+            }
+          }
+        }]);
+      angular.module('ngMask')
+        .factory('MaskService', ['$q', 'OptionalService', 'UtilService', function($q, OptionalService, UtilService) {
+          function create() {
+            var options;
+            var maskWithoutOptionals;
+            var maskWithoutOptionalsLength = 0;
+            var maskWithoutOptionalsAndDivisorsLength = 0;
+            var optionalIndexes = [];
+            var optionalDivisors = {};
+            var optionalDivisorsCombinations = [];
+            var divisors = [];
+            var divisorElements = {};
+            var regex = [];
+            var patterns = {
+              '9': /[0-9]/,
+              '8': /[0-8]/,
+              '7': /[0-7]/,
+              '6': /[0-6]/,
+              '5': /[0-5]/,
+              '4': /[0-4]/,
+              '3': /[0-3]/,
+              '2': /[0-2]/,
+              '1': /[0-1]/,
+              '0': /[0]/,
+              '*': /./,
+              'w': /\w/,
+              'W': /\W/,
+              'd': /\d/,
+              'D': /\D/,
+              's': /\s/,
+              'S': /\S/,
+              'b': /\b/,
+              'A': /[A-Z]/,
+              'a': /[a-z]/,
+              'Z': /[A-ZÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/,
+              'z': /[a-zçáàãâéèêẽíìĩîóòôõúùũüû]/,
+              '@': /[a-zA-Z]/,
+              '#': /[a-zA-ZçáàãâéèêẽíìĩîóòôõúùũüûÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/,
+              '%': /[0-9a-zA-ZçáàãâéèêẽíìĩîóòôõúùũüûÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/
+            };
+
+            // REGEX
+
+            function generateIntermetiateElementRegex(i, forceOptional) {
+              var charRegex;
+              try {
+                var element = maskWithoutOptionals[i];
+                var elementRegex = patterns[element];
+                var hasOptional = isOptional(i);
+
+                if (elementRegex) {
+                  charRegex = '(' + elementRegex.source + ')';
+                } else { // is a divisor
+                  if (!isDivisor(i)) {
+                    divisors.push(i);
+                    divisorElements[i] = element;
+                  }
+
+                  charRegex = '(' + '\\' + element + ')';
+                }
+              } catch (e) {
+                throw e;
+              }
+
+              if (hasOptional || forceOptional) {
+                charRegex += '?';
+              }
+
+              return new RegExp(charRegex);
+            }
+
+            function generateIntermetiateRegex(i, forceOptional) {
+
+
+              var elementRegex
+              var elementOptionalRegex;
+              try {
+                var intermetiateElementRegex = generateIntermetiateElementRegex(i, forceOptional);
+                elementRegex = intermetiateElementRegex;
+
+                var hasOptional = isOptional(i);
+                var currentRegex = intermetiateElementRegex.source;
+
+                if (hasOptional && ((i+1) < maskWithoutOptionalsLength)) {
+                  var intermetiateRegex = generateIntermetiateRegex((i+1), true).elementOptionalRegex();
+                  currentRegex += intermetiateRegex.source;
+                }
+
+                elementOptionalRegex = new RegExp(currentRegex);
+              } catch (e) {
+                throw e;
+              }
+              return {
+                elementRegex: function() {
+                  return elementRegex;
+                },
+                elementOptionalRegex: function() {
+                  // from element regex, gets the flow of regex until first not optional
+                  return elementOptionalRegex;
+                }
+              };
+            }
+
+            function generateRegex(opts) {
+              var deferred = $q.defer();
+              options = opts;
+
+              try {
+                var mask = opts['mask'];
+                var repeat = opts['repeat'];
+
+                if (repeat) {
+                  mask = Array((parseInt(repeat)+1)).join(mask);
+                }
+
+                optionalIndexes = OptionalService.getOptionals(mask).fromMaskWithoutOptionals();
+                options['maskWithoutOptionals'] = maskWithoutOptionals = OptionalService.removeOptionals(mask);
+                maskWithoutOptionalsLength = maskWithoutOptionals.length;
+
+                var cumulativeRegex;
+                for (var i=0; i<maskWithoutOptionalsLength; i++) {
+                  var charRegex = generateIntermetiateRegex(i);
+                  var elementRegex = charRegex.elementRegex();
+                  var elementOptionalRegex = charRegex.elementOptionalRegex();
+
+                  var newRegex = cumulativeRegex ? cumulativeRegex.source + elementOptionalRegex.source : elementOptionalRegex.source;
+                  newRegex = new RegExp(newRegex);
+                  cumulativeRegex = cumulativeRegex ? cumulativeRegex.source + elementRegex.source : elementRegex.source;
+                  cumulativeRegex = new RegExp(cumulativeRegex);
+
+                  regex.push(newRegex);
+                }
+
+                generateOptionalDivisors();
+                maskWithoutOptionalsAndDivisorsLength = removeDivisors(maskWithoutOptionals).length;
+
+                deferred.resolve({
+                  options: options,
+                  divisors: divisors,
+                  divisorElements: divisorElements,
+                  optionalIndexes: optionalIndexes,
+                  optionalDivisors: optionalDivisors,
+                  optionalDivisorsCombinations: optionalDivisorsCombinations
+                });
+              } catch (e) {
+                deferred.reject(e);
+                throw e;
+              }
+
+              return deferred.promise;
+            }
+
+            function getRegex(index) {
+              var currentRegex;
+
+              try {
+                currentRegex = regex[index] ? regex[index].source : '';
+              } catch (e) {
+                throw e;
+              }
+
+              return (new RegExp('^' + currentRegex + '$'));
+            }
+
+            // DIVISOR
+
+            function isOptional(currentPos) {
+              return UtilService.inArray(currentPos, optionalIndexes);
+            }
+
+            function isDivisor(currentPos) {
+              return UtilService.inArray(currentPos, divisors);
+            }
+
+            function generateOptionalDivisors() {
+              function sortNumber(a,b) {
+                  return a - b;
+              }
+
+              var sortedDivisors = divisors.sort(sortNumber);
+              var sortedOptionals = optionalIndexes.sort(sortNumber);
+              for (var i = 0; i<sortedDivisors.length; i++) {
+                var divisor = sortedDivisors[i];
+                for (var j = 1; j<=sortedOptionals.length; j++) {
+                  var optional = sortedOptionals[(j-1)];
+                  if (optional >= divisor) {
+                    break;
+                  }
+
+                  if (optionalDivisors[divisor]) {
+                    optionalDivisors[divisor] = optionalDivisors[divisor].concat(divisor-j);
+                  } else {
+                    optionalDivisors[divisor] = [(divisor-j)];
+                  }
+
+                  // get the original divisor for alternative divisor
+                  divisorElements[(divisor-j)] = divisorElements[divisor];
+                }
+              }
+            }
+
+            function removeDivisors(value) {
+              try {
+                if (divisors.length > 0 && value) {
+                  var keys = Object.keys(divisorElements);
+                  var elments = [];
+
+                  for (var i = keys.length - 1; i >= 0; i--) {
+                    var divisor = divisorElements[keys[i]];
+                    if (divisor) {
+                      elments.push(divisor);
+                    }
+                  }
+
+                  elments = UtilService.uniqueArray(elments);
+
+                  // remove if it is not pattern
+                  var regex = new RegExp(('[' + '\\' + elments.join('\\') + ']'), 'g');
+                  return value.replace(regex, '');
+                } else {
+                  return value;
+                }
+              } catch (e) {
+                throw e;
+              }
+            }
+
+            function insertDivisors(array, combination) {
+              function insert(array, output) {
+                var out = output;
+                for (var i=0; i<array.length; i++) {
+                  var divisor = array[i];
+                  if (divisor < out.length) {
+                    out.splice(divisor, 0, divisorElements[divisor]);
+                  }
+                }
+                return out;
+              }
+
+              var output = array;
+              var divs = divisors.filter(function(it) {
+                var optionalDivisorsKeys = Object.keys(optionalDivisors).map(function(it){
+                  return parseInt(it);
+                });
+
+                return !UtilService.inArray(it, combination) && !UtilService.inArray(it, optionalDivisorsKeys);
+              });
+
+              if (!angular.isArray(array) || !angular.isArray(combination)) {
+                return output;
+              }
+
+              // insert not optional divisors
+              output = insert(divs, output);
+
+              // insert optional divisors
+              output = insert(combination, output);
+
+              return output;
+            }
+
+            function tryDivisorConfiguration(value) {
+              var output = value.split('');
+              var defaultDivisors = true;
+
+              // has optional?
+              if (optionalIndexes.length > 0) {
+                var lazyArguments = [];
+                var optionalDivisorsKeys = Object.keys(optionalDivisors);
+
+                // get all optional divisors as array of arrays [[], [], []...]
+                for (var i=0; i<optionalDivisorsKeys.length; i++) {
+                  var val = optionalDivisors[optionalDivisorsKeys[i]];
+                  lazyArguments.push(val);
+                }
+
+                // generate all possible configurations
+                if (optionalDivisorsCombinations.length === 0) {
+                  UtilService.lazyProduct(lazyArguments, function() {
+                    // convert arguments to array
+                    optionalDivisorsCombinations.push(Array.prototype.slice.call(arguments));
+                  });
+                }
+
+                for (var i = optionalDivisorsCombinations.length - 1; i >= 0; i--) {
+                  var outputClone = angular.copy(output);
+                  outputClone = insertDivisors(outputClone, optionalDivisorsCombinations[i]);
+
+                  // try validation
+                  var viewValueWithDivisors = outputClone.join('');
+                  var regex = getRegex(maskWithoutOptionals.length - 1);
+
+                  if (regex.test(viewValueWithDivisors)) {
+                    defaultDivisors = false;
+                    output = outputClone;
+                    break;
+                  }
+                }
+              }
+
+              if (defaultDivisors) {
+                output = insertDivisors(output, divisors);
+              }
+
+              return output.join('');
+            }
+
+            // MASK
+
+            function getOptions() {
+              return options;
+            }
+
+            function getViewValue(value) {
+              try {
+                var outputWithoutDivisors = removeDivisors(value);
+                var output = tryDivisorConfiguration(outputWithoutDivisors);
+
+                return {
+                  withDivisors: function(capped) {
+                    if (capped) {
+                      return output.substr(0, maskWithoutOptionalsLength);
+                    } else {
+                      return output;
+                    }
+                  },
+                  withoutDivisors: function(capped) {
+                    if (capped) {
+                      return outputWithoutDivisors.substr(0, maskWithoutOptionalsAndDivisorsLength);
+                    } else {
+                      return outputWithoutDivisors;
+                    }
+                  }
+                };
+              } catch (e) {
+                throw e;
+              }
+            }
+
+            // SELECTOR
+
+            function getWrongPositions(viewValueWithDivisors, onlyFirst) {
+              var pos = [];
+
+              if (!viewValueWithDivisors) {
+                return 0;
+              }
+
+              for (var i=0; i<viewValueWithDivisors.length; i++){
+                var pattern = getRegex(i);
+                var value = viewValueWithDivisors.substr(0, (i+1));
+
+                if(pattern && !pattern.test(value)){
+                  pos.push(i);
+
+                  if (onlyFirst) {
+                    break;
+                  }
+                }
+              }
+
+              return pos;
+            }
+
+            function getFirstWrongPosition(viewValueWithDivisors) {
+              return getWrongPositions(viewValueWithDivisors, true)[0];
+            }
+
+            function removeWrongPositions(viewValueWithDivisors) {
+              var wrongPositions = getWrongPositions(viewValueWithDivisors, false);
+              var newViewValue = viewValueWithDivisors;
+
+              for (var i in wrongPositions) {
+                var wrongPosition = wrongPositions[i];
+                var viewValueArray = viewValueWithDivisors.split('');
+                viewValueArray.splice(wrongPosition, 1);
+                newViewValue = viewValueArray.join('');
+              }
+
+              return getViewValue(newViewValue);
+            }
+
+            return {
+              getViewValue: getViewValue,
+              generateRegex: generateRegex,
+              getRegex: getRegex,
+              getOptions: getOptions,
+              removeDivisors: removeDivisors,
+              getFirstWrongPosition: getFirstWrongPosition,
+              removeWrongPositions: removeWrongPositions
+            }
+          }
+
+          return {
+            create: create
+          }
+        }]);
+      angular.module('ngMask')
+        .factory('OptionalService', [function() {
+          function getOptionalsIndexes(mask) {
+            var indexes = [];
+
+            try {
+              var regexp = /\?/g;
+              var match = [];
+
+              while ((match = regexp.exec(mask)) != null) {
+                // Save the optional char
+                indexes.push((match.index - 1));
+              }
+            } catch (e) {
+              throw e;
+            }
+
+            return {
+              fromMask: function() {
+                return indexes;
+              },
+              fromMaskWithoutOptionals: function() {
+                return getOptionalsRelativeMaskWithoutOptionals(indexes);
+              }
+            };
+          }
+
+          function getOptionalsRelativeMaskWithoutOptionals(optionals) {
+            var indexes = [];
+            for (var i=0; i<optionals.length; i++) {
+              indexes.push(optionals[i]-i);
+            }
+            return indexes;
+          }
+
+          function removeOptionals(mask) {
+            var newMask;
+
+            try {
+              newMask = mask.replace(/\?/g, '');
+            } catch (e) {
+              throw e;
+            }
+
+            return newMask;
+          }
+
+          return {
+            removeOptionals: removeOptionals,
+            getOptionals: getOptionalsIndexes
+          }
+        }]);
+      angular.module('ngMask')
+        .factory('UtilService', [function() {
+
+          // sets: an array of arrays
+          // f: your callback function
+          // context: [optional] the `this` to use for your callback
+          // http://phrogz.net/lazy-cartesian-product
+          function lazyProduct(sets, f, context){
+            if (!context){
+              context=this;
+            }
+
+            var p = [];
+            var max = sets.length-1;
+            var lens = [];
+
+            for (var i=sets.length;i--;) {
+              lens[i] = sets[i].length;
+            }
+
+            function dive(d){
+              var a = sets[d];
+              var len = lens[d];
+
+              if (d === max) {
+                for (var i=0;i<len;++i) {
+                  p[d] = a[i];
+                  f.apply(context, p);
+                }
+              } else {
+                for (var i=0;i<len;++i) {
+                  p[d]=a[i];
+                  dive(d+1);
+                }
+              }
+
+              p.pop();
+            }
+
+            dive(0);
+          }
+
+          function inArray(i, array) {
+            var output;
+
+            try {
+              output = array.indexOf(i) > -1;
+            } catch (e) {
+              throw e;
+            }
+
+            return output;
+          }
+
+          function uniqueArray(array) {
+            var u = {};
+            var a = [];
+
+            for (var i = 0, l = array.length; i < l; ++i) {
+              if(u.hasOwnProperty(array[i])) {
+                continue;
+              }
+
+              a.push(array[i]);
+              u[array[i]] = 1;
+            }
+
+            return a;
+          }
+
+          return {
+            lazyProduct: lazyProduct,
+            inArray: inArray,
+            uniqueArray: uniqueArray
+          }
+        }]);
+    })();
 }());
