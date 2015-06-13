@@ -540,12 +540,12 @@
 /** gr-autofields dependencies **/
 
 (function(){
-    /**
-     * @license Autofields v2.1.6
-     * (c) 2014 Justin Maier http://justmaier.github.io/angular-autoFields-bootstrap
-     * License: MIT
-     */
     (function(){
+        /**
+         * @license Autofields v2.1.6
+         * (c) 2014 Justin Maier http://justmaier.github.io/angular-autoFields-bootstrap
+         * License: MIT
+         */
         angular.module('autofields.core', [])
             .provider('$autofields', function(){
                 var autofields = {};
@@ -801,8 +801,6 @@
                     }
                 }
             }]);
-    }());
-    (function(){
         angular.module('autofields.standard',['autofields.core'])
             .config(['$autofieldsProvider', function($autofieldsProvider){
                 // Text Field Handler
@@ -904,8 +902,6 @@
                     }
                 };
             }]);
-    }());
-    (function(){
         angular.module('autofields.validation', ['autofields.core'])
             .config(['$autofieldsProvider', function($autofieldsProvider){
                 var helper = {
@@ -973,12 +969,10 @@
                     return fieldElements;
                 });
             }]);
-    }());
-    (function(){
         angular.module('autofields',['autofields.standard','autofields.validation']);
         angular.module('autoFields',['autofields']); // Deprecated module name
     }());
-    (function ($) {
+    (function ($){
         if (!$.browser) {
             $.browser = {};
             $.browser.mozilla = /mozilla/.test(navigator.userAgent.toLowerCase()) && !/webkit/.test(navigator.userAgent.toLowerCase());
