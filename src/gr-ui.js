@@ -2513,7 +2513,7 @@
                 scope: {
                     for: '='
                 },
-                template: '<div class="btn-group gr-table-count"><button ng-repeat="count in grTable.settings().counts" type="button" ng-class="{\'active\':grTable.count()==count}" ng-click="grTable.count(count)" class="btn btn-default"><span ng-bind="count"></span></button></div>',
+                template: '<div class="btn-group gr-table-count" ng-show="!(grTable.allData.length <= grTable.settings().counts[0])"><button ng-repeat="count in grTable.settings().counts" type="button" ng-class="{\'active\':grTable.count()==count}" ng-click="grTable.count(count)" class="btn btn-default"><span ng-bind="count"></span></button></div>',
                 replace: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
@@ -2532,10 +2532,13 @@
                 replace: true,
                 link: function($scope, $element){
                     $scope.$watch('params', function(p){
-                        if(angular.isUndefined(p)){
-                            $scope.params = $scope.$parent.grTable;
-                        }else{
+                        if(p){
                             init();
+                        }
+                    });
+                    $scope.$watch('$parent.grTable', function(grTable){
+                        if(grTable){
+                            $scope.params = grTable;
                         }
                     });
                     function init(){

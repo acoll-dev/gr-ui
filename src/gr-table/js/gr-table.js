@@ -326,7 +326,7 @@
                 scope: {
                     for: '='
                 },
-                template: '<div class="btn-group gr-table-count"><button ng-repeat="count in grTable.settings().counts" type="button" ng-class="{\'active\':grTable.count()==count}" ng-click="grTable.count(count)" class="btn btn-default"><span ng-bind="count"></span></button></div>',
+                template: '<div class="btn-group gr-table-count" ng-show="!(grTable.allData.length <= grTable.settings().counts[0])"><button ng-repeat="count in grTable.settings().counts" type="button" ng-class="{\'active\':grTable.count()==count}" ng-click="grTable.count(count)" class="btn btn-default"><span ng-bind="count"></span></button></div>',
                 replace: true,
                 compile: function($element){
                     return function($scope, $element, $attrs){
@@ -345,10 +345,13 @@
                 replace: true,
                 link: function($scope, $element){
                     $scope.$watch('params', function(p){
-                        if(angular.isUndefined(p)){
-                            $scope.params = $scope.$parent.grTable;
-                        }else{
+                        if(p){
                             init();
+                        }
+                    });
+                    $scope.$watch('$parent.grTable', function(grTable){
+                        if(grTable){
+                            $scope.params = grTable;
                         }
                     });
                     function init(){
@@ -438,8 +441,6 @@
             $templateCache.put('gr-table/pager.html', '<div class="ng-cloak ng-table-pager" ng-if="params.data.length"> <ul class="pagination ng-table-pagination"> <li ng-class="{\'disabled\': !page.active && !page.current, \'active\': page.current}" ng-repeat="page in pages" ng-switch="page.type"> <a ng-switch-when="prev" ng-click="params.page(page.number)" href="">&laquo;</a> <a ng-switch-when="first" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="page" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="more" ng-click="params.page(page.number)" href="">&#8230;</a> <a ng-switch-when="last" ng-click="params.page(page.number)" href=""><span ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)" href="">&raquo;</a> </li> </ul> </div> ');
             $templateCache.put('ng-table/pager.html', '');
         }]);
-}());
-(function(){
     angular.module('gr.ui.table.config', ['gr.ui.modal','gr.ui.alert']);
 }());
 
