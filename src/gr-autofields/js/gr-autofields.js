@@ -1,4 +1,5 @@
 'use strict';
+
 (function(){
     angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert', 'ngMask'])
         .directive('grAutofields', ['$compile', '$parse', '$timeout', '$grAlert', function($compile, $parse, $timeout, $grAlert){
@@ -232,12 +233,27 @@
             // Phone Handler
             $autofieldsProvider.registerHandler('phone', function(directive, field, index){
                 field.type = 'text';
-                if(!field.attr){ field.attr = []; }
+                if(!field.attr){ field.attr = {}; }
                 if(!field.addons){ field.addons = []; }
-                field.attr.mask = '99 ?9? 9999 9999';
+                field.attr.mask = '99 9999 9999';
                 field.attr.restrict = 'reject';
                 field.attr.maskValidate = field.attr.maskValidate ? field.attr.maskValidate : true;
-                field.placeholder = field.placeholder ? field.placeholder : ' ';
+                field.placeholder = field.placeholder ? field.placeholder : 'xx xxxx xxxx';
+                field.addons.push({
+                    before: true,
+                    icon: 'fa fa-fw fa-phone'
+                });
+                var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
+                return fieldElements.fieldContainer;
+            });
+            $autofieldsProvider.registerHandler('mobilephone', function(directive, field, index){
+                field.type = 'text';
+                if(!field.attr){ field.attr = {}; }
+                if(!field.addons){ field.addons = []; }
+                field.attr.mask = '99 9 9999 9999';
+                field.attr.restrict = 'reject';
+                field.attr.maskValidate = field.attr.maskValidate ? field.attr.maskValidate : true;
+                field.placeholder = field.placeholder ? field.placeholder : 'xx x xxxx xxxx';
                 field.addons.push({
                     before: true,
                     icon: 'fa fa-fw fa-phone'
@@ -283,23 +299,67 @@
 
                 return row;
             });
-            // Number Handler
-            $autofieldsProvider.registerHandler('number', function(directive, field, index){
-                if(!field.attr){ field.attr = []; }
-                field.attr.mask = '9';
-                field.attr.restrict = 'reject';
-                field.attr.repeat = field.attr.max ? field.attr.max.length : 255;
-                field.attr['mask-validate'] = false;
-                var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-                return fieldElements.fieldContainer;
+            // Button Handler
+            $autofieldsProvider.registerHandler('button', function(directive, field, index){
+                var button = angular.element('<button type="button" style="margin-top: 25px;"/>'),
+                    label = field.label ? '{{\'' + field.label + '\' | grTranslate}}' : '',
+                    wrapper = angular.element('<div/>');
+                button.attr(field.attr).attr('ng-attr-title', label).html(label);
+                button.before(angular.element('<label>&nbsp;</label>'));
+                if(field.addons){
+                    var buttonGroup = angular.element('<div class="input-group"/>'),
+                        addon = angular.element('<span class="input-group-addon"/>');
+                    button.removeAttr('style').addClass('form-control');
+                    buttonGroup.append(button).attr({
+                        style: 'width: 1%; margin-top: 25px;'
+                    });
+                    if(field.addons.content){
+                        addon.html(field.addons.content);
+                    }else if(field.addons.icon){
+                        addon.html('<i class="' + field.addons.icon + '" />');
+                    }
+                    if(field.addons.before){
+                        buttonGroup.prepend(addon);
+                    }else{
+                        buttonGroup.append(addon);
+                    }
+                    wrapper.append(buttonGroup);
+                }else{
+                    wrapper.append(button);
+                }
+                if(angular.isObject(field.columns)){
+                    angular.forEach(field.columns, function(col, id){
+                        wrapper.addClass('col-' + id + '-' + col);
+                    });
+                }else{
+                    wrapper.addClass('col-sm-' + field.columns);
+                }
+                return wrapper;
             });
+            // Columns Handler
+            $autofieldsProvider.registerMutator('columns', function(directive, field, fieldElements){
+                if(field.type !== 'multiple' && field.columns){
+                    if(angular.isObject(field.columns)){
+                        if(field.columns.xs){
+                            fieldElements.fieldContainer.removeClass('col-xs-12');
+                        }
+                        angular.forEach(field.columns, function(col, id){
+                            fieldElements.fieldContainer.addClass('col-' + id + '-' + col);
+                        });
+                    }else{
+                        fieldElements.fieldContainer.addClass('col-sm-' + field.columns);
+                    }
+                }
+                return fieldElements;
+            });
+            // Number Mutator
             $autofieldsProvider.registerMutator('number', function(directive, field, fieldElements){
                 if(!field.number) return fieldElements;
                 if(!field.attr){ field.attr = []; }
                 field.attr.mask = '9';
                 field.attr.restrict = 'reject';
                 field.attr.repeat = field.attr.max ? field.attr.max.length : 255;
-                field.attr['mask-validate'] = false;
+                field.attr.maskValidate = false;
                 return fieldElements;
             });
             // Register Help Block Support
@@ -983,7 +1043,6 @@
 
         var methods = {
             destroy : function () {
-//                console.log('destroy');
                 $(this).unbind(".maskMoney");
 
                 if ($.browser.msie) {
@@ -994,7 +1053,6 @@
 
             mask : function (value) {
                 return this.each(function () {
-//                    console.log('mask');
                     var $this = $(this),
                         decimalSize;
                     if (typeof value === "number") {
@@ -1009,11 +1067,9 @@
 
             unmasked : function () {
                 return this.map(function () {
-//                    console.log('unmasked');
                     var value = ($(this).val() || "0"),
                         isNegative = value.indexOf("-") !== -1,
                         decimalPart;
-                    // get the last position of the array that is a number(coercion makes "" to be evaluated as false)
                     $(value.split(/\D/).reverse()).each(function (index, element) {
                         if(element) {
                             decimalPart = element;
@@ -1042,11 +1098,9 @@
                 }, settings);
 
                 return this.each(function () {
-//                    console.log('init');
                     var $input = $(this),
                         onFocusValue;
 
-                    // data-* api
                     settings = $.extend(settings, $input.data());
 
                     function getInputSelection() {
@@ -1069,13 +1123,9 @@
                                 len = el.value.length;
                                 normalizedValue = el.value.replace(/\r\n/g, "\n");
 
-                                // Create a working TextRange that lives only in the input
                                 textInputRange = el.createTextRange();
                                 textInputRange.moveToBookmark(range.getBookmark());
 
-                                // Check if the start and end of the selection are at the very end
-                                // of the input, since moveStart/moveEnd doesn't return what we want
-                                // in those cases
                                 endRange = el.createTextRange();
                                 endRange.collapse(false);
 
@@ -1099,7 +1149,7 @@
                             start: start,
                             end: end
                         };
-                    } // getInputSelection
+                    }
 
                     function canInputMoreNumbers() {
                         var haventReachedMaxLength = !($input.val().length >= $input.attr("maxlength") && $input.attr("maxlength") >= 0),
@@ -1136,7 +1186,6 @@
                     }
 
                     function maskValue(value) {
-//                        console.log('maskValue');
                         var negative = (value.indexOf("-") > -1 && settings.allowNegative) ? "-" : "",
                             onlyNumbers = value.replace(/[^0-9]/g, ""),
                             integerPart = onlyNumbers.slice(0, onlyNumbers.length - settings.precision),
@@ -1144,9 +1193,7 @@
                             decimalPart,
                             leadingZeros;
 
-                        // remove initial zeros
                         integerPart = integerPart.replace(/^0*/g, "");
-                        // put settings.thousands every 3 chars
                         integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, settings.thousands);
                         if (integerPart === "") {
                             integerPart = "0";
@@ -1189,9 +1236,9 @@
                     }
 
                     function preventDefault(e) {
-                        if (e.preventDefault) { //standard browsers
+                        if (e.preventDefault) {
                             e.preventDefault();
-                        } else { // old internet explorer
+                        } else {
                             e.returnValue = false;
                         }
                     }
@@ -1204,29 +1251,22 @@
                             startPos,
                             endPos,
                             value;
-                        //added to handle an IE "special" event
                         if (key === undefined) {
                             return false;
                         }
 
-                        // any key except the numbers 0-9
                         if (key < 48 || key > 57) {
-                            // -(minus) key
                             if (key === 45) {
                                 $input.val(changeSign());
                                 return false;
-                            // +(plus) key
                             } else if (key === 43) {
                                 $input.val($input.val().replace("-", ""));
                                 return false;
-                            // enter key or tab key
                             } else if (key === 13 || key === 9) {
                                 return true;
                             } else if ($.browser.mozilla && (key === 37 || key === 39) && e.charCode === 0) {
-                                // needed for left arrow key or right arrow key with firefox
-                                // the charCode part is to avoid allowing "%"(e.charCode 0, e.keyCode 37)
                                 return true;
-                            } else { // any other key with keycode less than 48 and greater than 57
+                            } else {
                                 preventDefault(e);
                                 return true;
                             }
@@ -1254,7 +1294,6 @@
                             endPos,
                             value,
                             lastNumber;
-                        //needed to handle an IE "special" event
                         if (key === undefined) {
                             return false;
                         }
@@ -1263,23 +1302,19 @@
                         startPos = selection.start;
                         endPos = selection.end;
 
-                        if (key === 8 || key === 46 || key === 63272) { // backspace or delete key (with special case for safari)
+                        if (key === 8 || key === 46 || key === 63272) {
                             preventDefault(e);
 
                             value = $input.val();
-                            // not a selection
                             if (startPos === endPos) {
-                                // backspace
                                 if (key === 8) {
                                     if (settings.suffix === "") {
                                         startPos -= 1;
                                     } else {
-                                        // needed to find the position of the last number to be erased
                                         lastNumber = value.split("").reverse().join("").search(/\d/);
                                         startPos = value.length - lastNumber - 1;
                                         endPos = startPos + 1;
                                     }
-                                //delete
                                 } else {
                                     endPos += 1;
                                 }
@@ -1289,9 +1324,9 @@
 
                             maskAndPosition(startPos);
                             return false;
-                        } else if (key === 9) { // tab key
+                        } else if (key === 9) {
                             return true;
-                        } else { // any other key
+                        } else {
                             return true;
                         }
                     }
@@ -1303,7 +1338,7 @@
                             textRange;
                         if (input.createTextRange) {
                             textRange = input.createTextRange();
-                            textRange.collapse(false); // set the cursor at the end of the input
+                            textRange.collapse(false);
                             textRange.select();
                         }
                     }
@@ -1400,9 +1435,6 @@
                   return;
                 }
 
-                // using $timeout:
-                // it should run after the DOM has been manipulated by Angular
-                // and after the browser renders (which may cause flicker in some cases)
                 $timeout.cancel(timeout);
                 timeout = $timeout(function(){
                   var selectionEnd = selectionStart + 1;
@@ -1426,53 +1458,36 @@
                 pre: function($scope, $element, $attrs, controller) {
                   promise = maskService.generateRegex({
                     mask: $attrs.mask,
-                    // repeat mask expression n times
                     repeat: ($attrs.repeat || $attrs.maskRepeat),
-                    // clean model value - without divisors
                     clean: (($attrs.clean || $attrs.maskClean) === 'true'),
-                    // limit length based on mask length
                     limit: (($attrs.limit || $attrs.maskLimit || 'true') === 'true'),
-                    // how to act with a wrong value
-                    restrict: ($attrs.restrict || $attrs.maskRestrict || 'select'), //select, reject, accept
-                    // set validity mask
+                    restrict: ($attrs.restrict || $attrs.maskRestrict || 'select'),
                     validate: (($attrs.validate || $attrs.maskValidate || 'true') === 'true'),
-                    // default model value
                     model: $attrs.ngModel,
-                    // default input value
                     value: $attrs.ngValue
                   });
                 },
                 post: function($scope, $element, $attrs, controller) {
                   promise.then(function() {
-                    // get initial options
                     var timeout;
                     var options = maskService.getOptions();
 
                     function parseViewValue(value) {
-                      // set default value equal 0
-                      value = (typeof value === 'number' ? String(value) : value) || '';
+                      value = value || '';
 
-                      // get view value object
                       var viewValue = maskService.getViewValue(value);
 
-                      // get mask without question marks
                       var maskWithoutOptionals = options['maskWithoutOptionals'] || '';
 
-                      // get view values capped
-                      // used on view
                       var viewValueWithDivisors = viewValue.withDivisors(true);
-                      // used on model
                       var viewValueWithoutDivisors = viewValue.withoutDivisors(true);
 
                       try {
-                        // get current regex
                         var regex = maskService.getRegex(viewValueWithDivisors.length - 1);
                         var fullRegex = maskService.getRegex(maskWithoutOptionals.length - 1);
 
-                        // current position is valid
                         var validCurrentPosition = regex.test(viewValueWithDivisors) || fullRegex.test(viewValueWithDivisors);
 
-                        // difference means for select option
                         var diffValueAndViewValueLengthIsOne = (value.length - viewValueWithDivisors.length) === 1;
                         var diffMaskAndViewValueIsGreaterThanZero = (maskWithoutOptionals.length - viewValueWithDivisors.length) > 0;
 
@@ -1494,7 +1509,6 @@
                             viewValueWithDivisors = viewValue.withDivisors(true);
                             viewValueWithoutDivisors = viewValue.withoutDivisors(true);
 
-                            // setSelectionRange(viewValueWithDivisors.length);
                           }
                         }
 
@@ -1503,7 +1517,6 @@
                           viewValueWithoutDivisors = viewValue.withoutDivisors(false);
                         }
 
-                        // Set validity
                         if (options.validate && controller.$dirty) {
                           if (fullRegex.test(viewValueWithDivisors) || controller.$isEmpty(controller.$modelValue)) {
                             controller.$setValidity('mask', true);
@@ -1512,7 +1525,6 @@
                           }
                         }
 
-                        // Update view and model values
                         if(value !== viewValueWithDivisors){
                           controller.$setViewValue(angular.copy(viewValueWithDivisors), 'input');
                           controller.$render();
@@ -1522,7 +1534,6 @@
                         throw e;
                       }
 
-                      // Update model, can be different of view value
                       if (options.clean) {
                         return viewValueWithoutDivisors;
                       } else {
@@ -1534,7 +1545,6 @@
 
                     $element.on('click input paste keyup', function() {
                       timeout = $timeout(function() {
-                        // Manual debounce to prevent multiple execution
                         $timeout.cancel(timeout);
 
                         parseViewValue($element.val());
@@ -1542,8 +1552,6 @@
                       }, 100);
                     });
 
-                    // Register the watch to observe remote loading or promised data
-                    // Deregister calling returned function
                     var watcher = $scope.$watch($attrs.ngModel, function (newValue, oldValue) {
                       if (angular.isDefined(newValue)) {
                         parseViewValue(newValue);
@@ -1551,9 +1559,6 @@
                       }
                     });
 
-                    // $evalAsync from a directive
-                    // it should run after the DOM has been manipulated by Angular
-                    // but before the browser renders
                     if(options.value) {
                       $scope.$evalAsync(function($scope) {
                         controller.$setViewValue(angular.copy(options.value), 'input');
@@ -1607,8 +1612,6 @@
               '%': /[0-9a-zA-ZçáàãâéèêẽíìĩîóòôõúùũüûÇÀÁÂÃÈÉÊẼÌÍÎĨÒÓÔÕÙÚÛŨ]/
             };
 
-            // REGEX
-
             function generateIntermetiateElementRegex(i, forceOptional) {
               var charRegex;
               try {
@@ -1618,7 +1621,7 @@
 
                 if (elementRegex) {
                   charRegex = '(' + elementRegex.source + ')';
-                } else { // is a divisor
+                } else {
                   if (!isDivisor(i)) {
                     divisors.push(i);
                     divisorElements[i] = element;
@@ -1663,7 +1666,6 @@
                   return elementRegex;
                 },
                 elementOptionalRegex: function() {
-                  // from element regex, gets the flow of regex until first not optional
                   return elementOptionalRegex;
                 }
               };
@@ -1730,8 +1732,6 @@
               return (new RegExp('^' + currentRegex + '$'));
             }
 
-            // DIVISOR
-
             function isOptional(currentPos) {
               return UtilService.inArray(currentPos, optionalIndexes);
             }
@@ -1761,7 +1761,6 @@
                     optionalDivisors[divisor] = [(divisor-j)];
                   }
 
-                  // get the original divisor for alternative divisor
                   divisorElements[(divisor-j)] = divisorElements[divisor];
                 }
               }
@@ -1782,7 +1781,6 @@
 
                   elments = UtilService.uniqueArray(elments);
 
-                  // remove if it is not pattern
                   var regex = new RegExp(('[' + '\\' + elments.join('\\') + ']'), 'g');
                   return value.replace(regex, '');
                 } else {
@@ -1818,10 +1816,8 @@
                 return output;
               }
 
-              // insert not optional divisors
               output = insert(divs, output);
 
-              // insert optional divisors
               output = insert(combination, output);
 
               return output;
@@ -1831,21 +1827,17 @@
               var output = value.split('');
               var defaultDivisors = true;
 
-              // has optional?
               if (optionalIndexes.length > 0) {
                 var lazyArguments = [];
                 var optionalDivisorsKeys = Object.keys(optionalDivisors);
 
-                // get all optional divisors as array of arrays [[], [], []...]
                 for (var i=0; i<optionalDivisorsKeys.length; i++) {
                   var val = optionalDivisors[optionalDivisorsKeys[i]];
                   lazyArguments.push(val);
                 }
 
-                // generate all possible configurations
                 if (optionalDivisorsCombinations.length === 0) {
                   UtilService.lazyProduct(lazyArguments, function() {
-                    // convert arguments to array
                     optionalDivisorsCombinations.push(Array.prototype.slice.call(arguments));
                   });
                 }
@@ -1854,7 +1846,6 @@
                   var outputClone = angular.copy(output);
                   outputClone = insertDivisors(outputClone, optionalDivisorsCombinations[i]);
 
-                  // try validation
                   var viewValueWithDivisors = outputClone.join('');
                   var regex = getRegex(maskWithoutOptionals.length - 1);
 
@@ -1873,7 +1864,6 @@
               return output.join('');
             }
 
-            // MASK
 
             function getOptions() {
               return options;
@@ -1904,8 +1894,6 @@
                 throw e;
               }
             }
-
-            // SELECTOR
 
             function getWrongPositions(viewValueWithDivisors, onlyFirst) {
               var pos = [];
@@ -1973,7 +1961,6 @@
               var match = [];
 
               while ((match = regexp.exec(mask)) != null) {
-                // Save the optional char
                 indexes.push((match.index - 1));
               }
             } catch (e) {
@@ -2018,10 +2005,6 @@
       angular.module('ngMask')
         .factory('UtilService', [function() {
 
-          // sets: an array of arrays
-          // f: your callback function
-          // context: [optional] the `this` to use for your callback
-          // http://phrogz.net/lazy-cartesian-product
           function lazyProduct(sets, f, context){
             if (!context){
               context=this;

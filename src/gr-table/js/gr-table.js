@@ -1,4 +1,5 @@
 'use strict';
+
 (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .provider('$grTable', function(){
@@ -137,18 +138,7 @@
                         }
                     },
                     grTableConfig,
-                    inArray = Array.prototype.indexOf ?
-                                function(val, arr){
-                                    return arr.indexOf(val);
-                                } : function(val, arr){
-                                    var i = arr.length;
-                                    while (i--){
-                                        if(arr[i] === val){
-                                            return i;
-                                        }
-                                    }
-                                    return -1;
-                                };
+                    inArray = Array.prototype.indexOf ? function(val, arr){ return arr.indexOf(val); } : function(val, arr){ var i = arr.length; while (i--){ if(arr[i] === val){ return i; } } return -1; };
                 if($scope.$parent.modal && $scope.$parent.modal.element){
                     alert.destroy();
                     alert = $grAlert.new($scope.$parent.modal.element);
@@ -191,6 +181,13 @@
                     if(remote){
                         $scope.dataSet = $parse(remote)($scope);
                     }
+                });
+                $attrs.$observe('reload', function(fn){
+                    $scope[$name].reloadData = function(){
+                        $timeout(function(){
+                            $scope.$apply(fn);
+                        });
+                    };
                 });
                 $attrs.$observe('grDataSource', function(remote){
                     if(remote){
