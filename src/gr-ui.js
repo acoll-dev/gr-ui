@@ -1521,7 +1521,7 @@
                             if(!config.size){
                                 return;
                             }
-                            if(!config.model && !config.text){
+                            if(!config.model && !config.text && !config.template){
                                 return;
                             }
                             var element = {
@@ -1530,6 +1530,7 @@
                                 'title': config.title || undefined,
                                 'size': config.size,
                                 'model': config.model,
+                                'template': config.template,
                                 'text': config.text,
                                 'element': '',
                                 'zIndex': config.zIndex,
@@ -1610,7 +1611,9 @@
                                             }
                                         }
                                     }else if(element.model){
-                                        options.templateUrl= (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
+                                        options.templateUrl = (element.model.indexOf('http://') > -1 || element.model.indexOf('https://') > -1) ? element.model : grModal.template.base + element.model;
+                                    }else if(element.template){
+                                        options.template = element.template;
                                     }
                                     grModalInstance = $modal.open(options);
                                     grModalInstance.close = modalClose;
@@ -2759,49 +2762,38 @@
  */
 
 (function(){
-    angular.module('gr.ui.translate', ['gr.ui.translate.filter'])
-        .provider('$grTranslate', function(){
-            var $injector,
-                $translator = function(value){
-                    var _return;
-                    if(angular.isString(value)){
-                        if($injector.has('$translate')){
-                            if(value.indexOf('[[') > -1){
-                                var newValue = value.split('[[')[0],
-                                    vars = value.split('[[')[1].split(']]')[0].split(','),
-                                    translatedValue = $injector.get('$translate').instant(newValue);
-                                angular.forEach(vars, function(v, id){
-                                    while(translatedValue.indexOf('[[$' + (id + 1) + ']]') > -1){
-                                        translatedValue = translatedValue.replace('[[$' + (id + 1) + ']]', v);
-                                    }
-                                });
-                                _return = translatedValue;
-                            }else{
-                                _return = $injector.get('$translate').instant(value);
-                            }
-                        }else{
-                            _return = value;
-                        }
-                    }else{
-                        _return = '';
-                    }
-                    return _return;
-                };
-            this.$get = ['$injector', function(injector){
-                $injector = injector;
-                return $translator;
-            }];
-        });
-    angular.module('gr.ui.translate.filter', [])
-        .filter('grTranslate', ['$grTranslate', function($grTranslate){
-            return function(value){
+    angular.module('gr.ui.translate', ['gr.ui.translate.filter']).factory('$grTranslate', ['$injector', function($injector){
+            return function $grTranslate(value){
+                var _return;
                 if(angular.isString(value)){
-                    var newValue, vars;
-                    value = $grTranslate(value);
+                    try{
+                        if(value.indexOf('[[') > -1){
+                            var newValue = value.split('[[')[0],
+                                vars = value.split('[[')[1].split(']]')[0].split(','),
+                                translatedValue = $injector.get('$translate').instant(newValue);
+                            angular.forEach(vars, function(v, id){
+                                while(translatedValue.indexOf('[[$' + (id + 1) + ']]') > -1){
+                                    translatedValue = translatedValue.replace('[[$' + (id + 1) + ']]', v);
+                                }
+                            });
+                            _return = translatedValue;
+                        }else{
+                            _return = $injector.get('$translate').instant(value);
+                        }
+                    }catch(e){
+                        _return = value;
+                    }
+                }else{
+                    _return = '';
                 }
-                return value;
-            }
+                return _return;
+            };
         }]);
+    angular.module('gr.ui.translate.filter', []).filter('grTranslate', ['$grTranslate', function($grTranslate){
+        function translator(value){ return $grTranslate(value); }
+        translator.$stateful = true;
+        return translator;
+    }]);
 }());
 
 /*
