@@ -7,7 +7,7 @@
 }(window));
 
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.affix', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.pager', 'gr.ui.table', 'gr.ui.translate']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.autoscale', 'gr.ui.affix', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.pager', 'gr.ui.table', 'gr.ui.translate']);
 }());
 
 /*
@@ -964,6 +964,38 @@
 
 /*
  *
+ * GR-AUTOSCALE
+ *
+ */
+
+(function(){
+    angular.module('gr.ui.autoscale', []).directive('grAutoscale', ['$rootScope', function($rootScope){
+        return {
+            restrict: 'A',
+            scope: {
+                scale: '=grAutoscale'
+            },
+            link: function($scope, $element, $attrs){
+                var scale;
+                $scope.$watch('scale', function(s){
+                    if(s){
+                        scale = s.split(':');
+                    }
+                });
+                $scope.$watch(function(){
+                    return $element.width();
+                }, function(width){
+                    if(scale && scale[0] && scale[1]){
+                        $element.css('height', ((width*scale[1])/scale[0]) + 'px');
+                    }
+                });
+            }
+        }
+    }]);
+}());
+
+/*
+ *
  * GR-AFFIX
  *
  */
@@ -1051,7 +1083,8 @@
                             };
                         });
                     });
-                    var defaults = {
+                    var ready = false,
+                        defaults = {
                             current: 0,
                             running: false,
                             autoplay: false,
@@ -1061,6 +1094,13 @@
                         },
                         carousel = {
                             id: $attrs.id || 'carousel',
+                            ready: function(_ready){
+                                if(_ready !== undefined && _ready !== null){
+                                    ready = _ready;
+                                }else{
+                                    return ready;
+                                }
+                            },
                             current: defaults.current,
                             running: defaults.running,
                             hover: defaults.hover,
@@ -1095,8 +1135,12 @@
                                     carousel.items.outerWidth(width);
                                     carousel.scroller.width(width * carousel.items.length);
                                     carousel.itemWidth = width;
-                                    if($element.find('img:visible').length > 0){ $timeout(function(){ $element.height(carousel.scroller.height()); },100); }else{ $element[0].style.height = null; }
+                                    // if($element.find('img:visible').length > 0){ $timeout(function(){ $element.height(carousel.scroller.height()); },100); }else{ $element[0].style.height = null; }
+                                    // $timeout(function(){ $element.height(carousel.scroller.height()); });
                                     carousel.reset();
+                                    $timeout(function(){
+                                        carousel.ready(true);
+                                    });
                                 }
                             },
                             isVisible: function(index){
@@ -1120,8 +1164,8 @@
                                     if(carousel.drag.enable === true){
                                         carousel.drag.dragging = true;
                                         var coords = {
-                                                x: ($event.clientX || $event.originalEvent.touches[0].clientX) - $element.offset().left,
-                                                y: ($event.clientY || $event.originalEvent.touches[0].clientY) - $element.offset().top
+                                                x: ($event.clientX || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientX : false)) - $element.offset().left,
+                                                y: ($event.clientY || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientY : false)) - $element.offset().top
                                             };
                                         drgW = carousel.scroller.outerWidth();
                                         posX = parseFloat(carousel.scroller.css('left')) + drgW - coords.x;
@@ -1130,11 +1174,11 @@
                                 },
                                 move: function($event){
                                     if(carousel.drag.dragging === true && carousel.drag.enable === true){
-                                        var coords = {
+                                        var coords = { // Get cursor position while move
                                                 x: ($event.clientX || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientX : false)) - $element.offset().left,
                                                 y: ($event.clientY || ($event.originalEvent.touches ? $event.originalEvent.touches[0].clientY : false)) - $element.offset().top
                                             },
-                                            limit = {
+                                            limit = { // Get de carousel-wrapper offsets
                                                 x: {
                                                     left: $element.offset().left,
                                                     right: $element.offset().left + $element.width()
@@ -1144,14 +1188,12 @@
                                                     bottom: $element.offset().top + $element.height()
                                                 }
                                             },
-                                            left = coords.x + posX - drgW,
-                                            elWidth = $element.innerWidth();
+                                            left = coords.x + posX - drgW, // Get de screller move position relative to cursor move
+                                            elWidth = $element.innerWidth() // Get de carousel-wrapper inner width
                                         if(!coords.x || !coords.y){ return false; }
-                                        if((left + $element.offset().left) > limit.x.left){
-                                            left = (((coords.x - sCoords.x)*(elWidth))/drgW);
-                                        }
-                                        if((left + $element.offset().left + drgW) < limit.x.right){
-                                            left = (((coords.x - sCoords.x)*(elWidth))/drgW) - drgW + elWidth;
+                                        // Elastic effect out of left or right
+                                        if((left + $element.offset().left) > limit.x.left || (left + $element.offset().left + drgW) < limit.x.right){
+                                            left -= ((coords.x - sCoords.x)*0.75);
                                         }
                                         carousel.scroller.stop(true, true).animate({
                                             left: left
@@ -1303,6 +1345,7 @@
                         },
                         drgW, posX, sCoords,
                         $public = {
+                            ready: carousel.ready,
                             maxIndex: function(){ return carousel.items.length - carousel.visible; },
                             isRunning: carousel.checkRun,
                             isVisible: carousel.isVisible,
@@ -1470,10 +1513,11 @@
             }
         }])
         .run(['$templateCache', function($templateCache){
-            $templateCache.put('gr-carousel/carousel.html',
-                                '<div class="gr-carousel">' +
-                                    '<div class="gr-carousel-inner" ng-transclude></div>' +
-                                '</div>');
+            $templateCache.put('gr-carousel/carousel.html', [
+                                '<div class="gr-carousel">',
+                                    '<div class="gr-carousel-inner" ng-show="carousel.ready()" ng-transclude></div>',
+                                '</div>'
+                            ].join(''));
             $templateCache.put('gr-carousel/carousel-item.html', '<div class="gr-carousel-item" ng-transclude></div>');
             $templateCache.put('gr-carousel/carousel-indicators.html',
                                 '<ul class="gr-carousel-indicator">' +
@@ -2764,7 +2808,7 @@
 (function(){
     angular.module('gr.ui.translate', ['gr.ui.translate.filter']).factory('$grTranslate', ['$injector', function($injector){
             return function $grTranslate(value){
-                var _return;
+                var _return = '';
                 if(angular.isString(value)){
                     try{
                         if(value.indexOf('[[') > -1){
@@ -2781,7 +2825,7 @@
                             _return = $injector.get('$translate').instant(value);
                         }
                     }catch(e){
-                        _return = value;
+                        _return = '';
                     }
                 }else{
                     _return = '';

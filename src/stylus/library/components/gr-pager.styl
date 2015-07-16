@@ -1,0 +1,45 @@
+.pagination-wrapper
+    position relative
+    display table
+    width 100%
+    padding 7px
+    .pagination-inner
+        position relative
+        display table
+        width 100%
+        padding 7px
+        background #FFFFFF
+        .pagination
+            position relative
+            display table
+            margin 0 auto
+            li
+                a
+                    border none
+                    background #F0F0F0
+                    border-radius 0 !important
+                    color $primary-color
+                    padding 10px 18px
+                    margin 0 3.5px !important
+                    &:hover
+                    &:active
+                    &:focus
+                        color darken($primary-color, 5%)
+                        background darken(#F0F0F0, 5%)
+                &.active
+                    a
+                        background $primary-color
+                        border-color $primary-color
+                        color #FFFFFF
+    &:before
+    &:after
+        clear both
+        content " "
+        display table
+    @media screen and (max-width 767px)
+        .pagination-inner
+            .pagination
+                li
+                    a
+                        margin 0 1px !important
+                        padding 6px 12px
