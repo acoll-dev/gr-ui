@@ -1514,15 +1514,16 @@
         }])
         .run(['$templateCache', function($templateCache){
             $templateCache.put('gr-carousel/carousel.html', [
-                                '<div class="gr-carousel">',
-                                    '<div class="gr-carousel-inner" ng-show="carousel.ready()" ng-transclude></div>',
-                                '</div>'
-                            ].join(''));
+                '<div class="gr-carousel">',
+                    '<div class="gr-carousel-inner" ng-show="carousel.ready()" ng-transclude></div>',
+                '</div>'
+            ].join(''));
             $templateCache.put('gr-carousel/carousel-item.html', '<div class="gr-carousel-item" ng-transclude></div>');
-            $templateCache.put('gr-carousel/carousel-indicators.html',
-                                '<ul class="gr-carousel-indicator">' +
-                                    '<li class="gr-carousel-indicator-item" ng-class="{\'active\': carousel.isVisible($index)}" ng-repeat="item in carousel.indicators" ng-click="carousel.go($index)"></li>' +
-                                '</ul>');
+            $templateCache.put('gr-carousel/carousel-indicators.html', [
+                '<ul class="gr-carousel-indicator">',
+                    '<li class="gr-carousel-indicator-item" ng-class="{\'active\': carousel.isVisible($index)}" ng-repeat="item in carousel.indicators" ng-click="carousel.go($index)"></li>',
+                '</ul>'
+            ].join(''));
         }]);
 }());
 
@@ -2300,7 +2301,7 @@
     angular.module('gr.ui.pager', []).directive('grPager', ['$rootScope', '$templateCache', '$compile', '$window', '$location', '$timeout', function($rootScope, $templateCache, $compile, $window, $location, $timeout){
         return {
             restrict: 'AE',
-            template: '<div class="pagination-wrapper" ng-show="src.length > perPage"></div>',
+            template: '<div class="pagination-wrapper"></div>',
             scope: {
                 src: '=',
                 dest: '=',
@@ -2345,7 +2346,7 @@
         }
     }]).run(['$templateCache', function($templateCache){
         $templateCache.put('gr-pager/pager.html', [
-            '<div class="pagination-inner">',
+            '<div class="pagination-inner" ng-show="src.length > perPage">',
                 '<pagination total-items="src.length" num-pages="total" items-per-page="perPage || 6" max-size="3" ng-model="current" boundary-links="boundary()" rotate="false" first-text="<<" last-text=">>" next-text=">" previous-text="<"></pagination>',
             '</div>'
         ].join(''));

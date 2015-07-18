@@ -412,6 +412,9 @@ height auto {
   font-family: inherit;
   font-size: 100%;
 }
+.ta-scroll-window {
+  overflow: auto;
+}
 .ta-scroll-window.form-control {
   position: relative;
   padding: 0;
@@ -419,9 +422,7 @@ height auto {
 .ta-scroll-window > .ta-bind {
   display: table;
   width: 100%;
-  height: auto;
-  min-height: 300px;
-  max-height: 500px;
+  height: 100%;
   padding: 6px 12px;
 }
 .ta-editor:focus {
