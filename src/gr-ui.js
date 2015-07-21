@@ -970,7 +970,6 @@
                                     carousel.items.outerWidth(width);
                                     carousel.scroller.width(width * carousel.items.length);
                                     carousel.itemWidth = width;
-                                    if($element.find('img:visible').length > 0){ $timeout(function(){ $element.height(carousel.scroller.height()); },100); }else{ $element[0].style.height = null; }
                                     carousel.reset();
                                 }
                             },
