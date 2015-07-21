@@ -1,0 +1,27 @@
+{
+  "name": "Griffo",
+  "version": "2.0.0",
+  "description": "Griffo Framework",
+  "main": "gulpfile.js",
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-css-globbing": "^0.1.8",
+    "gulp-minify-css": "^1.1.6",
+    "gulp-sass": "^2.0.1",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-util": "^3.0.6",
+    "vinyl-map": "^1.0.1"
+  },
+  "scripts": {
+    "test": "default"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://acoll:%40coll_bj204@intranet.acoll.com.br/git/griffo"
+  },
+  "keywords": [
+    "griffo"
+  ],
+  "author": "Miller Barros",
+  "license": "MIT"
+}
