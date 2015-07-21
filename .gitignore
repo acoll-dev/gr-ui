@@ -1,3 +1,4 @@
 .sass-cache
 .brackets.json
 .koala-config.json
+node_modules/*
