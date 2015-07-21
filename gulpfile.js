@@ -8,7 +8,7 @@ var minifyCss = require('gulp-minify-css');
 var cssGlobbing = require('gulp-css-globbing');
 
 gulp.task('sass', function () {
-  gulp.src(['./src/gr-ui.scss'])
+  gulp.src(['./src/scss/gr-ui.scss'])
     .pipe(cssGlobbing({
       extensions: ['.scss'],
       autoReplaceBlock: {
