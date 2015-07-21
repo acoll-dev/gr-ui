@@ -2378,6 +2378,13 @@
                         $scope.dataSet = $parse(remote)($scope);
                     }
                 });
+                $attrs.$observe('reload', function(fn){
+                    $scope[$name].reloadData = function(){
+                        $timeout(function(){
+                            $scope.$apply(fn);
+                        });
+                    };
+                });
                 $attrs.$observe('grDataSource', function(remote){
                     if(remote){
                         $scope.$watch(function(){
