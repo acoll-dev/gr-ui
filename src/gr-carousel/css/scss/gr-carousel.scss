@@ -11,29 +11,30 @@
     width: 100%;
     max-width: 100%;
     overflow: hidden;
-    .gr-carousel-inner{
-        position: absolute;
-        display: table;
-        .gr-carousel-item{
-            position: relative;
-            float: left;
-            box-sizing: border-box;
-			h1{
-				position: absolute;
-				bottom: 30px;
-				left: 50%;
-				color: #FFFFFF;
-				@include kits(transform, translateX(-50%));
-			}
-        }
-    }
+		.gr-carousel-inner{
+				position: relative;
+				float: left;
+				display: table;
+				.gr-carousel-item{
+						position: relative;
+						float: left;
+						box-sizing: border-box;
+						h1{
+								position: absolute;
+								bottom: 30px;
+								left: 50%;
+								color: #FFFFFF;
+								@include kits(transform, translateX(-50%));
+						}
+				}
+		}
 }
 .gr-carousel-indicator{
     position: absolute;
     display: inline-block;
-	bottom: 0;
-	left: 50%;
-	@include kits(transform, translateX(-50%));
+		bottom: 0;
+		left: 50%;
+		@include kits(transform, translateX(-50%));
     padding: 0;
     margin: 0;
     .gr-carousel-indicator-item{

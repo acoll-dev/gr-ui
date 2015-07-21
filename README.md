@@ -6,6 +6,11 @@ Griffo Framework - UI Components
 
 ## Components List
 
-- gr-autofields
-- gr-carousel
 - gr-alert
+- gr-autofields
+- gr-autoheight
+- gr-carousel
+- gr-modal
+- gr-pager
+- gr-table
+- gr-translate
