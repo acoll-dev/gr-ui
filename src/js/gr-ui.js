@@ -2407,24 +2407,33 @@
                         }else{
                             alert.show('loading', $grTable.translate('ALERT.RELOADING.TABLE.DATA'), 0);
                         }
-                        $http.get(src).then(function(r){
-                            if(r.status === 200 && r.data.response){
-                                $scope.grTable.dataSet = r.data.response;
-                                $scope.grTable.reload();
-                                if(!reload){
-                                    alert.hide();
+                        if(angular.isString(src)){
+                            $http.get(src).then(function(r){
+                                if(r.status === 200 && r.data.response){
+                                    $scope.grTable.dataSet = r.data.response;
+                                    $scope.grTable.reload();
+                                    if(!reload){
+                                        alert.hide();
+                                    }else{
+                                        alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                    }
                                 }else{
-                                    alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                    console.debug(r);
+                                    alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                                 }
+                            }, function(e){
+                                var title = angular.element(angular.element(e.data)[0]).text(),
+                                    content = angular.element(angular.element(e.data)[3]).text();
+                                alert.show(e.status, title + ' - ' + content, 'md');
+                            });
+                        }else if(angular.isObject(src)){
+                            var injector = angular.injector();
+                            if(injector.has('$grRestful')){
+                                console.debug(injector.get('$grRestful'));
                             }else{
-                                console.debug(r);
-                                alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
+                                console.debug('not found');
                             }
-                        }, function(e){
-                            var title = angular.element(angular.element(e.data)[0]).text(),
-                                content = angular.element(angular.element(e.data)[3]).text();
-                            alert.show(e.status, title + ' - ' + content, 'md');
-                        });
+                        }
                     },
                     grTable = {
                         data: [],
@@ -2538,7 +2547,11 @@
                 });
                 $attrs.$observe('remote', function(remote){
                     if(remote){
-                        $scope.dataSet = $parse(remote)($scope);
+                        if(angular.isString(remote)){
+                            $scope.dataSet = $parse(remote)($scope);
+                        }else if(angular.isObject(remote)){
+                            getData(remote);
+                        }
                     }
                 });
                 $attrs.$observe('reload', function(fn){
