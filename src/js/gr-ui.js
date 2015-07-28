@@ -2427,11 +2427,25 @@
                                 alert.show(e.status, title + ' - ' + content, 'md');
                             });
                         }else if(angular.isObject(src)){
-                            var injector = angular.injector();
+                            var injector = angular.injector(['gr.restful']);
                             if(injector.has('$grRestful')){
-                                console.debug(injector.get('$grRestful'));
+                                injector.get('$grRestful').find(src).then(function(r){
+                                    if(r.response){
+                                        $scope.grTable.dataSet = r.response;
+                                        $scope.grTable.reload();
+                                        if(!reload){
+                                            alert.hide();
+                                        }else{
+                                            alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                        }
+                                    }else{
+                                        console.debug(r);
+                                        alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
+                                    }
+                                });
                             }else{
-                                console.debug('not found');
+                                console.debug('$grRestful not found');
+                                alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                             }
                         }
                     },
@@ -2547,10 +2561,11 @@
                 });
                 $attrs.$observe('remote', function(remote){
                     if(remote){
-                        if(angular.isString(remote)){
+                        try{
+                            var newRemote = $scope.$eval(remote);
+                            getData(newRemote);
+                        }catch(e){
                             $scope.dataSet = $parse(remote)($scope);
-                        }else if(angular.isObject(remote)){
-                            getData(remote);
                         }
                     }
                 });
