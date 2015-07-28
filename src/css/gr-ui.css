@@ -242,6 +242,10 @@
 .autofields .checkbox .form-control {
   padding-left: 30px;
 }
+.autofields .textarea textarea {
+  max-width: 100%;
+  resize: vertical;
+}
 .autofields .form-button {
   margin-top: 25px;
 }
