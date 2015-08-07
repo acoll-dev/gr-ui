@@ -811,16 +811,16 @@ height auto {
 }
 .gr-table.ng-table thead tr th.sortable,
 .gr-table .ng-table thead tr th.sortable,
-.gr-table.ng-table thead tr th.sortable.sort-desc divafter,
-.gr-table .ng-table thead tr th.sortable.sort-desc divafter,
-.gr-table.ng-table thead tr th.sortable.sort-asc divafter,
-.gr-table .ng-table thead tr th.sortable.sort-asc divafter {
+.gr-table.ng-table thead tr th.sortable.sort-desc div:after,
+.gr-table .ng-table thead tr th.sortable.sort-desc div:after,
+.gr-table.ng-table thead tr th.sortable.sort-asc div:after,
+.gr-table .ng-table thead tr th.sortable.sort-asc div:after {
   margin-top: -2px;
 }
-.gr-table.ng-table thead tr th.sortable.sort-desc divbefore,
-.gr-table .ng-table thead tr th.sortable.sort-desc divbefore,
-.gr-table.ng-table thead tr th.sortable.sort-asc divbefore,
-.gr-table .ng-table thead tr th.sortable.sort-asc divbefore {
+.gr-table.ng-table thead tr th.sortable.sort-desc div:before,
+.gr-table .ng-table thead tr th.sortable.sort-desc div:before,
+.gr-table.ng-table thead tr th.sortable.sort-asc div:before,
+.gr-table .ng-table thead tr th.sortable.sort-asc div:before {
   visibility: hidden;
 }
 .gr-table.ng-table thead tr th.sortable.sort-asc div:after,
