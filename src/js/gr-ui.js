@@ -404,11 +404,12 @@
                             $compile($element)($scope);
 
                             $timeout(function(){
-                                $scope[$attrs.name].submit = submit;
-                                $scope[$attrs.name].reset = reset;
-                                $scope[$attrs.name].updateDefaults = updateDefaults;
-                                $scope[$attrs.name].hasChange = hasChange;
-                                $scope.$apply();
+                                $scope.$apply(function(){
+                                    $scope[$attrs.name].submit = submit;
+                                    $scope[$attrs.name].reset = reset;
+                                    $scope[$attrs.name].updateDefaults = updateDefaults;
+                                    $scope[$attrs.name].hasChange = hasChange;
+                                });
                             });
 
                         };
@@ -2960,7 +2961,7 @@
                 return translate;
             }];
         });
-    angular.module('gr.ui.translate.directive', []).directive('grTranslate', ['$grTranslate', function($grTranslate){
+    angular.module('gr.ui.translate.directive', []).directive('grTranslate', ['$grTranslate', '$timeout', function($grTranslate, $timeout){
         return {
             restrict: 'AE',
             scope: {
@@ -2972,9 +2973,18 @@
                     var tempWatcher = $scope.$watch(function(){
                             return $grTranslate(newValue);
                         }, function(translatedValue){
-                            if(translatedValue && translatedValue !== newValue){
-                                $scope.translatedValue = translatedValue;
-                                tempWatcher();
+                            if(translatedValue){
+                                if(translatedValue !== newValue){
+                                    $scope.translatedValue = translatedValue;
+                                    tempWatcher();
+                                }else{
+                                    $timeout(function(){
+                                        if(translatedValue == newValue){
+                                            $scope.translatedValue = translatedValue;
+                                            tempWatcher();
+                                        }
+                                    }, 1000);
+                                }
                             }
                         });
                 }
