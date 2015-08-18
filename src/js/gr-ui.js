@@ -2377,7 +2377,7 @@
                                 '<h4 class="modal-title">{{title | grTranslate}}</h4>' +
                             '</div>' +
                             '<div class="modal-body" gr-modal-transclude ng-show="contentReady"></div>' +
-                            '<div class="modal-body" ng-if="!contentReady">' +
+                            '<div class="modal-body" ng-show="!contentReady">' +
                                 '<div style="display: table; margin: 50px auto; opacity: .2;">' +
                                     '<i class="fa fa-fw fa-refresh fa-spin fa-4x"></i>' +
                                 '</div>' +
