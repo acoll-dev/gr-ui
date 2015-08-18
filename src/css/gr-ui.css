@@ -363,6 +363,10 @@
     margin-bottom: 0;
   }
 }
+.ui-select-container,
+padding 0,
+border none,
+outline none,
 .ta-hidden-input {
   width: 1px;
   height: 1px;
@@ -1056,4 +1060,4 @@ body .gr-table-pager .pagination li {
   float: left;
 }
 
-/*# sourceMappingURL=../../../../../../server/libraries/client/gr-ui/src/css/gr-ui.css.map */
+/*# sourceMappingURL=../../src/css/gr-ui.css.map */
