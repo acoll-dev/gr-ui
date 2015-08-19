@@ -2656,7 +2656,7 @@
                      }
                  }, true);
                  $attrs.$observe('reload', function(fn){
-                     if(fn && angular.isFunction(fn)){
+                     if(fn){
                          $scope[$name].reloadData = function(){
                              $timeout(function(){
                                  $scope.$apply(fn);
