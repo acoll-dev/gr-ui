@@ -307,8 +307,8 @@
                                         selectorInvalid.push('[type=' + t + '].ng-invalid:visible');
                                         selectorFocussed.push('[type=' + t + ']:focus');
                                     });
-                                    var invalidFields = angular.element('[name=' + $attrs.name + ']#' + elId).find(selectorInvalid.join(',')),
-                                        focussedFields = angular.element('[name=' + $attrs.name + ']#' + elId).find(selectorFocussed.join(','));
+                                    var invalidFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorInvalid.join(',')),
+                                        focussedFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorFocussed.join(','));
                                     if(invalidFields.size() > 0 && focussedFields.size() == 0){
                                         if(invalidFields.eq(0).hasClass('ta-root')){
                                             invalidFields.eq(0).find('.ta-bind').eq(0).trigger('focus');
