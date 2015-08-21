@@ -220,6 +220,8 @@
                         grAutofields = $getter($scope),
                         _defaults = angular.copy(grAutofields),
 
+                        elId = 'gr-autofields-form' + Math.ceil(Math.random()*100),
+
                         $alert = $grAlert.new(),
                         $errors = [],
 
@@ -298,15 +300,15 @@
                             if($errors.length > 0 && $scope[$attrs.name] && $scope[$attrs.name].autofields && $scope[$attrs.name].autofields.$submitted){
                                 $alert.show('danger', $errors);
                                 if(_errors){
-                                    var types = ['text', 'date', 'email', 'textarea', 'checkbox'],
+                                    var types = ['text', 'date', 'email', 'number', 'tel', 'search', 'password', 'textarea', 'checkbox'],
                                         selectorInvalid = ['select.ng-invalid:visible', '.ta-root:not(.focussed)'],
                                         selectorFocussed = ['select:focus', '.ta-root.focussed'];
                                     angular.forEach(types, function(t){
                                         selectorInvalid.push('[type=' + t + '].ng-invalid:visible');
                                         selectorFocussed.push('[type=' + t + ']:focus');
                                     });
-                                    var invalidFields = angular.element('[name=' + $attrs.name + ']').find(selectorInvalid.join(',')),
-                                        focussedFields = angular.element('[name=' + $attrs.name + ']').find(selectorFocussed.join(','));
+                                    var invalidFields = angular.element('[name=' + $attrs.name + ']#' + elId).find(selectorInvalid.join(',')),
+                                        focussedFields = angular.element('[name=' + $attrs.name + ']#' + elId).find(selectorFocussed.join(','));
                                     if(invalidFields.size() > 0 && focussedFields.size() == 0){
                                         if(invalidFields.eq(0).hasClass('ta-root')){
                                             invalidFields.eq(0).find('.ta-bind').eq(0).trigger('focus');
@@ -438,6 +440,8 @@
                             return [];
                         }
                     }, checkError, true);
+
+                    $element.addClass(elId);
 
                     $timeout(makeAutofields);
                 }
