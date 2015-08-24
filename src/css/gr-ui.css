@@ -592,7 +592,17 @@ height auto {
 .gr-carousel .gr-carousel-inner {
   position: relative;
   float: left;
-  display: table;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-flow: row wrap;
+  -moz-flex-flow: row wrap;
+  -ie-flex-flow: row wrap;
+  -o-flex-flow: row wrap;
+  flex-flow: row wrap;
+  justify-content: space-around;
 }
 .gr-carousel .gr-carousel-inner .gr-carousel-item {
   position: relative;
