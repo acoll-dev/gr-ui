@@ -2649,6 +2649,7 @@
                          getData(src, true);
                      }
                  };
+                 $scope.$parent[$name] = $scope[$name];
                  $scope.$watch($attrs.remote, function(remote){
                      if(remote){
                          getData(remote);
@@ -2728,7 +2729,7 @@
              };
              return {
                  restrict: 'A',
-                 terminal: true,
+                 scope: true,
                  link: function($scope, $element, $attrs){
                      $element.removeAttr('gr-table');
                      $element.wrap('<div class="gr-table-wrapper table-responsive" />');
