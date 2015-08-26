@@ -2185,7 +2185,7 @@
  *
  */
 
-(function(){
+ (function(){
     angular.module('gr.ui.table', ['gr.ui.table.config', 'ngTable', 'ngTableExport', 'gr.ui.alert'])
         .provider('$grTable', function(){
             var fns = {},
@@ -2233,24 +2233,49 @@
                         }else{
                             alert.show('loading', $grTable.translate('ALERT.RELOADING.TABLE.DATA'), 0);
                         }
-                        $http.get(src).then(function(r){
-                            if(r.status === 200 && r.data.response){
-                                $scope.grTable.dataSet = r.data.response;
-                                $scope.grTable.reload();
-                                if(!reload){
-                                    alert.hide();
+                        if(angular.isString(src)){
+                            $http.get(src).then(function(r){
+                                if(r.status === 200 && r.data.response){
+                                    $scope.grTable.dataSet = r.data.response;
+                                    $scope.grTable.reload();
+                                    if(!reload){
+                                        alert.hide();
+                                    }else{
+                                        alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                    }
                                 }else{
-                                    alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                    console.debug(r);
+                                    alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                                 }
+                            }, function(e){
+                                var title = angular.element(angular.element(e.data)[0]).text(),
+                                    content = angular.element(angular.element(e.data)[3]).text();
+                                alert.show(e.status, title + ' - ' + content, 'md');
+                            });
+                        }else if(angular.isObject(src)){
+                            var injector = angular.injector(['gr.restful']);
+                            if(injector.has('$grRestful')){
+                                injector.get('$grRestful').find(src).then(function(r){
+                                    if(r.response){
+                                        $scope.grTable.dataSet = r.response;
+                                        $scope.grTable.reload();
+                                        if(!reload){
+                                            alert.hide();
+                                        }else{
+                                            alert.show('success', $grTable.translate('ALERT.SUCCESS.LOAD.TABLE.DATA'), 2000);
+                                        }
+                                    }else{
+                                        console.debug(r);
+                                        alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
+                                    }
+                                });
                             }else{
-                                console.debug(r);
+                                console.debug('$grRestful not found');
                                 alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
                             }
-                        }, function(e){
-                            var title = angular.element(angular.element(e.data)[0]).text(),
-                                content = angular.element(angular.element(e.data)[3]).text();
-                            alert.show(e.status, title + ' - ' + content, 'md');
-                        });
+                        }else{
+                            alert.show('danger', $grTable.translate('ALERT.ERROR.LOAD.TABLE.DATA'));
+                        }
                     },
                     grTable = {
                         data: [],
@@ -2323,18 +2348,7 @@
                         }
                     },
                     grTableConfig,
-                    inArray = Array.prototype.indexOf ?
-                                function(val, arr){
-                                    return arr.indexOf(val);
-                                } : function(val, arr){
-                                    var i = arr.length;
-                                    while (i--){
-                                        if(arr[i] === val){
-                                            return i;
-                                        }
-                                    }
-                                    return -1;
-                                };
+                    inArray = Array.prototype.indexOf ? function(val, arr){ return arr.indexOf(val); } : function(val, arr){ var i = arr.length; while (i--){ if(arr[i] === val){ return i; } } return -1; };
                 if($scope.$parent.modal && $scope.$parent.modal.element){
                     alert.destroy();
                     alert = $grAlert.new($scope.$parent.modal.element);
@@ -2348,12 +2362,40 @@
                 $scope[$name] = new ngTableParams(grTable.defaults, grTable.settings);
                 $scope[$name].defaults = grTable.defaults;
                 $scope[$name].reloadData = function(src){
-                    if((!src || src === '') && dataSource !== ''){
-                        getData(dataSource, true);
+                    if(!src || src === '' && $attrs.remote){
+                        getData($scope.$eval($attrs.remote), true);
                     }else if(src && src !== ''){
                         getData(src, true);
                     }
                 };
+                $scope.$watch($attrs.remote, function(remote){
+                    if(remote){
+                        getData(remote);
+                    }
+                }, true);
+                $scope.$watch($attrs.list, function(list){
+                    if(list){
+                        $scope.dataSet = list;
+                    }
+                }, true);
+                $attrs.$observe('reload', function(fn){
+                    if(fn){
+                        $scope[$name].reloadData = function(){
+                            $timeout(function(){
+                                $scope.$apply(fn);
+                            });
+                        };
+                    }
+                });
+                $attrs.$observe('grDataSource', function(remote){
+                    if(remote){
+                        $scope.$watch(function(){
+                            return $parse(remote)($scope);
+                        }, function(data){
+                            $scope.dataSet = data;
+                        }, true);
+                    }
+                });
                 $attrs.$observe('exportCsv', function(name){
                     $scope[$name].csv = angular.copy(name);
                 });
@@ -2373,37 +2415,11 @@
                         }
                     }
                 });
-                $attrs.$observe('remote', function(remote){
-                    if(remote){
-                        $scope.dataSet = $parse(remote)($scope);
-                    }
-                });
-                $attrs.$observe('reload', function(fn){
-                    $scope[$name].reloadData = function(){
-                        $timeout(function(){
-                            $scope.$apply(fn);
-                        });
-                    };
-                });
-                $attrs.$observe('grDataSource', function(remote){
-                    if(remote){
-                        $scope.$watch(function(){
-                            return $parse(remote)($scope);
-                        }, function(data){
-                            $scope.dataSet = data;
-                        }, true);
-                    }
-                });
                 $attrs.$observe('shareParent', function(share){
                     if(share){
                         $scope.$parent[$name] = $scope[$name];
                     }
                 });
-                $scope.$watch($attrs.list, function(list){
-                    if(list){
-                        $scope.dataSet = list;
-                    }
-                }, true);
                 $scope.$watch('dataSet', function(data){
                     if(data){
                         if(angular.isString(data)){
