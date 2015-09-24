@@ -2,7 +2,7 @@
 
 (function(window){
     window.griffoUI = {
-        version: '0.2.1'
+        version: '0.2.2'
     };
 }(window));
 
@@ -411,6 +411,15 @@
                                     $scope[$attrs.name].hasChange = hasChange;
                                 });
 
+                                $element.find('input, select, textarea').on({
+                                    focus: function(){
+                                        angular.element(this).parents('.form-group').eq(0).addClass('has-focus')
+                                    },
+                                    blur: function(){
+                                        angular.element(this).parents('.form-group').eq(0).removeClass('has-focus')
+                                    }
+                                });
+
                             };
 
                         $scope.$watch(function(){ return modalScope ? true : false; }, function(hasModal){
@@ -779,7 +788,7 @@
         }])
         .config(['$autofieldsProvider', function($autofieldsProvider){
             // Add Validation Attributes
-            $autofieldsProvider.settings.attributes.container.ngClass = '{\'has-error\':$form.$property_clean.$invalid && $form.$submitted, \'has-success\':$form.$property_clean.$valid && $form.$submitted, \'required\': $required}';
+            $autofieldsProvider.settings.attributes.container.ngClass = '{\'has-error\':$form.$property_clean.$invalid && $form.$submitted, \'has-success\':$form.$property_clean.$valid && $form.$submitted, \'required\': $required, \'has-value\': $form.$property_clean.$modelValue}';
             $autofieldsProvider.settings.attributes.input.popover = '{{("+$autofieldsProvider.settings.validation.valid+") ? \'$validMsg\' : ($errorMsgs)}}';
 
             // Dont show popovers on these types
@@ -3217,7 +3226,7 @@
             						directive.container.html('');
             						angular.forEach(schema, function(field, index){
             							var fieldEl = $autofields.createField(directive, field, index);
-            							directive.container.append(fieldEl);
+            							directive.container.append(fieldEl.wrap('<div class="form-group-inner"/>'));
             						});
 
             						// Create Scope
