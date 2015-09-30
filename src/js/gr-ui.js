@@ -205,7 +205,237 @@
  */
 
 (function(){
-    angular.module('gr.ui.autofields.core', ['autofields', 'gr.ui.alert'])
+    angular.module('gr.ui.autofields.core', ['gr.ui.alert', 'ui.utils.masks'])
+
+    angular.module('gr.ui.autofields.services', [])
+        .provider('$grAutofields', function(){
+            var autofields = {};
+
+            // Helper Methods
+            var helper = {
+                CamelToTitle: function (str) {
+                    return str
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, function (str) { return str.toUpperCase(); });
+                },
+                CamelToDash: function (str) {
+                    return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                },
+                LabelText: function(field) {
+                    return field.label || helper.CamelToTitle(field.property);
+                }
+            };
+
+            // Directive-wide Handler Default Settings
+            autofields.settings = {
+                classes: {
+                    container: [],
+                    input: [],
+                    label: []
+                },
+                attributes: {
+                    container: {
+                        'class': '$type'
+                    },
+                    input: {
+                        id: '$property_clean',
+                        name: '$property_clean',
+                        type: '$type',
+                        ngModel: '$data.$property',
+                        placeholder: '$placeholder'
+                    },
+                    label: {}
+                },
+                container: '<div class="autofields" ng-form name="$form"></div>',
+                scope: {}
+            };
+
+            // Field Building Helpers
+            // Add Attributes to Element
+            var setAttributes = autofields.setAttributes = function(directive, field, el, attrs){
+                angular.forEach(attrs, function(value, attr){
+                    if(value && typeof value == 'string'){
+                        value = value
+                            .replace(/\$form/g, directive.formStr)
+                            .replace(/\$schema/g, directive.schemaStr)
+                            .replace(/\$type/g, field.type || 'text')
+                            .replace(/\$property_clean/g, field.property.replace(/\[|\]|\./g, ''))
+                            .replace(/\$property/g, field.property)
+                            .replace(/\$data/g, directive.dataStr)
+                            .replace(/\$options/g, directive.optionsStr)
+                            .replace(/\$required/g, field.attr ? (field.attr.required ? true : false) : false)
+                            .replace(/\$placeholder/g, field.placeholder != null ? field.placeholder : helper.LabelText(field));
+                    }
+                    el.attr(helper.CamelToDash(attr), value);
+                });
+            };
+            // Standard Container for field
+            var getFieldContainer = function(directive, field, attrs){
+                var fieldContainer = angular.element('<div/>');
+                attrs = angular.extend({}, autofields.settings.attributes.container, attrs);
+                setAttributes(directive, field, fieldContainer, attrs);
+                fieldContainer.addClass((directive.options||autofields.settings).classes.container.join(' '));
+
+                return fieldContainer;
+            };
+            // Standard Label for field
+            var getLabel = function(directive, field, attrs){
+                var label = angular.element('<label/>');
+                attrs = angular.extend({}, autofields.settings.attributes.label, attrs);
+                setAttributes(directive, field, label, attrs);
+                label.addClass((directive.options||autofields.settings).classes.label.join(' '));
+                label.html(helper.LabelText(field));
+
+                return label;
+            }
+            // Standard Input for field
+            var getInput = function(directive, field, html, attrs){
+                var input = angular.element(html);
+                attrs = angular.extend({}, autofields.settings.attributes.input, attrs, field.attr);
+                setAttributes(directive, field, input, attrs);
+                input.addClass((directive.options||autofields.settings).classes.input.join(' '));
+
+                return input;
+            }
+            // Standard Field
+            autofields.field = function(directive, field, html, attrs){
+                var fieldElements = {
+                        fieldContainer: getFieldContainer(directive, field),
+                        label: field.label != '' ? getLabel(directive, field) : null,
+                        input: getInput(directive, field, html, attrs)
+                    };
+                fieldElements.fieldContainer.append(fieldElements.label).append(fieldElements.input);
+
+                // Run Mutators
+                var mutatorsRun = [];
+                angular.forEach(mutators, function(mutator, key){
+                    fieldElements = mutator(directive, field, fieldElements, mutatorsRun);
+                    mutatorsRun.push(key);
+                });
+
+                return fieldElements;
+            }
+
+            // Update scope with items attached in settings
+            autofields.updateScope = function(scope){
+                angular.forEach(autofields.settings.scope, function(value, property){
+                    if(typeof value == 'function'){
+                        scope[property] = function(){
+                            var args = Array.prototype.slice.call(arguments, 0);
+                            args.unshift(scope);
+                            value.apply(this, args);
+                        }
+                    }else{
+                        scope[property] = value;
+                    }
+                })
+            }
+
+            // Handler Container
+            var handlers = {};
+
+            // Hook for handlers
+            autofields.registerHandler = function(types, fn){
+                types = Array.isArray(types) ? types : [types];
+                angular.forEach(types, function(type){
+                    handlers[type] = fn;
+                });
+            }
+
+            // Mutator Container
+            var mutators = {};
+
+            // Hook for mutators
+            autofields.registerMutator = function(key, fn, options){
+                if(!mutators[key] || options.override){
+                    mutators[key] = function(directive, field, fieldElements, mutatorsRun){
+                        if(options && typeof options.require == 'string' && mutatorsRun.indexOf(options.require) == -1){
+                            fieldElements = mutators[options.require];
+                        }
+                        if(mutatorsRun.indexOf(key) == -1) return fn(directive, field, fieldElements);
+                    }
+                }
+            }
+
+            // Field Builder
+            autofields.createField = function(directive, field, index){
+                var handler = field.type == null ? handlers.text : handlers[field.type];
+                if(handler == null){
+                    console.warn(field.type+' not supported - field ignored');
+                    return;
+                }
+                return handler(directive, field, index);
+            };
+
+            autofields.$get = function(){
+                return {
+                    settings: autofields.settings,
+                    createField: autofields.createField,
+                    updateScope: autofields.updateScope
+                };
+            };
+
+            return autofields;
+        });
+
+    angular.module('gr.ui.autofields.directives', [])
+        .directive('fixUrl', [function () {
+            return {
+                restrict: 'A',
+                require: 'ngModel',
+                link: function (scope, element, attr, ngModel) {
+                    var urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-\?\=\&]*)$/i;
+
+                    //Render formatters on blur...
+                    var render = function () {
+                        var viewValue = ngModel.$modelValue;
+                        if (viewValue == null) return;
+                        angular.forEach(ngModel.$formatters, function (formatter) {
+                            viewValue = formatter(viewValue);
+                        })
+                        ngModel.$viewValue = viewValue;
+                        ngModel.$render();
+                    };
+                    element.bind('blur', render);
+
+                    var formatUrl = function (value) {
+                        var test = urlRegex.test(value);
+                        if (test) {
+                            var matches = value.match(urlRegex);
+                            var reformatted = (matches[1] != null && matches[1] != '') ? matches[1] : 'http://';
+                            reformatted += matches[2] + '.' + matches[3];
+                            if (typeof matches[4] != "undefined") reformatted += matches[4]
+                            value = reformatted;
+                        }
+                        return value;
+                    }
+                    ngModel.$formatters.push(formatUrl);
+                    ngModel.$parsers.unshift(formatUrl);
+                }
+            };
+        }])
+        .directive('grDisabled', [function(){
+            return {
+                restrict: 'A',
+                link: function($scope, $element, $attr){
+                    var parent = $element.parents('.form-group').eq(0);
+                    $scope.$watch($attr.grDisabled, function(disabled){
+                        if(disabled){
+                            $attr.$set('disabled', true);
+                            if(parent.length > 0){
+                                parent.addClass('is-disabled');
+                            }
+                        }else{
+                            $attr.$set('disabled', false);
+                            $element.focus();
+                            if(parent.length > 0){
+                                parent.removeClass('is-disabled');
+                            }
+                        }
+                    });
+                }
+            }
+        }])
         .directive('grAutofields', ['$compile', '$parse', '$injector', '$timeout', '$grAlert', function($compile, $parse, $injector, $timeout, $grAlert){
             return {
                 restrict: 'A',
@@ -413,10 +643,10 @@
 
                                 $element.find('input, select, textarea').on({
                                     focus: function(){
-                                        angular.element(this).parents('.form-group').eq(0).addClass('has-focus')
+                                        angular.element(this).parents('.form-group').eq(0).addClass('has-focus');
                                     },
                                     blur: function(){
-                                        angular.element(this).parents('.form-group').eq(0).removeClass('has-focus')
+                                        angular.element(this).parents('.form-group').eq(0).removeClass('has-focus');
                                     }
                                 });
 
@@ -459,41 +689,279 @@
                     });
                 }
             }
+        }])
+        .directive('autoFields', ['$grAutofields','$compile', function($grAutofields, $compile){
+            return {
+                restrict: 'E',
+                priority: 1,
+                replace: true,
+                compile: function(){
+                    return function ($scope, $element, $attr) {
+                        // Scope Hooks
+                        var directive = {
+                            schemaStr: $attr.fields || $attr.autoFields,
+                            optionsStr: $attr.options,
+                            dataStr: $attr.data,
+                            formStr: $attr.form || 'autofields',
+                            classes: $attr['class'],
+                            container: null,
+                            formScope: null
+                        };
+
+                        //Helper Functions
+                        var helper = {
+                            extendDeep: function(dst) {
+                                angular.forEach(arguments, function(obj) {
+                                    if (obj !== dst) {
+                                        angular.forEach(obj, function(value, key) {
+                                            if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
+                                                helper.extendDeep(dst[key], value);
+                                            } else {
+                                                dst[key] = value;
+                                            }
+                                        });
+                                    }
+                                });
+                                return dst;
+                            }
+                        };
+
+                        // Import Directive-wide Handler Default Settings Import
+                        directive.options = angular.copy($grAutofields.settings);
+
+                        // Build fields from schema using handlers
+                        var build = function(schema){
+                            schema = schema || $scope[directive.schemaStr];
+
+                            // Create HTML
+                            directive.container.html('');
+                            angular.forEach(schema, function(field, index){
+                                var fieldEl = $grAutofields.createField(directive, field, index);
+                                directive.container.append(fieldEl);
+                            });
+
+                            // Create Scope
+                            if(directive.formScope != null) directive.formScope.$destroy();
+                            directive.formScope = $scope.$new();
+                            directive.formScope.data = $scope[directive.dataStr];
+                            directive.formScope.fields = schema;
+                            $grAutofields.updateScope(directive.formScope);
+
+                            // Compile Element with Scope
+                            $compile(directive.container)(directive.formScope);
+                        };
+
+                        // Init and Watch
+                        $scope.$watch(directive.optionsStr, function (newOptions, oldOptions) {
+                            helper.extendDeep(directive.options, newOptions);
+                            if(newOptions !== oldOptions) build();
+                        }, true);
+                        $scope.$watch(directive.schemaStr, function (schema) {
+                            build(schema);
+                        }, true);
+                        $scope.$watch(directive.formStr, function (form) {
+                            directive.container.attr('name',directive.formStr);
+                        });
+                        $scope.$watch(function(){return $attr['class'];}, function (form) {
+                            directive.classes = $attr['class'];
+                            directive.container.attr('class', directive.classes);
+                        });
+
+                        directive.container = angular.element(directive.options.container);
+                        directive.container.attr('name',directive.formStr);
+                        directive.container.attr('class',directive.classes);
+                        $element.replaceWith(directive.container);
+                    }
+                }
+            }
         }]);
-    angular.module('gr.ui.autofields.bootstrap', ['autofields.standard','ui.bootstrap'])
-        .config(['$autofieldsProvider', '$localeProvider', function($autofieldsProvider, $localeProvider){
+
+    angular.module('gr.ui.autofields.filters', [])
+        .filter('phone', function(){
+            return function (tel) {
+                if (!tel) { return ''; }
+
+                var value = tel.toString().trim().replace(/^\+/, '');
+
+                if (value.match(/[^0-9]/)) {
+                    return tel;
+                }
+
+                var country, city, number;
+
+                switch (value.length) {
+                    case 10:
+                        country = 1;
+                        city = value.slice(0, 2);
+                        number = value.slice(2);
+                        number = number.slice(0, 4) + '-' + number.slice(4);
+                        break;
+
+                    case 11:
+                        country = 1;
+                        city = value.slice(0, 2);
+                        number = value.slice(2);
+                        number = number.slice(0, 5) + '-' + number.slice(5);
+                        break;
+
+                    default:
+                        return tel;
+                }
+
+                if (country == 1) {
+                    country = "";
+                }
+
+                return (country + " (" + city + ") " + number).trim();
+            };
+        });
+
+    angular.module('gr.ui.autofields.standard',['gr.ui.autofields.core'])
+        .config(['$grAutofieldsProvider', '$localeProvider', function($grAutofieldsProvider, $localeProvider){
+            // Text Field Handler
+            $grAutofieldsProvider.settings.fixUrl = true;
+            $grAutofieldsProvider.registerHandler(['text','email','url','date','number','password'], function(directive, field, index){
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
+
+                var fixUrl = (field.fixUrl ? field.fixUrl : directive.options.fixUrl);
+                if(field.type == 'url' && fixUrl) fieldElements.input.attr('fix-url','');
+
+                return fieldElements.fieldContainer;
+            });
+
+            // Select Field Handler
+            $grAutofieldsProvider.settings.defaultOption = 'Select One';
+            $grAutofieldsProvider.registerHandler('select', function(directive, field, index){
+                var defaultOption = (field.defaultOption ? field.defaultOption : directive.options.defaultOption);
+
+                var inputHtml = '<select><option value="">'+defaultOption+'</option></select>';
+                var inputAttrs = {
+                    ngOptions: field.list
+                };
+
+                var fieldElements = $grAutofieldsProvider.field(directive, field, inputHtml, inputAttrs);
+
+                return fieldElements.fieldContainer;
+            });
+
+            //Textarea Field Handler
+            $grAutofieldsProvider.settings.textareaRows = 3;
+            $grAutofieldsProvider.registerHandler('textarea', function(directive, field, index){
+                var rows = field.rows ? field.rows : directive.options.textareaRows;
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<textarea/>', {rows: rows});
+
+                return fieldElements.fieldContainer;
+            });
+
+            //Checkbox Field Handler
+            $grAutofieldsProvider.registerHandler('checkbox', function(directive, field, index){
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
+
+                if(fieldElements.label) fieldElements.label.prepend(fieldElements.input);
+
+                return fieldElements.fieldContainer;
+            });
+
+            // Money Handler
+            $grAutofieldsProvider.registerHandler('money', function(directive, field, index){
+                var currency_sym = $localeProvider.$get().NUMBER_FORMATS.CURRENCY_SYM;
+                field.type = 'text';
+                if(!field.attr){ field.attr = []; }
+                if(!field.addons){ field.addons = []; }
+                field.attr.uiNumberMask = 2;
+                field.addons.push({
+                    before: true,
+                    content: currency_sym
+                });
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
+                return fieldElements.fieldContainer;
+            });
+
+            // Phone Handler
+            $grAutofieldsProvider.registerHandler('phone', function(directive, field, index){
+                field.type = 'text';
+                if(!field.attr){ field.attr = {}; }
+                if(!field.addons){ field.addons = []; }
+                field.attr.uiBrPhoneNumber = true;
+                field.placeholder = field.placeholder ? field.placeholder : '(xx) xxxx-xxxx';
+                field.addons.push({
+                    before: true,
+                    icon: 'fa fa-fw fa-phone'
+                });
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
+                return fieldElements.fieldContainer;
+            });
+            $grAutofieldsProvider.registerHandler('mobilephone', function(directive, field, index){
+                field.type = 'text';
+                if(!field.attr){ field.attr = {}; }
+                if(!field.addons){ field.addons = []; }
+                field.attr.uiBrPhoneNumber = true;
+                field.placeholder = field.placeholder ? field.placeholder : '(xx) xxxxx-xxxx';
+                field.addons.push({
+                    before: true,
+                    icon: 'fa fa-fw fa-phone'
+                });
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
+                return fieldElements.fieldContainer;
+            });
+
+            // Register Hide/Show Support
+            $grAutofieldsProvider.settings.displayAttributes = ($grAutofieldsProvider.settings.displayAttributes || []).concat(['ng-if', 'ng-show', 'ng-hide']);
+            $grAutofieldsProvider.registerMutator('displayAttributes',function(directive, field, fieldElements){
+                if(!field.attr) return fieldElements;
+
+                // Check for presence of each display attribute
+                angular.forEach($grAutofieldsProvider.settings.displayAttributes, function(attr){
+                    var value = fieldElements.input.attr(attr);
+
+                    // Stop if field doesn't have attribute
+                    if(!value) return;
+
+                    // Move attribute to parent
+                    fieldElements.fieldContainer.attr(attr, value);
+                    fieldElements.input.removeAttr(attr);
+                });
+
+                return fieldElements;
+            });
+        }]);
+
+    angular.module('gr.ui.autofields.bootstrap', ['gr.ui.autofields.standard', 'ui.bootstrap', 'gr.ui.translate'])
+        .config(['$grAutofieldsProvider', '$localeProvider', '$grTranslateProvider', function($grAutofieldsProvider, $localeProvider, $grTranslateProvider){
             // Add Bootstrap classes
-    		$autofieldsProvider.settings.classes.container.push('form-group');
-    		$autofieldsProvider.settings.classes.input.push('form-control');
-    		$autofieldsProvider.settings.classes.label.push('control-label');
+    		$grAutofieldsProvider.settings.classes.container.push('form-group');
+    		$grAutofieldsProvider.settings.classes.input.push('form-control');
+    		$grAutofieldsProvider.settings.classes.label.push('control-label');
 
             // Override Checkbox Field Handler
-    		$autofieldsProvider.registerHandler('checkbox', function(directive, field, index){
-    			var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
+    		$grAutofieldsProvider.registerHandler('checkbox', function(directive, field, index){
+    			var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>');
 
     			if(fieldElements.label){
                     fieldElements.label.prepend(fieldElements.input).addClass('form-control');
                 };
     			fieldElements.input.removeClass('form-control');
+                angular.element('<i class="fa fa-fw fa-lg fa-check-circle success-icon"></i>').insertBefore(fieldElements.input);
+                angular.element('<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>').insertBefore(fieldElements.input);
 
     			return fieldElements.fieldContainer;
     		});
             /*
             // Date Handler with Bootstrap Popover
-    		$autofieldsProvider.settings.dateSettings = {
+    		$grAutofieldsProvider.settings.dateSettings = {
     			showWeeks:false,
     			datepickerPopup: 'MMMM dd, yyyy'
     		};
-    		$autofieldsProvider.settings.scope.datepickerOptions = {
+    		$grAutofieldsProvider.settings.scope.datepickerOptions = {
     			showWeeks:false
     		};
-    		$autofieldsProvider.settings.scope.openCalendar = function($scope, property, e){
+    		$grAutofieldsProvider.settings.scope.openCalendar = function($scope, property, e){
     			e.preventDefault();
     			e.stopPropagation();
 
     			$scope[property] = !$scope[property];
     		};
-            $autofieldsProvider.registerHandler('date', function(directive, field, index){
+            $grAutofieldsProvider.registerHandler('date', function(directive, field, index){
     			var showWeeks = field.showWeeks ? field.showWeeks : directive.options.dateSettings.showWeeks;
     			var datepickerPopup = field.datepickerPopup ? field.datepickerPopup : directive.options.dateSettings.datepickerPopup;
 
@@ -513,60 +981,41 @@
     				}];
     			}
 
-    			var fieldElements = $autofieldsProvider.field(directive, field, '<input/>', inputAttrs);
+    			var fieldElements = $grAutofieldsProvider.field(directive, field, '<input/>', inputAttrs);
 
     			return fieldElements.fieldContainer;
     		});
             */
-            // Money Handler
-            $autofieldsProvider.registerHandler('money', function(directive, field, index){
-                var currency_sym = $localeProvider.$get().NUMBER_FORMATS.CURRENCY_SYM;
-                field.type = 'text';
-                if(!field.attr){ field.attr = []; }
-                if(!field.addons){ field.addons = []; }
-                field.attr.uiNumberMask = 2;
-                field.addons.push({
-                    before: true,
-                    content: currency_sym
-                });
-                var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-                return fieldElements.fieldContainer;
-            });
+            //Label Mutator
+            $grAutofieldsProvider.registerMutator('label', function(directive, field, fieldElements){
+                if(field.label){
+                    if(field.type !== 'checkbox' && field.type !== 'radio'){
+                        fieldElements.label.html(field.label);
+                        fieldElements.label.attr('gr-translate', '');
+                    }else{
+                        fieldElements.label.html('<span gr-translate>' + field.label + '</span>');
+                    }
+                    if(!field.placeholder){
+                        fieldElements.input.attr('placeholder','');
+                    }
+                }
+                if(!field.addons && field.type !== 'checkbox' && field.type !== 'html' && field.type !== 'filemanager'){
+                    fieldElements.input.wrap('<div class="input-wrapper"></div>');
+                    fieldElements.label.insertBefore(fieldElements.input);
+                    angular.element('<i class="fa fa-fw fa-lg fa-check-circle success-icon"></i>').insertBefore(fieldElements.input);
+                    angular.element('<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>').insertBefore(fieldElements.input);
+                    fieldElements.label = angular.element('');
+                }
 
-            // Phone Handler
-            $autofieldsProvider.registerHandler('phone', function(directive, field, index){
-                field.type = 'text';
-                if(!field.attr){ field.attr = {}; }
-                if(!field.addons){ field.addons = []; }
-                field.attr.uiBrPhoneNumber = true;
-                field.placeholder = field.placeholder ? field.placeholder : '(xx) xxxx-xxxx';
-                field.addons.push({
-                    before: true,
-                    icon: 'fa fa-fw fa-phone'
-                });
-                var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-                return fieldElements.fieldContainer;
-            });
-            $autofieldsProvider.registerHandler('mobilephone', function(directive, field, index){
-                field.type = 'text';
-                if(!field.attr){ field.attr = {}; }
-                if(!field.addons){ field.addons = []; }
-                field.attr.uiBrPhoneNumber = true;
-                field.placeholder = field.placeholder ? field.placeholder : '(xx) xxxxx-xxxx';
-                field.addons.push({
-                    before: true,
-                    icon: 'fa fa-fw fa-phone'
-                });
-                var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-                return fieldElements.fieldContainer;
+                return fieldElements;
             });
 
             // Static Field Handler
-    		$autofieldsProvider.registerHandler('static', function(directive, field, index){
+    		$grAutofieldsProvider.registerHandler('static', function(directive, field, index){
     			// var showWeeks = field.showWeeks ? field.showWeeks : directive.options.dateSettings.showWeeks;
     			// var datepickerPopup = field.datepickerPopup ? field.datepickerPopup : directive.options.dateSettings.datepickerPopup;
 
-    			var fieldElements = $autofieldsProvider.field(directive, field, '<p/>');
+    			var fieldElements = $grAutofieldsProvider.field(directive, field, '<p/>');
 
     			//Remove Classes & Attributes
     			var input = angular.element('<p/>');
@@ -578,13 +1027,13 @@
     		});
 
             // Multiple Per Row Handler
-    		$autofieldsProvider.settings.classes.row = $autofieldsProvider.settings.classes.row || [];
-    		$autofieldsProvider.settings.classes.row.push('row');
-    		$autofieldsProvider.settings.classes.col = $autofieldsProvider.settings.classes.col || [];
-    		$autofieldsProvider.settings.classes.col.push('col-sm-$size');
-    		$autofieldsProvider.settings.classes.colOffset = $autofieldsProvider.settings.classes.colOffset || [];
-    		$autofieldsProvider.settings.classes.colOffset.push('col-sm-offset-$size');
-    		$autofieldsProvider.registerHandler('multiple', function(directive, field, index){
+    		$grAutofieldsProvider.settings.classes.row = $grAutofieldsProvider.settings.classes.row || [];
+    		$grAutofieldsProvider.settings.classes.row.push('row');
+    		$grAutofieldsProvider.settings.classes.col = $grAutofieldsProvider.settings.classes.col || [];
+    		$grAutofieldsProvider.settings.classes.col.push('col-sm-$size');
+    		$grAutofieldsProvider.settings.classes.colOffset = $grAutofieldsProvider.settings.classes.colOffset || [];
+    		$grAutofieldsProvider.settings.classes.colOffset.push('col-sm-offset-$size');
+    		$grAutofieldsProvider.registerHandler('multiple', function(directive, field, index){
     			var row = angular.element('<div/>');
     			row.addClass(directive.options.classes.row.join(' '));
 
@@ -593,7 +1042,7 @@
     				var cellSize = cell.type != 'multiple' ? cell.columns || field.columns : field.columns;
     				cellContainer.addClass(directive.options.classes.col.join(' ').replace(/\$size/g,cellSize));
 
-    				cellContainer.append($autofieldsProvider.createField(directive, cell, cellIndex));
+    				cellContainer.append($grAutofieldsProvider.createField(directive, cell, cellIndex));
 
     				row.append(cellContainer);
     			})
@@ -602,7 +1051,7 @@
     		});
 
             // Button Handler
-            $autofieldsProvider.registerHandler('button', function(directive, field, index){
+            $grAutofieldsProvider.registerHandler('button', function(directive, field, index){
                 var button = angular.element('<button type="button" style="margin-top: 25px;"/>'),
                     label = field.label ? '{{\'' + field.label + '\' | grTranslate}}' : '',
                     wrapper = angular.element('<div/>');
@@ -640,7 +1089,7 @@
             });
 
             // Columns Handler
-            $autofieldsProvider.registerMutator('columns', function(directive, field, fieldElements){
+            $grAutofieldsProvider.registerMutator('columns', function(directive, field, fieldElements){
                 if(field.type !== 'multiple' && field.columns){
                     if(angular.isObject(field.columns)){
                         if(field.columns.xs){
@@ -657,7 +1106,7 @@
             });
 
             // Number Mutator
-            $autofieldsProvider.registerMutator('number', function(directive, field, fieldElements){
+            $grAutofieldsProvider.registerMutator('number', function(directive, field, fieldElements){
                 if(!field.number) return fieldElements;
                 if(!field.attr){ field.attr = []; }
                 field.attr.mask = '9';
@@ -668,9 +1117,9 @@
             });
 
             // Register Help Block Support
-    		$autofieldsProvider.settings.classes.helpBlock = $autofieldsProvider.settings.classes.helpBlock || [];
-    		$autofieldsProvider.settings.classes.helpBlock.push('help-block');
-    		$autofieldsProvider.registerMutator('helpBlock', function(directive, field, fieldElements){
+    		$grAutofieldsProvider.settings.classes.helpBlock = $grAutofieldsProvider.settings.classes.helpBlock || [];
+    		$grAutofieldsProvider.settings.classes.helpBlock.push('help-block');
+    		$grAutofieldsProvider.registerMutator('helpBlock', function(directive, field, fieldElements){
     			if(!field.help) return fieldElements;
 
     			fieldElements.helpBlock = angular.element('<p/>');
@@ -682,26 +1131,26 @@
     		});
 
             // Register Addon Support
-    		$autofieldsProvider.settings.classes.inputGroup = ['input-group'];
-    		$autofieldsProvider.settings.classes.inputGroupAddon = ['input-group-addon'];
-    		$autofieldsProvider.settings.classes.inputGroupAddonButton = ['input-group-btn'];
-    		$autofieldsProvider.settings.classes.button = ['btn','btn-default'];
-    		$autofieldsProvider.registerMutator('addons', function(directive, field, fieldElements){
+    		$grAutofieldsProvider.settings.classes.inputGroup = ['input-container'];
+    		$grAutofieldsProvider.settings.classes.inputGroupAddon = ['input-item','input-item-addon'];
+    		$grAutofieldsProvider.settings.classes.inputGroupAddonButton = ['input-item','input-item-btn'];
+    		$grAutofieldsProvider.settings.classes.button = ['btn','btn-default'];
+    		$grAutofieldsProvider.registerMutator('addons', function(directive, field, fieldElements){
     			if(!(field.$addons || field.addons)) return fieldElements;
 
     			fieldElements.inputGroup = angular.element('<div/>');
-    			fieldElements.inputGroup.addClass($autofieldsProvider.settings.classes.inputGroup.join(' '));
+    			fieldElements.inputGroup.addClass($grAutofieldsProvider.settings.classes.inputGroup.join(' '));
 
     			var toAppend = [];
     			angular.forEach(field.$addons || field.addons, function(addon){
-    				var inputGroupAddon = angular.element('<span/>'),
+    				var inputGroupAddon = angular.element('<div/>'),
     					button = null;
-    				inputGroupAddon.addClass($autofieldsProvider.settings.classes.inputGroupAddon.join(' '));
+    				inputGroupAddon.addClass($grAutofieldsProvider.settings.classes.inputGroupAddon.join(' '));
 
     				if(addon.button){
-    					inputGroupAddon.attr('class',$autofieldsProvider.settings.classes.inputGroupAddonButton.join(' '));
+    					inputGroupAddon.attr('class',$grAutofieldsProvider.settings.classes.inputGroupAddonButton.join(' '));
     					button = angular.element('<button type="button"/>');
-    					button.addClass($autofieldsProvider.settings.classes.button.join(' '));
+    					button.addClass($grAutofieldsProvider.settings.classes.button.join(' '));
     					inputGroupAddon.append(button);
     				}
     				if(addon.icon != null){
@@ -710,34 +1159,43 @@
     					(button||inputGroupAddon).append(icon);
     				}
     				if(addon.content != null) (button||inputGroupAddon).html(addon.content);
-    				if(addon.attr) $autofieldsProvider.setAttributes(directive, field, (button||inputGroupAddon), addon.attr);
+    				if(addon.attr) $grAutofieldsProvider.setAttributes(directive, field, (button||inputGroupAddon), addon.attr);
 
     				if(addon.before) fieldElements.inputGroup.append(inputGroupAddon);
     				else toAppend.push(inputGroupAddon);
-    			})
+    			});
 
-    			fieldElements.inputGroup.append(fieldElements.input);
+                if(field.type === 'filemanager'){
+                    fieldElements.label = angular.element('');
+                }
+
+    			fieldElements.inputGroup.append(angular.element('<div class="input-wrapper input-item"></div>').append(fieldElements.label).append(fieldElements.input));
     			angular.forEach(toAppend, function(el){fieldElements.inputGroup.append(el)});
+                fieldElements.label = angular.element('');
 
-    			fieldElements.fieldContainer.append(fieldElements.inputGroup);
+                if(field.type !== 'filemanager'){
+                    fieldElements.inputGroup.children('.input-wrapper').prepend('<i class="fa fa-fw fa-lg fa-check-circle success-icon"></i>').prepend('<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>');
+                }
+
+                fieldElements.fieldContainer.append(fieldElements.inputGroup);
     			return fieldElements;
     		})
 
             // Register Horizontal Form Support
-    		$autofieldsProvider.settings.layout = {
+    		$grAutofieldsProvider.settings.layout = {
     			type: 'basic',
     			labelSize: 2,
     			inputSize: 10
     		};
-    		$autofieldsProvider.registerMutator('horizontalForm', function(directive, field, fieldElements){
+    		$grAutofieldsProvider.registerMutator('horizontalForm', function(directive, field, fieldElements){
     			if(!(directive.options.layout && directive.options.layout.type == 'horizontal')){
     				directive.container.removeClass('form-horizontal');
     				return fieldElements;
     			}
 
     			// Classes & sizing
-    			var col = $autofieldsProvider.settings.classes.col[0];
-    			var colOffset = $autofieldsProvider.settings.classes.colOffset[0];
+    			var col = $grAutofieldsProvider.settings.classes.col[0];
+    			var colOffset = $grAutofieldsProvider.settings.classes.colOffset[0];
     			var labelSize = field.labelSize ? field.labelSize : directive.options.layout.labelSize;
     			var inputSize = field.inputSize ? field.inputSize : directive.options.layout.inputSize;
 
@@ -778,7 +1236,77 @@
     			return fieldElements;
     		}, {require:'helpBlock'});
         }]);
-    angular.module('gr.ui.autofields.bootstrap.validation',['autofields.validation'])
+
+    angular.module('gr.ui.autofields.validation', ['gr.ui.autofields.core'])
+        .config(['$grAutofieldsProvider', function($grAutofieldsProvider){
+            var helper = {
+                CamelToTitle: function (str) {
+                    return str
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, function (str) { return str.toUpperCase(); });
+                }
+            };
+
+            // Add Validation Settings
+            $grAutofieldsProvider.settings.validation = {
+                enabled: true,
+                showMessages: true,
+                defaultMsgs: {
+                    required: 'This field is required',
+                    minlength: 'This is under minimum length',
+                    maxlength: 'This exceeds maximum length',
+                    min: 'This is under the minumum value',
+                    max: 'This exceeds the maximum value',
+                    email: 'This is not a valid email address',
+                    valid: ''
+                },
+                invalid: '$form.$property_clean.$invalid && $form.$property_clean.$dirty',
+                valid: '$form.$property_clean.$valid'
+            };
+
+            // Add Validation Attributes
+            $grAutofieldsProvider.settings.attributes.container.ngClass = "{'invalid':"+$grAutofieldsProvider.settings.validation.invalid+", 'valid':"+$grAutofieldsProvider.settings.validation.valid+"}";
+
+            // Add Validation Mutator
+            $grAutofieldsProvider.registerMutator('validation', function(directive, field, fieldElements){
+                //Check to see if validation should be added
+                fieldElements.validation = directive.options.validation.enabled && field.validate !== false;
+                if(!fieldElements.validation){
+                    //If not enabled, remove validation hooks
+                    fieldElements.fieldContainer.removeAttr('ng-class');
+                    return fieldElements;
+                }
+
+                // Get Error Messages
+                fieldElements.msgs = [];
+                if(!directive.options.validation.showMessages) return fieldElements;
+                angular.forEach(angular.extend({}, directive.options.validation.defaultMsgs, field.msgs), function(message, error){
+                    if(
+                        (field.msgs && field.msgs[error] != null) ||
+                        (field.type == error) ||
+                        (field.attr &&
+                            (field.attr[error] != null ||
+                            field.attr['ng'+helper.CamelToTitle(error)] != null)
+                        )
+                    ){
+                        var $property_clean  = field.property.replace(/\[|\]|\./g, '');
+                            fieldElements.msgs.push('('+directive.formStr+'.'+$property_clean+'.$error.'+error+'? \''+message+'\' : \'\')');
+                    }
+                });
+                // Get Valid Message
+                fieldElements.validMsg = (field.msgs && field.msgs.valid)? field.msgs.valid : directive.options.validation.defaultMsgs.valid;
+
+                // Add validation attributes
+                if(fieldElements.msgs.length){
+                    // Add message display with ng-show/ng-hide
+                    // using a mutator that requires 'validation'
+                }
+
+                return fieldElements;
+            });
+        }]);
+
+    angular.module('gr.ui.autofields.bootstrap.validation',['gr.ui.autofields.validation'])
         .config(['$tooltipProvider', function($tooltipProvider){
             $tooltipProvider.setTriggers({'keyup focus':'blur'});
             $tooltipProvider.options({
@@ -786,19 +1314,19 @@
                 animation:false
             });
         }])
-        .config(['$autofieldsProvider', function($autofieldsProvider){
+        .config(['$grAutofieldsProvider', function($grAutofieldsProvider){
             // Add Validation Attributes
-            $autofieldsProvider.settings.attributes.container.ngClass = '{\'has-error\':$form.$property_clean.$invalid && $form.$submitted, \'has-success\':$form.$property_clean.$valid && $form.$submitted, \'required\': $required, \'has-value\': $form.$property_clean.$modelValue}';
-            $autofieldsProvider.settings.attributes.input.popover = '{{("+$autofieldsProvider.settings.validation.valid+") ? \'$validMsg\' : ($errorMsgs)}}';
+            $grAutofieldsProvider.settings.attributes.container.ngClass = '{\'has-error\':$form.$property_clean.$invalid && $form.$submitted, \'has-success\':$form.$property_clean.$valid && $form.$submitted, \'required\': $required, \'has-value\': ($form.$property_clean.$modelValue !== \'\' && $form.$property_clean.$modelValue !== undefined && $form.$property_clean.$modelValue !== null)}';
+            $grAutofieldsProvider.settings.attributes.input.popover = '{{("+$grAutofieldsProvider.settings.validation.valid+") ? \'$validMsg\' : ($errorMsgs)}}';
 
             // Dont show popovers on these types
     		// this is to avoid multiple scope errors with UI Bootstrap
-    		$autofieldsProvider.settings.noPopover = ['date'];
+    		$grAutofieldsProvider.settings.noPopover = ['date'];
 
             // Validation Mutator
-    		$autofieldsProvider.registerMutator('bootstrap-validation', function(directive, field, fieldElements){
+    		$grAutofieldsProvider.registerMutator('bootstrap-validation', function(directive, field, fieldElements){
     			//Check to see if validation should be added
-    			if(!fieldElements.validation || $autofieldsProvider.settings.noPopover.indexOf(field.type) != -1){
+    			if(!fieldElements.validation || $grAutofieldsProvider.settings.noPopover.indexOf(field.type) != -1){
     				//If not enabled, remove validation hooks
     				fieldElements.input.removeAttr('popover');
     				return fieldElements;
@@ -820,46 +1348,8 @@
     			return fieldElements;
     		}, {require:'validation', override:true});
         }]);
-    angular.module('gr.ui.autofields.filters', [])
-        .filter('phone', function(){
-            return function (tel) {
-                if (!tel) { return ''; }
 
-                var value = tel.toString().trim().replace(/^\+/, '');
-
-                if (value.match(/[^0-9]/)) {
-                    return tel;
-                }
-
-                var country, city, number;
-
-                switch (value.length) {
-                    case 10:
-                        country = 1;
-                        city = value.slice(0, 2);
-                        number = value.slice(2);
-                        number = number.slice(0, 4) + '-' + number.slice(4);
-                        break;
-
-                    case 11:
-                        country = 1;
-                        city = value.slice(0, 2);
-                        number = value.slice(2);
-                        number = number.slice(0, 5) + '-' + number.slice(5);
-                        break;
-
-                    default:
-                        return tel;
-                }
-
-                if (country == 1) {
-                    country = "";
-                }
-
-                return (country + " (" + city + ") " + number).trim();
-            };
-        });
-    angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.bootstrap', 'gr.ui.autofields.bootstrap.validation', 'gr.ui.autofields.filters']);
+    angular.module('gr.ui.autofields',['gr.ui.autofields.core', 'gr.ui.autofields.services', 'gr.ui.autofields.directives', 'gr.ui.autofields.filters', 'gr.ui.autofields.standard', 'gr.ui.autofields.bootstrap', 'gr.ui.autofields.bootstrap.validation']);
 }());
 
 /*
@@ -1030,25 +1520,36 @@
  */
 
 (function(){
-    angular.module('gr.ui.autoscale', []).directive('grAutoscale', ['$rootScope', function($rootScope){
+    angular.module('gr.ui.autoscale', []).directive('grAutoscale', ['$rootScope','$timeout', function($rootScope, $timeout){
         return {
             restrict: 'A',
             scope: {
-                scale: '=grAutoscale'
+                scale: '=grAutoscale',
+                watch: '=grAutoscaleIf'
             },
             link: function($scope, $element, $attrs){
-                var scale;
+                var scale,
+                    width = 0;
                 $scope.$watch('scale', function(s){
                     if(s){
                         scale = s.split(':');
                     }
                 });
+                function applyScale(a){
+                    if(scale && scale[0] && scale[1]){
+                        $timeout(function(){
+                            $element.css('height', ((width*scale[1])/scale[0]) + 'px');
+                        });
+                    }
+                }
+
+                $scope.$watch('watch', applyScale);
+
                 $scope.$watch(function(){
                     return $element.width();
-                }, function(width){
-                    if(scale && scale[0] && scale[1]){
-                        $element.css('height', ((width*scale[1])/scale[0]) + 'px');
-                    }
+                }, function(w){
+                    width = w;
+                    applyScale();
                 });
             }
         }
@@ -2996,459 +3497,6 @@
 /** gr-autofields dependencies **/
 
 (function(){
-    (function(){
-         /**
-         * @license Autofields v2.1.8
-         * (c) 2014 Justin Maier http://justmaier.github.io/angular-autoFields-bootstrap
-         * License: MIT
-         */
-        'use strict';
-
-            /**
-             * @ngdoc overview
-             * @name autofields
-             * Core provider and directive for autofields
-             */
-            angular.module('autofields.core', [])
-            	.provider('$autofields', function(){
-            		var autofields = {};
-
-            		// Helper Methods
-            		var helper = {
-            			CamelToTitle: function (str) {
-            				return str
-            				.replace(/([A-Z])/g, ' $1')
-            				.replace(/^./, function (str) { return str.toUpperCase(); });
-            			},
-            			CamelToDash: function (str) {
-            				return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-            			},
-            			LabelText: function(field) {
-            				return field.label || helper.CamelToTitle(field.property);
-            			}
-            		};
-
-            		// Directive-wide Handler Default Settings
-            		autofields.settings = {
-            			classes: {
-            				container: [],
-            				input: [],
-            				label: []
-            			},
-            			attributes: {
-            				container: {
-            					'class': '$type'
-            				},
-            				input: {
-            					id: '$property_clean',
-            					name: '$property_clean',
-            					type: '$type',
-            					ngModel: '$data.$property',
-            					placeholder: '$placeholder'
-            				},
-            				label: {}
-            			},
-            			container: '<div class="autofields" ng-form name="$form"></div>',
-            			scope: {}
-            		};
-
-            		// Field Building Helpers
-            		// Add Attributes to Element
-            		var setAttributes = autofields.setAttributes = function(directive, field, el, attrs){
-            			angular.forEach(attrs, function(value, attr){
-            				if(value && typeof value == 'string'){
-            					value = value
-            						.replace(/\$form/g, directive.formStr)
-            						.replace(/\$schema/g, directive.schemaStr)
-            						.replace(/\$type/g, field.type || 'text')
-            						.replace(/\$property_clean/g, field.property.replace(/\[|\]|\./g, ''))
-            						.replace(/\$property/g, field.property)
-            						.replace(/\$data/g, directive.dataStr)
-                                    .replace(/\$options/g, directive.optionsStr)
-                                    .replace(/\$required/g, field.attr ? (field.attr.required ? true : false) : false)
-            						.replace(/\$placeholder/g, field.placeholder != null ? field.placeholder : helper.LabelText(field));
-            				}
-            				el.attr(helper.CamelToDash(attr), value);
-            			});
-            		};
-            		// Standard Container for field
-            		var getFieldContainer = function(directive, field, attrs){
-            			var fieldContainer = angular.element('<div/>');
-            			attrs = angular.extend({}, autofields.settings.attributes.container, attrs);
-            			setAttributes(directive, field, fieldContainer, attrs);
-            			fieldContainer.addClass((directive.options||autofields.settings).classes.container.join(' '));
-
-            			return fieldContainer;
-            		};
-            		// Standard Label for field
-            		var getLabel = function(directive, field, attrs){
-            			var label = angular.element('<label/>');
-            			attrs = angular.extend({}, autofields.settings.attributes.label, attrs);
-            			setAttributes(directive, field, label, attrs);
-            			label.addClass((directive.options||autofields.settings).classes.label.join(' '));
-            			label.html(helper.LabelText(field));
-
-            			return label;
-            		}
-            		// Standard Input for field
-            		var getInput = function(directive, field, html, attrs){
-            			var input = angular.element(html);
-            			attrs = angular.extend({}, autofields.settings.attributes.input, attrs, field.attr);
-            			setAttributes(directive, field, input, attrs);
-            			input.addClass((directive.options||autofields.settings).classes.input.join(' '));
-
-            			return input;
-            		}
-            		// Standard Field
-            		autofields.field = function(directive, field, html, attrs){
-            			var fieldElements = {
-            				fieldContainer: getFieldContainer(directive, field),
-            				label: field.label != '' ? getLabel(directive, field) : null,
-            				input: getInput(directive, field, html, attrs)
-            			};
-            			fieldElements.fieldContainer.append(fieldElements.label).append(fieldElements.input);
-
-            			// Run Mutators
-            			var mutatorsRun = [];
-            			angular.forEach(mutators, function(mutator, key){
-            				fieldElements = mutator(directive, field, fieldElements, mutatorsRun);
-            				mutatorsRun.push(key);
-            			});
-
-            			return fieldElements;
-            		}
-
-            		// Update scope with items attached in settings
-            		autofields.updateScope = function(scope){
-            			angular.forEach(autofields.settings.scope, function(value, property){
-            				if(typeof value == 'function'){
-            					scope[property] = function(){
-            						var args = Array.prototype.slice.call(arguments, 0);
-            						args.unshift(scope);
-            						value.apply(this, args);
-            					}
-            				}else{
-            					scope[property] = value;
-            				}
-            			})
-            		}
-
-            		// Handler Container
-            		var handlers = {};
-
-            		// Hook for handlers
-            		autofields.registerHandler = function(types, fn){
-            			types = Array.isArray(types) ? types : [types];
-            			angular.forEach(types, function(type){
-            				handlers[type] = fn;
-            			});
-            		}
-
-            		// Mutator Container
-            		var mutators = {};
-
-            		// Hook for mutators
-            		autofields.registerMutator = function(key, fn, options){
-            			if(!mutators[key] || options.override){
-            				mutators[key] = function(directive, field, fieldElements, mutatorsRun){
-            					if(options && typeof options.require == 'string' && mutatorsRun.indexOf(options.require) == -1){
-            						fieldElements = mutators[options.require];
-            					}
-            					if(mutatorsRun.indexOf(key) == -1) return fn(directive, field, fieldElements);
-            				}
-            			}
-            		}
-
-            		// Field Builder
-            		autofields.createField = function(directive, field, index){
-            			var handler = field.type == null ? handlers.text : handlers[field.type];
-            			if(handler == null){
-            				console.warn(field.type+' not supported - field ignored');
-            				return;
-            			}
-            			return handler(directive, field, index);
-            		};
-
-            		autofields.$get = function(){
-            			return {
-            				settings: autofields.settings,
-            				createField: autofields.createField,
-            				updateScope: autofields.updateScope
-            			};
-            		};
-
-            		return autofields;
-            	})
-            	.directive('autoFields', ['$autofields','$compile', function($autofields, $compile){
-            		return {
-            			restrict: 'E',
-            			priority: 1,
-            			replace: true,
-            			compile: function(){
-            				return function ($scope, $element, $attr) {
-            					// Scope Hooks
-            					var directive = {
-            						schemaStr: $attr.fields || $attr.autoFields,
-            						optionsStr: $attr.options,
-            						dataStr: $attr.data,
-            						formStr: $attr.form || 'autofields',
-            						classes: $attr['class'],
-            						container: null,
-            						formScope: null
-            					};
-
-            					//Helper Functions
-            					var helper = {
-            						extendDeep: function(dst) {
-            							angular.forEach(arguments, function(obj) {
-            								if (obj !== dst) {
-            									angular.forEach(obj, function(value, key) {
-            										if (dst[key] && dst[key].constructor && dst[key].constructor === Object) {
-            											helper.extendDeep(dst[key], value);
-            										} else {
-            											dst[key] = value;
-            										}
-            									});
-            								}
-            							});
-            							return dst;
-            						}
-            					};
-
-            					// Import Directive-wide Handler Default Settings Import
-            					directive.options = angular.copy($autofields.settings);
-
-            					// Build fields from schema using handlers
-            					var build = function(schema){
-            						schema = schema || $scope[directive.schemaStr];
-
-            						// Create HTML
-            						directive.container.html('');
-            						angular.forEach(schema, function(field, index){
-            							var fieldEl = $autofields.createField(directive, field, index);
-            							directive.container.append(fieldEl.wrap('<div class="form-group-inner"/>'));
-            						});
-
-            						// Create Scope
-            						if(directive.formScope != null) directive.formScope.$destroy();
-            						directive.formScope = $scope.$new();
-            						directive.formScope.data = $scope[directive.dataStr];
-            						directive.formScope.fields = schema;
-            						$autofields.updateScope(directive.formScope);
-
-            						// Compile Element with Scope
-            						$compile(directive.container)(directive.formScope);
-            					};
-
-            					// Init and Watch
-            					$scope.$watch(directive.optionsStr, function (newOptions, oldOptions) {
-            						helper.extendDeep(directive.options, newOptions);
-            						if(newOptions !== oldOptions) build();
-            					}, true);
-            					$scope.$watch(directive.schemaStr, function (schema) {
-            						build(schema);
-            					}, true);
-            					$scope.$watch(directive.formStr, function (form) {
-            						directive.container.attr('name',directive.formStr);
-            					});
-            					$scope.$watch(function(){return $attr['class'];}, function (form) {
-            						directive.classes = $attr['class'];
-            						directive.container.attr('class', directive.classes);
-            					});
-
-            					directive.container = angular.element(directive.options.container);
-            					directive.container.attr('name',directive.formStr);
-            					directive.container.attr('class',directive.classes);
-            					$element.replaceWith(directive.container);
-            				}
-            			}
-            		}
-            	}]);
-
-            /**
-             * @ngdoc overview
-             * @name autofields.standard
-             * Standard input fields for autofields
-             */
-            angular.module('autofields.standard',['autofields.core'])
-            	.config(['$autofieldsProvider', function($autofieldsProvider){
-            		// Text Field Handler
-            		$autofieldsProvider.settings.fixUrl = true;
-            		$autofieldsProvider.registerHandler(['text','email','url','date','number','password'], function(directive, field, index){
-            			var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-
-            			var fixUrl = (field.fixUrl ? field.fixUrl : directive.options.fixUrl);
-            			if(field.type == 'url' && fixUrl) fieldElements.input.attr('fix-url','');
-
-            			return fieldElements.fieldContainer;
-            		});
-
-            		// Select Field Handler
-            		$autofieldsProvider.settings.defaultOption = 'Select One';
-            		$autofieldsProvider.registerHandler('select', function(directive, field, index){
-            			var defaultOption = (field.defaultOption ? field.defaultOption : directive.options.defaultOption);
-
-            			var inputHtml = '<select><option value="">'+defaultOption+'</option></select>';
-            			var inputAttrs = {
-            				ngOptions: field.list
-            			};
-
-            			var fieldElements = $autofieldsProvider.field(directive, field, inputHtml, inputAttrs);
-
-            			return fieldElements.fieldContainer;
-            		});
-
-            		//Textarea Field Handler
-            		$autofieldsProvider.settings.textareaRows = 3;
-            		$autofieldsProvider.registerHandler('textarea', function(directive, field, index){
-            			var rows = field.rows ? field.rows : directive.options.textareaRows;
-            			var fieldElements = $autofieldsProvider.field(directive, field, '<textarea/>', {rows: rows});
-
-            			return fieldElements.fieldContainer;
-            		});
-
-            		//Checkbox Field Handler
-            		$autofieldsProvider.registerHandler('checkbox', function(directive, field, index){
-            			var fieldElements = $autofieldsProvider.field(directive, field, '<input/>');
-
-            			if(fieldElements.label) fieldElements.label.prepend(fieldElements.input);
-
-            			return fieldElements.fieldContainer;
-            		});
-
-            		// Register Hide/Show Support
-            		$autofieldsProvider.settings.displayAttributes = ($autofieldsProvider.settings.displayAttributes || []).concat(['ng-if', 'ng-show', 'ng-hide']);
-            		$autofieldsProvider.registerMutator('displayAttributes',function(directive, field, fieldElements){
-            			if(!field.attr) return fieldElements;
-
-            			// Check for presence of each display attribute
-            			angular.forEach($autofieldsProvider.settings.displayAttributes, function(attr){
-            				var value = fieldElements.input.attr(attr);
-
-            				// Stop if field doesn't have attribute
-            				if(!value) return;
-
-            				// Move attribute to parent
-            				fieldElements.fieldContainer.attr(attr, value);
-            				fieldElements.input.removeAttr(attr);
-            			});
-
-            			return fieldElements;
-            		});
-            	}])
-            	.directive('fixUrl', [function () {
-            		return {
-            			restrict: 'A',
-            			require: 'ngModel',
-            			link: function (scope, element, attr, ngModel) {
-            				var urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.\-\?\=\&]*)$/i;
-
-            				//Render formatters on blur...
-            				var render = function () {
-            					var viewValue = ngModel.$modelValue;
-            					if (viewValue == null) return;
-            					angular.forEach(ngModel.$formatters, function (formatter) {
-            						viewValue = formatter(viewValue);
-            					})
-            					ngModel.$viewValue = viewValue;
-            					ngModel.$render();
-            				};
-            				element.bind('blur', render);
-
-            				var formatUrl = function (value) {
-            					var test = urlRegex.test(value);
-            					if (test) {
-            						var matches = value.match(urlRegex);
-            						var reformatted = (matches[1] != null && matches[1] != '') ? matches[1] : 'http://';
-            						reformatted += matches[2] + '.' + matches[3];
-            						if (typeof matches[4] != "undefined") reformatted += matches[4]
-            						value = reformatted;
-            					}
-            					return value;
-            				}
-            				ngModel.$formatters.push(formatUrl);
-            				ngModel.$parsers.unshift(formatUrl);
-            			}
-            		};
-            	}]);
-
-            /**
-             * @ngdoc overview
-             * @name autofields.validation
-             * Validation hooks for autofields
-             */
-            angular.module('autofields.validation', ['autofields.core'])
-            	.config(['$autofieldsProvider', function($autofieldsProvider){
-            		var helper = {
-            			CamelToTitle: function (str) {
-            				return str
-            				.replace(/([A-Z])/g, ' $1')
-            				.replace(/^./, function (str) { return str.toUpperCase(); });
-            			}
-            		};
-
-            		// Add Validation Settings
-            		$autofieldsProvider.settings.validation = {
-            			enabled: true,
-            			showMessages: true,
-            			defaultMsgs: {
-            				required: 'This field is required',
-            				minlength: 'This is under minimum length',
-            				maxlength: 'This exceeds maximum length',
-            				min: 'This is under the minumum value',
-            				max: 'This exceeds the maximum value',
-            				email: 'This is not a valid email address',
-            				valid: ''
-            			},
-            			invalid: '$form.$property_clean.$invalid && $form.$property_clean.$dirty',
-            			valid: '$form.$property_clean.$valid'
-            		};
-
-            		// Add Validation Attributes
-            		$autofieldsProvider.settings.attributes.container.ngClass = "{'invalid':"+$autofieldsProvider.settings.validation.invalid+", 'valid':"+$autofieldsProvider.settings.validation.valid+"}";
-
-            		// Add Validation Mutator
-            		$autofieldsProvider.registerMutator('validation', function(directive, field, fieldElements){
-            			//Check to see if validation should be added
-            			fieldElements.validation = directive.options.validation.enabled && field.validate !== false;
-            			if(!fieldElements.validation){
-            				//If not enabled, remove validation hooks
-            				fieldElements.fieldContainer.removeAttr('ng-class');
-            				return fieldElements;
-            			}
-
-            			// Get Error Messages
-            			fieldElements.msgs = [];
-            			if(!directive.options.validation.showMessages) return fieldElements;
-            			angular.forEach(angular.extend({}, directive.options.validation.defaultMsgs, field.msgs), function(message, error){
-            				if(
-            					(field.msgs && field.msgs[error] != null) ||
-            					(field.type == error) ||
-            					(field.attr &&
-            						(field.attr[error] != null ||
-            						field.attr['ng'+helper.CamelToTitle(error)] != null)
-            					)
-            				){
-            					var $property_clean  = field.property.replace(/\[|\]|\./g, '');
-                      				fieldElements.msgs.push('('+directive.formStr+'.'+$property_clean+'.$error.'+error+'? \''+message+'\' : \'\')');
-            				}
-            			});
-            			// Get Valid Message
-            			fieldElements.validMsg = (field.msgs && field.msgs.valid)? field.msgs.valid : directive.options.validation.defaultMsgs.valid;
-
-            			// Add validation attributes
-            			if(fieldElements.msgs.length){
-            				// Add message display with ng-show/ng-hide
-            				// using a mutator that requires 'validation'
-            			}
-
-            			return fieldElements;
-            		});
-            	}]);
-
-            angular.module('autofields',['autofields.standard','autofields.validation','ui.utils.masks']);
-            angular.module('autoFields',['autofields']); // Deprecated module name
-    }());
 
     /**
      * angular-input-masks

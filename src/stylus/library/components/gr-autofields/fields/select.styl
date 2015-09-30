@@ -1,0 +1,72 @@
+.autofields
+    .form-group
+        &.select
+            margin-bottom 15px
+            .success-icon
+            .error-icon
+                position absolute
+                top 50%
+                right ($size-input-padding)
+                kits(transform, translateY(-50%))
+                kits(opacity, 0)
+                kits(transition, all .1s)
+            .success-icon
+                color $success-color-icon
+            .error-icon
+                color $error-color-icon
+            label
+                position absolute
+                top ($size-input-border*2)
+                left ($size-input-border*3)
+                margin 0
+                color $color-label-small
+                font-size $size-label-small
+            .input-container
+                label
+                    top ($size-input-border)
+                    left ($size-input-border*2)
+            .form-control
+                &::-webkit-input-placeholder
+                    color $color-placeholder
+                &::-moz-placeholder
+                    color $color-placeholder
+                &:-ms-input-placeholder
+                    color $color-placeholder
+                &:-moz-placeholder
+                    color $color-placeholder
+            &.has-focus
+                .input-container
+                    border-color $color-border-focus
+                    .form-control
+                        box-shadow none
+                .input-wrapper
+                    border-color $color-border-focus
+                    box-shadow none
+            &.required
+                .input-container
+                .input-wrapper
+                    border-left-color $color-required
+            &.has-success
+            &.has-error
+                .form-control
+                    padding-right 40px
+            &.has-success
+                .input-container
+                .input-wrapper
+                    border-color $success-color-border
+                    .success-icon
+                        kits(opacity, 1)
+                &.has-focus
+                    .input-container
+                    .input-wrapper
+                        border-color $success-color-border-focus
+            &.has-error
+                .input-container
+                .input-wrapper
+                    border-color $error-color-border
+                    .error-icon
+                        kits(opacity, 1)
+                &.has-focus
+                    .input-container
+                    .input-wrapper
+                        border-color $error-color-border-focus

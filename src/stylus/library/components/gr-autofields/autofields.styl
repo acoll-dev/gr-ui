@@ -1,0 +1,100 @@
+.autofields
+    position relative
+    display table
+    width 100%
+    margin 0
+    label
+        z-index 1
+        font-weight normal
+    .form-control
+        position relative
+        height $size-input-height
+        padding $size-input-padding
+        box-shadow none
+        background none
+        border none
+        border-radius 0
+        z-index 2
+        &:focus
+            box-shadow none
+        &::-webkit-input-placeholder
+            color transparent
+            kits(transition, all .1s)
+        &::-moz-placeholder
+            color transparent
+            kits(transition, all .1s)
+        &:-ms-input-placeholder
+            color transparent
+            kits(transition, all .1s)
+        &:-moz-placeholder
+            color transparent
+            kits(transition, all .1s)
+    .input-label
+        position relative
+        width 80px
+        padding 0 !important
+        label
+            position absolute
+            width 74px
+            top 50%
+            left 50%
+            kits(transform, translate(-50%, -50%))
+            line-height 1
+            margin 0
+            color rgba(0,0,0,.5)
+            font-size $size-label-small
+            kits(transition, all .1s)
+    .form-group
+        &.is-disabled
+            .input-wrapper
+                background $color-input-bg-disabled
+    .input-wrapper
+        position relative
+        // display table
+        // width 100%
+        border solid $size-input-border $color-border
+        border-radius $size-input-border-radius
+        background-color $color-input-bg
+    .input-container
+        position relative
+        display flex
+        flex-flow flex-wrap
+        justify-content space-around
+        border-radius $size-input-border-radius
+        border solid $size-input-border $color-border
+        // overflow hidden
+        .input-item
+            display block
+            border none
+            border-radius 0
+        .input-wrapper
+            flex 1
+        .form-control
+            border none
+            height $size-input-height
+        .btn
+            height $size-input-height
+            border none
+            border-radius 0
+        .input-item-btn
+        .input-item-addon
+            display block
+            border none
+        .input-item-addon
+            padding 6px 12px
+            font-size 14px
+            font-weight normal
+            line-height 42px
+            text-align center
+            background $color-addon-bg
+            color $color-addon-text
+        .input-wrapper
+        .input-item-btn
+            &:first-of-type
+                .btn
+                    border-top-left-radius ($size-input-border-radius/2px)
+                    border-bottom-left-radius ($size-input-border-radius/2px)
+            &:last-of-type
+                .btn
+                    border-top-right-radius ($size-input-border-radius/2px)
+                    border-bottom-right-radius ($size-input-border-radius/2px)
