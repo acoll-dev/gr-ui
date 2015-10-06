@@ -50,8 +50,6 @@
                 background $color-input-bg-disabled
     .input-wrapper
         position relative
-        // display table
-        // width 100%
         border solid $size-input-border $color-border
         border-radius $size-input-border-radius
         background-color $color-input-bg
@@ -88,13 +86,16 @@
             text-align center
             background $color-addon-bg
             color $color-addon-text
-        .input-wrapper
-        .input-item-btn
+        .input-item
             &:first-of-type
+                border-top-left-radius ($size-input-border-radius/2px)
+                border-bottom-left-radius ($size-input-border-radius/2px)
                 .btn
                     border-top-left-radius ($size-input-border-radius/2px)
                     border-bottom-left-radius ($size-input-border-radius/2px)
             &:last-of-type
+                border-top-right-radius ($size-input-border-radius/2px)
+                border-bottom-right-radius ($size-input-border-radius/2px)
                 .btn
                     border-top-right-radius ($size-input-border-radius/2px)
                     border-bottom-right-radius ($size-input-border-radius/2px)

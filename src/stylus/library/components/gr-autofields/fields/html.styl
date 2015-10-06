@@ -37,20 +37,20 @@
             	.btn-group
             		margin 5px
             .ta-root
-            	position relative
-            	display block
-            	width 100%
-            	padding 40px 10px 10px
-            	background #F6F6F6
-            	border solid $size-input-border $color-border
-            	border-radius $size-input-border-radius
-            	&.focussed
-            		.ta-editor
-            			background #FFFFFF !important
-            			border-color $color-border-focus
-            			box-shadow none
-            			outline 0
-            	.ta-editor
+                position relative
+                display block
+                width 100%
+                padding 40px 10px 10px
+                background #F6F6F6
+                border solid $size-input-border $color-border
+                border-radius $size-input-border-radius
+                &.focussed
+                    .ta-editor
+                        background #FFFFFF !important
+                        border-color $color-border-focus
+                        box-shadow none
+                        outline 0
+                .ta-editor
                     position relative
                     width 100%
                     height 300px !important
@@ -61,13 +61,8 @@
                     border solid $size-input-border $color-border
                     border-radius $size-input-border-radius
                     background darken(#FFFFFF, 1%) !important
-            		&:focus
+                    &:focus
                         user-select text
-                    &.ta-bind
-                        padding 12px
-                        &:focus
-                        :focus
-                            outline none
                     .ta-bind
                         height 100%
                         min-height 0
@@ -75,9 +70,16 @@
                         &:focus
                         :focus
                             outline none
-            		.ta-scroll-window
-            			overflow auto
-            			padding 0 !important
+                    &.ta-html
+                        padding 0
+                        .CodeMirror
+                            height 300px - ($size-input-border * 2)
+                        &:focus
+                        :focus
+                            outline none
+                    .ta-scroll-window
+                        overflow auto
+                        padding 0 !important
             &.required
                 .ta-root
                     border-left-color $color-required

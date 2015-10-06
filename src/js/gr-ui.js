@@ -439,254 +439,259 @@
         .directive('grAutofields', ['$compile', '$parse', '$injector', '$timeout', '$grAlert', function($compile, $parse, $injector, $timeout, $grAlert){
             return {
                 restrict: 'A',
-                link: function($scope, $element, $attrs){
+                compile: function($element, $attrs){
                     var grSettings = $attrs.settings || $attrs.grAutofields,
-                        initialized = false;
-                    if(!$attrs.name && !grSettings){ return false; };
-                    function init(){
-                        var $getter = $parse(grSettings),
-                            $setter = $getter.assign,
-                            grAutofields = $getter($scope),
-                            _defaults = angular.copy(grAutofields),
+                        initialized = false,
+                        $getter = $parse(grSettings),
+                        $setter = $getter.assign;
+                    if(!$attrs.name && !grSettings) return false;
+                    $element.html('');
+                    return {
+                        pre: function($scope, _element, _attrs){
+                            function init(){
+                                var grAutofields = $getter($scope),
+                                    _defaults = angular.copy(grAutofields),
 
-                            elId = 'gr-autofields-form' + Math.ceil(Math.random()*100),
+                                    elId = 'gr-autofields-form' + Math.ceil(Math.random()*100),
 
-                            $alert = $grAlert.new(),
-                            $errors = [],
+                                    $alert = $grAlert.new(),
+                                    $errors = [],
 
-                            modalScope = $element.parents('.modal').eq(0).scope(),
+                                    modalScope = $element.parents('.modal').eq(0).scope(),
 
-                            defaultOptions = {
-                                defaultOption: 'Selecione...',
-                                validation: {
-                                    enabled: true,
-                                    showMessages: false
-                                }
-                            },
+                                    defaultOptions = {
+                                        defaultOption: 'Selecione...',
+                                        validation: {
+                                            enabled: true,
+                                            showMessages: false
+                                        }
+                                    },
 
-                            setErrors = function(schema){
-                                var errors = {};
-                                function multipleRecursive(schema){
-                                    var aux = {};
-                                    angular.forEach(schema, function(item){
-                                        if(item.type === 'multiple'){
-                                            angular.forEach(multipleRecursive(item.fields), function(subitem){
-                                                if(subitem.msgs){
-                                                    aux[subitem.property] = subitem;
+                                    setErrors = function(schema){
+                                        var errors = {};
+                                        function multipleRecursive(schema){
+                                            var aux = {};
+                                            angular.forEach(schema, function(item){
+                                                if(item.type === 'multiple'){
+                                                    angular.forEach(multipleRecursive(item.fields), function(subitem){
+                                                        if(subitem.msgs){
+                                                            aux[subitem.property] = subitem;
+                                                        }
+                                                    });
+                                                }else if(item.msgs){
+                                                    aux[item.property] = item;
                                                 }
                                             });
-                                        }else if(item.msgs){
-                                            aux[item.property] = item;
+                                            return aux;
                                         }
-                                    });
-                                    return aux;
-                                }
-                                angular.forEach(multipleRecursive(schema), function(item, id){
-                                    errors[id] = item.msgs;
-                                });
-                                grAutofields.errors = errors;
-                                checkError();
-                            },
-
-                            getError = function($error){
-                                var _errors = [],
-                                    oErrors = [],
-                                    elements = [];
-                                angular.forEach($error, function(errors, errorId){
-                                    angular.forEach(errors, function(field){
-                                        if(grAutofields.errors && grAutofields.errors[field.$name]){
-                                            _errors.push(grAutofields.errors[field.$name][errorId]);
-                                        }
-                                    });
-                                });
-                                angular.forEach(grAutofields.errors, function(errorType, elId){
-                                    elements.push(elId);
-                                    angular.forEach(errorType, function(error){
-                                        angular.forEach(_errors,function(e){
-                                            if(e === error){
-                                                oErrors.push(e);
-                                            }
+                                        angular.forEach(multipleRecursive(schema), function(item, id){
+                                            errors[id] = item.msgs;
                                         });
-                                    });
-                                });
-                                return {
-                                    errors: oErrors,
-                                    elements: elements
-                                }
-                            },
-
-                            checkError = function($error){
-                                var errors,
-                                    _errors;
-                                if($error){
-                                    _errors = getError($error);
-                                    errors = _errors.errors;
-                                }else{
-                                    errors = $errors;
-                                }
-                                if(errors !== $errors){ $errors = errors; }
-
-                                if($errors.length > 0 && $scope[$attrs.name] && $scope[$attrs.name].autofields && $scope[$attrs.name].autofields.$submitted){
-                                    $alert.show('danger', $errors);
-                                    if(_errors){
-                                        var types = ['text', 'date', 'email', 'number', 'tel', 'search', 'password', 'textarea', 'checkbox'],
-                                            selectorInvalid = ['select.ng-invalid:visible', '.ta-root:not(.focussed)'],
-                                            selectorFocussed = ['select:focus', '.ta-root.focussed'];
-                                        angular.forEach(types, function(t){
-                                            selectorInvalid.push('[type=' + t + '].ng-invalid:visible');
-                                            selectorFocussed.push('[type=' + t + ']:focus');
-                                        });
-                                        var invalidFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorInvalid.join(',')),
-                                            focussedFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorFocussed.join(','));
-                                        if(invalidFields.size() > 0 && focussedFields.size() == 0){
-                                            if(invalidFields.eq(0).hasClass('ta-root')){
-                                                invalidFields.eq(0).find('.ta-bind').eq(0).trigger('focus');
-                                            }else{
-                                                invalidFields.eq(0).focus();
-                                            }
-                                        }
-                                    }
-                                }else{
-                                    $alert.hide();
-                                }
-                            },
-
-                            updateDefaults = function(){
-                                _defaults = angular.copy(grAutofields);
-                            },
-
-                            hasChange = function(){
-                                return !angular.equals(defaults.data, grAutofields.data);
-                            },
-
-                            submit = function(){
-                                $timeout(function(){
-                                    if(!$scope[$attrs.name].autofields.$submitted){
-                                        $scope[$attrs.name].autofields.$setSubmitted(true);
-                                        $scope.$apply();
-                                    }
-                                    if($scope[$attrs.name].autofields.$invalid){
-                                        checkError($scope[$attrs.name].autofields.$error);
-                                    } else {
-                                        grAutofields.submit(grAutofields.data);
-                                    }
-                                });
-                            },
-
-                            reset = function(){
-                                $timeout(makeAutofields);
-                            },
-
-                            makeAutofields = function(stop){
-
-                                try{
-                                    angular.forEach(grAutofields.schema, function(el){
-                                        if(el.type === 'html'){
-                                            $injector.get('textAngularManager').unregisterEditor(el.property);
-                                        }
-                                    });
-                                }catch(e){}
-
-                                // Reset the element;
-
-                                $element.html('');
-
-                                delete $scope[$attrs.name];
-
-                                $setter($scope, angular.copy(_defaults));
-
-                                grAutofields = $getter($scope);
-
-                                if(!grAutofields.options){
-                                    grAutofields.options = defaultOptions;
-                                }else{
-                                    angular.extend(grAutofields.options, defaultOptions);
-                                }
-
-                                setErrors(grAutofields.schema);
-
-                                $scope.$apply();
-
-                                // Create new element;
-
-                                var $input = angular.element('<auto:fields/>');
-
-                                if(grAutofields.schema){
-                                    $input.attr('fields', grSettings + '.schema');
-                                }
-
-                                if(grAutofields.data){
-                                    $input.attr('data', grSettings + '.data');
-                                }
-
-                                if(grAutofields.options){
-                                    $input.attr('options', grSettings + '.options');
-                                }
-
-                                $element.addClass('gr-autofields').removeAttr('gr-autofields').attr({
-                                    'novalidate': true,
-                                    'ng-submit': $attrs.name + '.submit()'
-                                }).html($input);
-
-                                if($element.find('[type="submit"]').length === 0){
-                                    $element.append('<button type="submit" class="hidden"/>');
-                                }
-
-                                $compile($element)($scope);
-
-                                $scope.$apply(function(){
-                                    $scope[$attrs.name].submit = submit;
-                                    $scope[$attrs.name].reset = reset;
-                                    $scope[$attrs.name].updateDefaults = updateDefaults;
-                                    $scope[$attrs.name].hasChange = hasChange;
-                                });
-
-                                $element.find('input, select, textarea').on({
-                                    focus: function(){
-                                        angular.element(this).parents('.form-group').eq(0).addClass('has-focus');
+                                        grAutofields.errors = errors;
+                                        checkError();
                                     },
-                                    blur: function(){
-                                        angular.element(this).parents('.form-group').eq(0).removeClass('has-focus');
+
+                                    getError = function($error){
+                                        var _errors = [],
+                                            oErrors = [],
+                                            elements = [];
+                                        angular.forEach($error, function(errors, errorId){
+                                            angular.forEach(errors, function(field){
+                                                if(grAutofields.errors && grAutofields.errors[field.$name]){
+                                                    _errors.push(grAutofields.errors[field.$name][errorId]);
+                                                }
+                                            });
+                                        });
+                                        angular.forEach(grAutofields.errors, function(errorType, elId){
+                                            elements.push(elId);
+                                            angular.forEach(errorType, function(error){
+                                                angular.forEach(_errors,function(e){
+                                                    if(e === error){
+                                                        oErrors.push(e);
+                                                    }
+                                                });
+                                            });
+                                        });
+                                        return {
+                                            errors: oErrors,
+                                            elements: elements
+                                        }
+                                    },
+
+                                    checkError = function($error){
+                                        var errors,
+                                            _errors;
+                                        if($error){
+                                            _errors = getError($error);
+                                            errors = _errors.errors;
+                                        }else{
+                                            errors = $errors;
+                                        }
+                                        if(errors !== $errors){ $errors = errors; }
+
+                                        if($errors.length > 0 && $scope[$attrs.name] && $scope[$attrs.name].autofields && $scope[$attrs.name].autofields.$submitted){
+                                            $alert.show('danger', $errors);
+                                            if(_errors){
+                                                var types = ['text', 'date', 'email', 'number', 'tel', 'search', 'password', 'textarea', 'checkbox'],
+                                                    selectorInvalid = ['select.ng-invalid:visible', '.ta-root:not(.focussed)'],
+                                                    selectorFocussed = ['select:focus', '.ta-root.focussed'];
+                                                angular.forEach(types, function(t){
+                                                    selectorInvalid.push('[type=' + t + '].ng-invalid:visible');
+                                                    selectorFocussed.push('[type=' + t + ']:focus');
+                                                });
+                                                var invalidFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorInvalid.join(',')),
+                                                    focussedFields = angular.element('[name=' + $attrs.name + '].' + elId).find(selectorFocussed.join(','));
+                                                if(invalidFields.size() > 0 && focussedFields.size() == 0){
+                                                    if(invalidFields.eq(0).hasClass('ta-root')){
+                                                        invalidFields.eq(0).find('.ta-bind').eq(0).trigger('focus');
+                                                    }else{
+                                                        invalidFields.eq(0).focus();
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                            $alert.hide();
+                                        }
+                                    },
+
+                                    updateDefaults = function(){
+                                        _defaults = angular.copy(grAutofields);
+                                    },
+
+                                    hasChange = function(){
+                                        return !angular.equals(defaults.data, grAutofields.data);
+                                    },
+
+                                    submit = function(){
+                                        $timeout(function(){
+                                            if(!$scope[$attrs.name].autofields.$submitted){
+                                                $scope[$attrs.name].autofields.$setSubmitted(true);
+                                                $scope.$apply();
+                                            }
+                                            if($scope[$attrs.name].autofields.$invalid){
+                                                checkError($scope[$attrs.name].autofields.$error);
+                                            } else {
+                                                grAutofields.submit(grAutofields.data);
+                                            }
+                                        });
+                                    },
+
+                                    reset = function(){
+                                        $timeout(makeAutofields);
+                                    },
+
+                                    makeAutofields = function(stop){
+
+                                        // Reset the element;
+
+                                        $element.html('');
+
+                                        delete $scope[$attrs.name];
+
+                                        $setter($scope, angular.copy(_defaults));
+
+                                        grAutofields = $getter($scope);
+
+                                        if(!grAutofields.options){
+                                            grAutofields.options = defaultOptions;
+                                        }else{
+                                            angular.extend(grAutofields.options, defaultOptions);
+                                        }
+
+                                        setErrors(grAutofields.schema);
+
+                                        $scope.$apply();
+
+                                        // Create new element;
+
+                                        var $input = angular.element('<auto:fields/>');
+
+                                        if(grAutofields.schema){
+                                            $input.attr('fields', grSettings + '.schema');
+                                        }
+
+                                        if(grAutofields.data){
+                                            $input.attr('data', grSettings + '.data');
+                                        }
+
+                                        if(grAutofields.options){
+                                            $input.attr('options', grSettings + '.options');
+                                        }
+
+                                        $element.addClass('gr-autofields').removeAttr('gr-autofields').attr({
+                                            'novalidate': true,
+                                            'ng-submit': $attrs.name + '.submit()'
+                                        }).append($input);
+
+                                        if($element.find('[type="submit"]').length === 0){
+                                            $element.append('<button type="submit" class="hidden"/>');
+                                        }
+
+                                        try{
+                                            angular.forEach(grAutofields.schema, function(el){
+                                                if(el.type === 'html'){
+                                                    $injector.get('textAngularManager').unregisterEditor(el.property);
+                                                }
+                                            });
+                                        }catch(e){}
+
+                                        $compile($element)($scope);
+
+                                        $scope.$apply(function(){
+                                            $scope[$attrs.name].submit = submit;
+                                            $scope[$attrs.name].reset = reset;
+                                            $scope[$attrs.name].updateDefaults = updateDefaults;
+                                            $scope[$attrs.name].hasChange = hasChange;
+                                        });
+
+                                        $element.find('input, select, textarea').on({
+                                            focus: function(){
+                                                angular.element(this).parents('.form-group').eq(0).addClass('has-focus');
+                                            },
+                                            blur: function(){
+                                                angular.element(this).parents('.form-group').eq(0).removeClass('has-focus');
+                                            }
+                                        });
+
+                                    };
+
+                                $scope.$watch(function(){ return modalScope ? true : false; }, function(hasModal){
+                                    if(hasModal){
+                                        $alert.destroy();
+                                        $alert = $grAlert.new(modalScope.modal.element);
                                     }
-                                });
+                                }, true);
 
+                                // $scope.$watch(grSettings + '.data', function(schema){
+                                //     console.debug(schema);
+                                // }, true);
+
+                                $scope.$watch(grSettings + '.schema', function(schema){
+                                    if(schema){
+                                        setErrors(schema);
+                                    }
+                                }, true);
+
+                                $scope.$watch(function(){
+                                    if($scope[$attrs.name] && $scope[$attrs.name].autofields){
+                                        return $scope[$attrs.name].autofields.$error;
+                                    }else{
+                                        return [];
+                                    }
+                                }, checkError, true);
+
+                                $element.addClass(elId);
+
+                                $timeout(makeAutofields);
                             };
-
-                        $scope.$watch(function(){ return modalScope ? true : false; }, function(hasModal){
-                            if(hasModal){
-                                $alert.destroy();
-                                $alert = $grAlert.new(modalScope.modal.element);
-                            }
-                        }, true);
-
-                        // $scope.$watch(grSettings + '.data', function(schema){
-                        //     console.debug(schema);
-                        // }, true);
-
-                        $scope.$watch(grSettings + '.schema', function(schema){
-                            if(schema){
-                                setErrors(schema);
-                            }
-                        }, true);
-
-                        $scope.$watch(function(){
-                            if($scope[$attrs.name] && $scope[$attrs.name].autofields){
-                                return $scope[$attrs.name].autofields.$error;
-                            }else{
-                                return [];
-                            }
-                        }, checkError, true);
-
-                        $element.addClass(elId);
-
-                        $timeout(makeAutofields);
-                    };
-                    $scope.$watch(grSettings, function(settings){
-                        if(settings && settings.schema && !initialized){
-                            initialized = true;
-                            init();
+                            $scope.$watch(grSettings, function(settings){
+                                if(settings && settings.schema && !initialized){
+                                    initialized = true;
+                                    init();
+                                }
+                            });
                         }
-                    });
+                    }
                 }
             }
         }])

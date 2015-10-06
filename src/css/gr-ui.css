@@ -238,13 +238,19 @@
   background: #e0e0e0;
   color: #666;
 }
-.autofields .input-container .input-wrapper:first-of-type .btn,
-.autofields .input-container .input-item-btn:first-of-type .btn {
+.autofields .input-container .input-item:first-of-type {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
-.autofields .input-container .input-wrapper:last-of-type .btn,
-.autofields .input-container .input-item-btn:last-of-type .btn {
+.autofields .input-container .input-item:first-of-type .btn {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.autofields .input-container .input-item:last-of-type {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.autofields .input-container .input-item:last-of-type .btn {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
@@ -805,26 +811,29 @@
   border-radius: 6px;
   background: #fcfcfc !important;
 }
-.autofields .form-group.html .ta-root:focus {
+.autofields .form-group.html .ta-root .ta-editor:focus {
   user-select: text;
 }
-.autofields .form-group.html .ta-root.ta-bind {
-  padding: 12px;
-}
-.autofields .form-group.html .ta-root.ta-bind:focus,
-.autofields .form-group.html .ta-root.ta-bind :focus {
-  outline: none;
-}
-.autofields .form-group.html .ta-root .ta-bind {
+.autofields .form-group.html .ta-root .ta-editor .ta-bind {
   height: 100%;
   min-height: 0;
   padding: 12px;
 }
-.autofields .form-group.html .ta-root .ta-bind:focus,
-.autofields .form-group.html .ta-root .ta-bind :focus {
+.autofields .form-group.html .ta-root .ta-editor .ta-bind:focus,
+.autofields .form-group.html .ta-root .ta-editor .ta-bind :focus {
   outline: none;
 }
-.autofields .form-group.html .ta-root .ta-scroll-window {
+.autofields .form-group.html .ta-root .ta-editor.ta-html {
+  padding: 0;
+}
+.autofields .form-group.html .ta-root .ta-editor.ta-html .CodeMirror {
+  height: 294px;
+}
+.autofields .form-group.html .ta-root .ta-editor.ta-html:focus,
+.autofields .form-group.html .ta-root .ta-editor.ta-html :focus {
+  outline: none;
+}
+.autofields .form-group.html .ta-root .ta-editor .ta-scroll-window {
   overflow: auto;
   padding: 0 !important;
 }
