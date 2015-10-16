@@ -1,46 +1,45 @@
-.autofields
-    .form-group
-        &.checkbox
-            margin-top 0
-            margin-bottom 15px
-            .success-icon
-            .error-icon
-                position absolute
-                top 50%
-                right ($size-input-padding / 2)
-                kits(transform, translateY(-50%))
-                kits(opacity, 0)
-                kits(transition, all .1s)
-            .success-icon
-                color $success-color-icon
-            .error-icon
-                color $error-color-icon
+.gr-form-group
+    &.checkbox
+        margin-top 0
+        margin-bottom 15px
+        .success-icon
+        .error-icon
+            position absolute
+            top 50%
+            right ($size-input-padding / 2)
+            kits(transform, translateY(-50%))
+            kits(opacity, 0)
+            kits(transition, all .1s)
+        .success-icon
+            color $success-color-icon
+        .error-icon
+            color $error-color-icon
+        .form-control
+            height $size-input-height + ($size-input-border*2px)
+            padding (($size-input-height - 28px) / 2) + $size-input-border
+            padding-left $size-input-padding + 15px !important
+            border solid $size-input-border $color-border
+            border-radius $size-input-border-radius
+            vertical-align middle
+            color $color-label-large
+            white-space nowrap
+            overflow hidden
+        &.required
             .form-control
-                height $size-input-height + ($size-input-border*2px)
-                padding (($size-input-height - 28px) / 2) + $size-input-border
-                padding-left $size-input-padding + 15px !important
-                border solid $size-input-border $color-border
-                border-radius $size-input-border-radius
-                vertical-align middle
+                border-left-color $color-required
+        &.has-success
+        &.has-error
+            .form-control
+                padding-right 40px
                 color $color-label-large
-                white-space nowrap
-                overflow hidden
-            &.required
-                .form-control
-                    border-left-color $color-required
-            &.has-success
-            &.has-error
-                .form-control
-                    padding-right 40px
-                    color $color-label-large
-            &.has-success
-                .form-control
-                    border-color $success-color-border
-                    .success-icon
-                        kits(opacity, 1)
+        &.has-success
+            .form-control
+                border-color $success-color-border
+                .success-icon
+                    kits(opacity, 1)
 
-            &.has-error
-                .form-control
-                    border-color $error-color-border
-                    .error-icon
-                        kits(opacity, 1)
+        &.has-error
+            .form-control
+                border-color $error-color-border
+                .error-icon
+                    kits(opacity, 1)

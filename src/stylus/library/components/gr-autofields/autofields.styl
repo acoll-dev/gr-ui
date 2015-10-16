@@ -3,6 +3,22 @@
     display table
     width 100%
     margin 0
+.gr-input-label
+    position relative
+    width 60px
+    padding 0 !important
+    label
+        position absolute
+        width 74px
+        top 50%
+        left 50%
+        kits(transform, translate(-50%, -50%))
+        line-height 1
+        margin 0
+        color rgba(0,0,0,.5)
+        font-size $size-label-small
+        kits(transition, all .1s)
+.gr-form-group
     label
         z-index 1
         font-weight normal
@@ -29,73 +45,57 @@
         &:-moz-placeholder
             color transparent
             kits(transition, all .1s)
-    .input-label
-        position relative
-        width 80px
-        padding 0 !important
-        label
-            position absolute
-            width 74px
-            top 50%
-            left 50%
-            kits(transform, translate(-50%, -50%))
-            line-height 1
-            margin 0
-            color rgba(0,0,0,.5)
-            font-size $size-label-small
-            kits(transition, all .1s)
-    .form-group
-        &.is-disabled
-            .input-wrapper
-                background $color-input-bg-disabled
-    .input-wrapper
-        position relative
-        border solid $size-input-border $color-border
-        border-radius $size-input-border-radius
-        background-color $color-input-bg
-    .input-container
-        position relative
-        display flex
-        flex-flow flex-wrap
-        justify-content space-around
-        border-radius $size-input-border-radius
-        border solid $size-input-border $color-border
-        // overflow hidden
-        .input-item
-            display block
-            border none
-            border-radius 0
-        .input-wrapper
-            flex 1
-        .form-control
-            border none
-            height $size-input-height
-        .btn
-            height $size-input-height
-            border none
-            border-radius 0
-        .input-item-btn
-        .input-item-addon
-            display block
-            border none
-        .input-item-addon
-            padding 6px 12px
-            font-size 14px
-            font-weight normal
-            line-height 42px
-            text-align center
-            background $color-addon-bg
-            color $color-addon-text
-        .input-item
-            &:first-of-type
+    &.is-disabled
+        .gr-input-wrapper
+            background $color-input-bg-disabled
+.gr-input-wrapper
+    position relative
+    border solid $size-input-border $color-border
+    border-radius $size-input-border-radius
+    background-color $color-input-bg
+.gr-input-container
+    position relative
+    display flex
+    flex-flow flex-wrap
+    justify-content space-around
+    border-radius $size-input-border-radius
+    border solid $size-input-border $color-border
+    // overflow hidden
+    .gr-input-item
+        display block
+        border none
+        border-radius 0
+    .gr-input-wrapper
+        flex 1
+    .form-control
+        border none
+        height $size-input-height
+    .btn
+        height $size-input-height
+        border none
+        border-radius 0
+    .gr-input-item-btn
+    .gr-input-item-addon
+        display block
+        border none
+    .gr-input-item-addon
+        padding 6px 12px
+        font-size 14px
+        font-weight normal
+        line-height 42px
+        text-align center
+        background $color-addon-bg
+        color $color-addon-text
+    .gr-input-item
+        &:first-of-type
+            border-top-left-radius ($size-input-border-radius/2px)
+            border-bottom-left-radius ($size-input-border-radius/2px)
+            .btn
                 border-top-left-radius ($size-input-border-radius/2px)
                 border-bottom-left-radius ($size-input-border-radius/2px)
-                .btn
-                    border-top-left-radius ($size-input-border-radius/2px)
-                    border-bottom-left-radius ($size-input-border-radius/2px)
-            &:last-of-type
+        &:last-of-type
+            border-top-right-radius ($size-input-border-radius/2px)
+            border-bottom-right-radius ($size-input-border-radius/2px)
+            .btn
                 border-top-right-radius ($size-input-border-radius/2px)
                 border-bottom-right-radius ($size-input-border-radius/2px)
-                .btn
-                    border-top-right-radius ($size-input-border-radius/2px)
-                    border-bottom-right-radius ($size-input-border-radius/2px)

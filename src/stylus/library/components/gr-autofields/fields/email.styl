@@ -1,86 +1,85 @@
-.autofields
-    .form-group
-        &.email
-            margin-bottom 15px
-            .success-icon
-            .error-icon
-                position absolute
-                top 50%
-                right ($size-input-padding / 2)
-                kits(transform, translateY(-50%))
-                kits(opacity, 0)
-                kits(transition, all .1s)
-            .success-icon
-                color $success-color-icon
-            .error-icon
-                color $error-color-icon
+.gr-form-group
+    &.email
+        margin-bottom 15px
+        .success-icon
+        .error-icon
+            position absolute
+            top 50%
+            right ($size-input-padding / 2)
+            kits(transform, translateY(-50%))
+            kits(opacity, 0)
+            kits(transition, all .1s)
+        .success-icon
+            color $success-color-icon
+        .error-icon
+            color $error-color-icon
+        label
+            position absolute
+            top 50%
+            left $size-input-padding + $size-input-border
+            margin 0
+            kits(transform, translateY(-50%))
+            color $color-label-large
+            font-size $size-label-large
+            kits(transition, all .1s)
+        .gr-input-container-addon
+            background $color-addon-bg
+            color $color-addon-text
+        &.has-focus
+            .gr-input-container
+                border-color $color-border-focus
+                .form-control
+                    box-shadow none
+            .gr-input-wrapper
+                border-color $color-border-focus
+                .form-control
+                    box-shadow none
+        &.has-value
+        &.has-focus
             label
-                position absolute
-                top 50%
-                left $size-input-padding + $size-input-border
-                margin 0
-                kits(transform, translateY(-50%))
-                color $color-label-large
-                font-size $size-label-large
-                kits(transition, all .1s)
-            .input-container-addon
-                background $color-addon-bg
-                color $color-addon-text
-            &.has-focus
-                .input-container
-                    border-color $color-border-focus
-                    .form-control
-                        box-shadow none
-                .input-wrapper
-                    border-color $color-border-focus
-                    .form-control
-                        box-shadow none
-            &.has-value
-            &.has-focus
+                top ($size-input-border*2)
+                left ($size-input-border*3)
+                font-size $size-label-small
+                color $color-label-small
+                kits(transform, translateY(0))
+            .gr-input-container
                 label
-                    top ($size-input-border*2)
-                    left ($size-input-border*3)
-                    font-size $size-label-small
-                    color $color-label-small
-                    kits(transform, translateY(0))
-                .input-container
-                    label
-                        top ($size-input-border)
-                        left ($size-input-border*2)
-                .form-control
-                    &::-webkit-input-placeholder
-                        color $color-placeholder
-                    &::-moz-placeholder
-                        color $color-placeholder
-                    &:-ms-input-placeholder
-                        color $color-placeholder
-                    &:-moz-placeholder
-                        color $color-placeholder
-            &.required
-                .input-container
-                .input-wrapper
-                    border-left-color $color-required
-            &.has-success
-            &.has-error
-                .form-control
-                    padding-right 40px
-            &.has-success
-                .input-container
-                .input-wrapper
-                    border-color $success-color-border
-                    .success-icon
-                        kits(opacity, 1)
-                &.has-focus
-                    .input-container
-                    .input-wrapper
-                        border-color $success-color-border-focus
-            &.has-error
-                .input-container
-                .input-wrapper
-                    border-color $error-color-border
-                    .error-icon
-                        kits(opacity, 1)
-                &.has-focus
-                    .input-container
-                    .input-wrapper
-                        border-color $error-color-border-focus
+                    top ($size-input-border)
+                    left ($size-input-border*2)
+            .form-control
+                &::-webkit-input-placeholder
+                    color $color-placeholder
+                &::-moz-placeholder
+                    color $color-placeholder
+                &:-ms-input-placeholder
+                    color $color-placeholder
+                &:-moz-placeholder
+                    color $color-placeholder
+        &.required
+            .gr-input-container
+            .gr-input-wrapper
+                border-left-color $color-required
+        &.has-success
+        &.has-error
+            .form-control
+                padding-right 40px
+        &.has-success
+            .gr-input-container
+            .gr-input-wrapper
+                border-color $success-color-border
+                .success-icon
+                    kits(opacity, 1)
+            &.has-focus
+                .gr-input-container
+                .gr-input-wrapper
+                    border-color $success-color-border-focus
+        &.has-error
+            .gr-input-container
+            .gr-input-wrapper
+                border-color $error-color-border
+                .error-icon
+                    kits(opacity, 1)
+            &.has-focus
+                .gr-input-container
+                .gr-input-wrapper
+                    border-color $error-color-border-focus

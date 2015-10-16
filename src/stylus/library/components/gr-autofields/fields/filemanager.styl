@@ -1,91 +1,90 @@
-.autofields
-    .form-group
-        &.filemanager
-            margin-bottom 15px
-            .success-icon
-            .error-icon
-                position absolute
-                display none
-                top 50%
-                right $size-input-padding
-                kits(transform, translateY(-50%))
-            .success-icon
-                color $success-color-icon
-            .error-icon
-                color $error-color-icon
-            .gr-filemanager-display-single
-                padding 0
+.gr-form-group
+    &.filemanager
+        margin-bottom 15px
+        .success-icon
+        .error-icon
+            position absolute
+            display none
+            top 50%
+            right $size-input-padding
+            kits(transform, translateY(-50%))
+        .success-icon
+            color $success-color-icon
+        .error-icon
+            color $error-color-icon
+        .gr-filemanager-display-single
+            padding 0
+            a
+                position relative
+                display block
+                width 56px
+                height 56px
+                background #FFFFFF
+                overflow hidden
+                img
+                    position absolute
+                    max-width (56px*2)
+                    top 50%
+                    left 50%
+                    kits(transform, translate(-50%, -50%))
+        .gr-filemanager-display
+            display table
+            flex none
+            width 100%
+            margin 0
+            background #F6F6F6
+            border solid 1px #E9E9E9
+            padding 5px
+            z-index 3
+            .img-wrapper
+                padding 5px
                 a
                     position relative
                     display block
-                    width 56px
-                    height 56px
-                    background #FFFFFF
+                    width 100%
+                    height 100%
                     overflow hidden
                     img
                         position absolute
-                        max-width (56px*2)
+                        width 200%
                         top 50%
                         left 50%
                         kits(transform, translate(-50%, -50%))
-            .gr-filemanager-display
-                display table
-                flex none
-                width 100%
-                margin 0
-                background #F6F6F6
-                border solid 1px #E9E9E9
-                padding 5px
-                z-index 3
-                .img-wrapper
-                    padding 5px
-                    a
-                        position relative
-                        display block
-                        width 100%
-                        height 100%
-                        overflow hidden
-                        img
-                            position absolute
-                            width 200%
-                            top 50%
-                            left 50%
-                            kits(transform, translate(-50%, -50%))
-                .img-thumbnail
-                    border-radius 0
-            .input-container
-                flex-flow row wrap
-            .input-wrapper
-                .form-control
-                    overflow hidden
-                &~.input-item
-                    border-left solid $size-input-border $color-border
-            &.required
-                .input-container
-                .input-wrapper
-                    border-left-color $color-required
-            &.has-success
-            &.has-error
-                padding-right 50px
-                .form-control
-                    padding-right 40px
-            &.has-success
-                .input-container
-                .input-wrapper
-                    border-color $success-color-border
-                .success-icon
-                    display block
-                &.has-focus
-                    .input-container
-                    .input-wrapper
-                        border-color $success-color-border-focus
-            &.has-error
-                .input-container
-                .input-wrapper
-                    border-color $error-color-border
-                .error-icon
-                    display block
-                &.has-focus
-                    .input-container
-                    .input-wrapper
-                        border-color $error-color-border-focus
+            .img-thumbnail
+                border-radius 0
+        .gr-input-container
+            flex-flow row wrap
+        .gr-input-wrapper
+            .form-control
+                overflow hidden
+            &~.gr-input-item
+                border-left solid $size-input-border $color-border
+        &.required
+            .gr-input-container
+            .gr-input-wrapper
+                border-left-color $color-required
+        &.has-success
+        &.has-error
+            padding-right 50px
+            .form-control
+                padding-right 40px
+        &.has-success
+            .gr-input-container
+            .gr-input-wrapper
+                border-color $success-color-border
+            .success-icon
+                display block
+            &.has-focus
+                .gr-input-container
+                .gr-input-wrapper
+                    border-color $success-color-border-focus
+        &.has-error
+            .gr-input-container
+            .gr-input-wrapper
+                border-color $error-color-border
+            .error-icon
+                display block
+            &.has-focus
+                .gr-input-container
+                .gr-input-wrapper
+                    border-color $error-color-border-focus

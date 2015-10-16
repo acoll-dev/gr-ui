@@ -112,61 +112,12 @@
   width: 100%;
   margin: 0;
 }
-.autofields label {
-  z-index: 1;
-  font-weight: normal;
-}
-.autofields .form-control {
+.gr-input-label {
   position: relative;
-  height: 56px;
-  padding: 15px;
-  box-shadow: none;
-  background: none;
-  border: none;
-  border-radius: 0;
-  z-index: 2;
-}
-.autofields .form-control:focus {
-  box-shadow: none;
-}
-.autofields .form-control::-webkit-input-placeholder {
-  color: transparent;
-  -webkit-transition: all 0.1s;
-  -moz-transition: all 0.1s;
-  -ie-transition: all 0.1s;
-  -o-transition: all 0.1s;
-  transition: all 0.1s;
-}
-.autofields .form-control::-moz-placeholder {
-  color: transparent;
-  -webkit-transition: all 0.1s;
-  -moz-transition: all 0.1s;
-  -ie-transition: all 0.1s;
-  -o-transition: all 0.1s;
-  transition: all 0.1s;
-}
-.autofields .form-control:-ms-input-placeholder {
-  color: transparent;
-  -webkit-transition: all 0.1s;
-  -moz-transition: all 0.1s;
-  -ie-transition: all 0.1s;
-  -o-transition: all 0.1s;
-  transition: all 0.1s;
-}
-.autofields .form-control:-moz-placeholder {
-  color: transparent;
-  -webkit-transition: all 0.1s;
-  -moz-transition: all 0.1s;
-  -ie-transition: all 0.1s;
-  -o-transition: all 0.1s;
-  transition: all 0.1s;
-}
-.autofields .input-label {
-  position: relative;
-  width: 80px;
+  width: 60px;
   padding: 0 !important;
 }
-.autofields .input-label label {
+.gr-input-label label {
   position: absolute;
   width: 74px;
   top: 50%;
@@ -186,16 +137,65 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.is-disabled .input-wrapper {
+.gr-form-group label {
+  z-index: 1;
+  font-weight: normal;
+}
+.gr-form-group .form-control {
+  position: relative;
+  height: 56px;
+  padding: 15px;
+  box-shadow: none;
+  background: none;
+  border: none;
+  border-radius: 0;
+  z-index: 2;
+}
+.gr-form-group .form-control:focus {
+  box-shadow: none;
+}
+.gr-form-group .form-control::-webkit-input-placeholder {
+  color: transparent;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group .form-control::-moz-placeholder {
+  color: transparent;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group .form-control:-ms-input-placeholder {
+  color: transparent;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group .form-control:-moz-placeholder {
+  color: transparent;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group.is-disabled .gr-input-wrapper {
   background: #f6f6f6;
 }
-.autofields .input-wrapper {
+.gr-input-wrapper {
   position: relative;
   border: solid 3px #e0e0e0;
   border-radius: 6px;
   background-color: #fff;
 }
-.autofields .input-container {
+.gr-input-container {
   position: relative;
   display: flex;
   flex-flow: flex-wrap;
@@ -203,33 +203,33 @@
   border-radius: 6px;
   border: solid 3px #e0e0e0;
 }
-.autofields .input-container .input-item {
+.gr-input-container .gr-input-item {
   display: block;
   border: none;
   border-radius: 0;
 }
-.autofields .input-container .input-wrapper {
+.gr-input-container .gr-input-wrapper {
   -webkit-box-flex: 1;
   -moz-box-flex: 1;
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
 }
-.autofields .input-container .form-control {
+.gr-input-container .form-control {
   border: none;
   height: 56px;
 }
-.autofields .input-container .btn {
+.gr-input-container .btn {
   height: 56px;
   border: none;
   border-radius: 0;
 }
-.autofields .input-container .input-item-btn,
-.autofields .input-container .input-item-addon {
+.gr-input-container .gr-input-item-btn,
+.gr-input-container .gr-input-item-addon {
   display: block;
   border: none;
 }
-.autofields .input-container .input-item-addon {
+.gr-input-container .gr-input-item-addon {
   padding: 6px 12px;
   font-size: 14px;
   font-weight: normal;
@@ -238,19 +238,19 @@
   background: #e0e0e0;
   color: #666;
 }
-.autofields .input-container .input-item:first-of-type {
+.gr-input-container .gr-input-item:first-of-type {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
-.autofields .input-container .input-item:first-of-type .btn {
+.gr-input-container .gr-input-item:first-of-type .btn {
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
-.autofields .input-container .input-item:last-of-type {
+.gr-input-container .gr-input-item:last-of-type {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
-.autofields .input-container .input-item:last-of-type .btn {
+.gr-input-container .gr-input-item:last-of-type .btn {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
@@ -264,12 +264,12 @@
   border-left-color: #f59090;
   background: #fff;
 }
-.autofields .form-group.checkbox {
+.gr-form-group.checkbox {
   margin-top: 0;
   margin-bottom: 15px;
 }
-.autofields .form-group.checkbox .success-icon,
-.autofields .form-group.checkbox .error-icon {
+.gr-form-group.checkbox .success-icon,
+.gr-form-group.checkbox .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -289,13 +289,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.checkbox .success-icon {
+.gr-form-group.checkbox .success-icon {
   color: #83f098;
 }
-.autofields .form-group.checkbox .error-icon {
+.gr-form-group.checkbox .error-icon {
   color: #f59090;
 }
-.autofields .form-group.checkbox .form-control {
+.gr-form-group.checkbox .form-control {
   height: 62px;
   padding: 17px;
   padding-left: 30px !important;
@@ -306,39 +306,39 @@
   white-space: nowrap;
   overflow: hidden;
 }
-.autofields .form-group.checkbox.required .form-control {
+.gr-form-group.checkbox.required .form-control {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.checkbox.has-success .form-control,
-.autofields .form-group.checkbox.has-error .form-control {
+.gr-form-group.checkbox.has-success .form-control,
+.gr-form-group.checkbox.has-error .form-control {
   padding-right: 40px;
   color: #999;
 }
-.autofields .form-group.checkbox.has-success .form-control {
+.gr-form-group.checkbox.has-success .form-control {
   border-color: #83f098;
 }
-.autofields .form-group.checkbox.has-success .form-control .success-icon {
+.gr-form-group.checkbox.has-success .form-control .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.checkbox.has-error .form-control {
+.gr-form-group.checkbox.has-error .form-control {
   border-color: #f59090;
 }
-.autofields .form-group.checkbox.has-error .form-control .error-icon {
+.gr-form-group.checkbox.has-error .form-control .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.date {
+.gr-form-group.date {
   margin-bottom: 15px;
 }
-.autofields .form-group.date .success-icon,
-.autofields .form-group.date .error-icon {
+.gr-form-group.date .success-icon,
+.gr-form-group.date .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -358,13 +358,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.date .success-icon {
+.gr-form-group.date .success-icon {
   color: #83f098;
 }
-.autofields .form-group.date .error-icon {
+.gr-form-group.date .error-icon {
   color: #f59090;
 }
-.autofields .form-group.date label {
+.gr-form-group.date label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -382,18 +382,18 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.date.has-focus .input-container {
+.gr-form-group.date.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.date.has-focus .input-container .form-control {
+.gr-form-group.date.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.date.has-focus .input-wrapper {
+.gr-form-group.date.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
   box-shadow: none;
 }
-.autofields .form-group.date.has-value label,
-.autofields .form-group.date.has-focus label {
+.gr-form-group.date.has-value label,
+.gr-form-group.date.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -404,72 +404,72 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.date.has-value .input-container label,
-.autofields .form-group.date.has-focus .input-container label {
+.gr-form-group.date.has-value .gr-input-container label,
+.gr-form-group.date.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.date.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.date.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.date.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.date.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.date.has-value .form-control::-moz-placeholder,
-.autofields .form-group.date.has-focus .form-control::-moz-placeholder {
+.gr-form-group.date.has-value .form-control::-moz-placeholder,
+.gr-form-group.date.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.date.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.date.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.date.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.date.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.date.has-value .form-control:-moz-placeholder,
-.autofields .form-group.date.has-focus .form-control:-moz-placeholder {
+.gr-form-group.date.has-value .form-control:-moz-placeholder,
+.gr-form-group.date.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.date.required .input-container,
-.autofields .form-group.date.required .input-wrapper {
+.gr-form-group.date.required .gr-input-container,
+.gr-form-group.date.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.date.has-success .form-control,
-.autofields .form-group.date.has-error .form-control {
+.gr-form-group.date.has-success .form-control,
+.gr-form-group.date.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.date.has-success .input-container,
-.autofields .form-group.date.has-success .input-wrapper {
+.gr-form-group.date.has-success .gr-input-container,
+.gr-form-group.date.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.date.has-success .input-container .success-icon,
-.autofields .form-group.date.has-success .input-wrapper .success-icon {
+.gr-form-group.date.has-success .gr-input-container .success-icon,
+.gr-form-group.date.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.date.has-success.has-focus .input-container,
-.autofields .form-group.date.has-success.has-focus .input-wrapper {
+.gr-form-group.date.has-success.has-focus .gr-input-container,
+.gr-form-group.date.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.date.has-error .input-container,
-.autofields .form-group.date.has-error .input-wrapper {
+.gr-form-group.date.has-error .gr-input-container,
+.gr-form-group.date.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.date.has-error .input-container .error-icon,
-.autofields .form-group.date.has-error .input-wrapper .error-icon {
+.gr-form-group.date.has-error .gr-input-container .error-icon,
+.gr-form-group.date.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.date.has-error.has-focus .input-container,
-.autofields .form-group.date.has-error.has-focus .input-wrapper {
+.gr-form-group.date.has-error.has-focus .gr-input-container,
+.gr-form-group.date.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.email {
+.gr-form-group.email {
   margin-bottom: 15px;
 }
-.autofields .form-group.email .success-icon,
-.autofields .form-group.email .error-icon {
+.gr-form-group.email .success-icon,
+.gr-form-group.email .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -489,13 +489,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.email .success-icon {
+.gr-form-group.email .success-icon {
   color: #83f098;
 }
-.autofields .form-group.email .error-icon {
+.gr-form-group.email .error-icon {
   color: #f59090;
 }
-.autofields .form-group.email label {
+.gr-form-group.email label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -513,24 +513,24 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.email .input-container-addon {
+.gr-form-group.email .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.email.has-focus .input-container {
+.gr-form-group.email.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.email.has-focus .input-container .form-control {
+.gr-form-group.email.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.email.has-focus .input-wrapper {
+.gr-form-group.email.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
 }
-.autofields .form-group.email.has-focus .input-wrapper .form-control {
+.gr-form-group.email.has-focus .gr-input-wrapper .form-control {
   box-shadow: none;
 }
-.autofields .form-group.email.has-value label,
-.autofields .form-group.email.has-focus label {
+.gr-form-group.email.has-value label,
+.gr-form-group.email.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -541,72 +541,72 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.email.has-value .input-container label,
-.autofields .form-group.email.has-focus .input-container label {
+.gr-form-group.email.has-value .gr-input-container label,
+.gr-form-group.email.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.email.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.email.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.email.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.email.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.email.has-value .form-control::-moz-placeholder,
-.autofields .form-group.email.has-focus .form-control::-moz-placeholder {
+.gr-form-group.email.has-value .form-control::-moz-placeholder,
+.gr-form-group.email.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.email.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.email.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.email.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.email.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.email.has-value .form-control:-moz-placeholder,
-.autofields .form-group.email.has-focus .form-control:-moz-placeholder {
+.gr-form-group.email.has-value .form-control:-moz-placeholder,
+.gr-form-group.email.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.email.required .input-container,
-.autofields .form-group.email.required .input-wrapper {
+.gr-form-group.email.required .gr-input-container,
+.gr-form-group.email.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.email.has-success .form-control,
-.autofields .form-group.email.has-error .form-control {
+.gr-form-group.email.has-success .form-control,
+.gr-form-group.email.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.email.has-success .input-container,
-.autofields .form-group.email.has-success .input-wrapper {
+.gr-form-group.email.has-success .gr-input-container,
+.gr-form-group.email.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.email.has-success .input-container .success-icon,
-.autofields .form-group.email.has-success .input-wrapper .success-icon {
+.gr-form-group.email.has-success .gr-input-container .success-icon,
+.gr-form-group.email.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.email.has-success.has-focus .input-container,
-.autofields .form-group.email.has-success.has-focus .input-wrapper {
+.gr-form-group.email.has-success.has-focus .gr-input-container,
+.gr-form-group.email.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.email.has-error .input-container,
-.autofields .form-group.email.has-error .input-wrapper {
+.gr-form-group.email.has-error .gr-input-container,
+.gr-form-group.email.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.email.has-error .input-container .error-icon,
-.autofields .form-group.email.has-error .input-wrapper .error-icon {
+.gr-form-group.email.has-error .gr-input-container .error-icon,
+.gr-form-group.email.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.email.has-error.has-focus .input-container,
-.autofields .form-group.email.has-error.has-focus .input-wrapper {
+.gr-form-group.email.has-error.has-focus .gr-input-container,
+.gr-form-group.email.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.filemanager {
+.gr-form-group.filemanager {
   margin-bottom: 15px;
 }
-.autofields .form-group.filemanager .success-icon,
-.autofields .form-group.filemanager .error-icon {
+.gr-form-group.filemanager .success-icon,
+.gr-form-group.filemanager .error-icon {
   position: absolute;
   display: none;
   top: 50%;
@@ -617,16 +617,16 @@
   -o-transform: translateY(-50%);
   transform: translateY(-50%);
 }
-.autofields .form-group.filemanager .success-icon {
+.gr-form-group.filemanager .success-icon {
   color: #83f098;
 }
-.autofields .form-group.filemanager .error-icon {
+.gr-form-group.filemanager .error-icon {
   color: #f59090;
 }
-.autofields .form-group.filemanager .gr-filemanager-display-single {
+.gr-form-group.filemanager .gr-filemanager-display-single {
   padding: 0;
 }
-.autofields .form-group.filemanager .gr-filemanager-display-single a {
+.gr-form-group.filemanager .gr-filemanager-display-single a {
   position: relative;
   display: block;
   width: 56px;
@@ -634,7 +634,7 @@
   background: #fff;
   overflow: hidden;
 }
-.autofields .form-group.filemanager .gr-filemanager-display-single a img {
+.gr-form-group.filemanager .gr-filemanager-display-single a img {
   position: absolute;
   max-width: 112px;
   top: 50%;
@@ -645,7 +645,7 @@
   -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
-.autofields .form-group.filemanager .gr-filemanager-display {
+.gr-form-group.filemanager .gr-filemanager-display {
   display: table;
   -webkit-box-flex: none;
   -moz-box-flex: none;
@@ -659,17 +659,17 @@
   padding: 5px;
   z-index: 3;
 }
-.autofields .form-group.filemanager .gr-filemanager-display .img-wrapper {
+.gr-form-group.filemanager .gr-filemanager-display .img-wrapper {
   padding: 5px;
 }
-.autofields .form-group.filemanager .gr-filemanager-display .img-wrapper a {
+.gr-form-group.filemanager .gr-filemanager-display .img-wrapper a {
   position: relative;
   display: block;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
-.autofields .form-group.filemanager .gr-filemanager-display .img-wrapper a img {
+.gr-form-group.filemanager .gr-filemanager-display .img-wrapper a img {
   position: absolute;
   width: 200%;
   top: 50%;
@@ -680,50 +680,50 @@
   -o-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
-.autofields .form-group.filemanager .gr-filemanager-display .img-thumbnail {
+.gr-form-group.filemanager .gr-filemanager-display .img-thumbnail {
   border-radius: 0;
 }
-.autofields .form-group.filemanager .input-container {
+.gr-form-group.filemanager .gr-input-container {
   flex-flow: row wrap;
 }
-.autofields .form-group.filemanager .input-wrapper .form-control {
+.gr-form-group.filemanager .gr-input-wrapper .form-control {
   overflow: hidden;
 }
-.autofields .form-group.filemanager .input-wrapper~.input-item {
+.gr-form-group.filemanager .gr-input-wrapper~.gr-input-item {
   border-left: solid 3px #e0e0e0;
 }
-.autofields .form-group.filemanager.required .input-container,
-.autofields .form-group.filemanager.required .input-wrapper {
+.gr-form-group.filemanager.required .gr-input-container,
+.gr-form-group.filemanager.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.filemanager.has-success,
-.autofields .form-group.filemanager.has-error {
+.gr-form-group.filemanager.has-success,
+.gr-form-group.filemanager.has-error {
   padding-right: 50px;
 }
-.autofields .form-group.filemanager.has-success .form-control,
-.autofields .form-group.filemanager.has-error .form-control {
+.gr-form-group.filemanager.has-success .form-control,
+.gr-form-group.filemanager.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.filemanager.has-success .input-container,
-.autofields .form-group.filemanager.has-success .input-wrapper {
+.gr-form-group.filemanager.has-success .gr-input-container,
+.gr-form-group.filemanager.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.filemanager.has-success .success-icon {
+.gr-form-group.filemanager.has-success .success-icon {
   display: block;
 }
-.autofields .form-group.filemanager.has-success.has-focus .input-container,
-.autofields .form-group.filemanager.has-success.has-focus .input-wrapper {
+.gr-form-group.filemanager.has-success.has-focus .gr-input-container,
+.gr-form-group.filemanager.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.filemanager.has-error .input-container,
-.autofields .form-group.filemanager.has-error .input-wrapper {
+.gr-form-group.filemanager.has-error .gr-input-container,
+.gr-form-group.filemanager.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.filemanager.has-error .error-icon {
+.gr-form-group.filemanager.has-error .error-icon {
   display: block;
 }
-.autofields .form-group.filemanager.has-error.has-focus .input-container,
-.autofields .form-group.filemanager.has-error.has-focus .input-wrapper {
+.gr-form-group.filemanager.has-error.has-focus .gr-input-container,
+.gr-form-group.filemanager.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
 .ta-hidden-input {
@@ -742,8 +742,14 @@
   opacity: 0;
   overflow: hidden;
 }
-.autofields .form-group.html .success-icon,
-.autofields .form-group.html .error-icon {
+.gr-form-group.html,
+.gr-form-group.html_basic {
+  margin-bottom: 15px;
+}
+.gr-form-group.html .success-icon,
+.gr-form-group.html_basic .success-icon,
+.gr-form-group.html .error-icon,
+.gr-form-group.html_basic .error-icon {
   position: absolute;
   top: 15px;
   right: 22px;
@@ -759,13 +765,16 @@
   transition: all 0.1s;
   z-index: 2;
 }
-.autofields .form-group.html .success-icon {
+.gr-form-group.html .success-icon,
+.gr-form-group.html_basic .success-icon {
   color: #83f098;
 }
-.autofields .form-group.html .error-icon {
+.gr-form-group.html .error-icon,
+.gr-form-group.html_basic .error-icon {
   color: #f59090;
 }
-.autofields .form-group.html label {
+.gr-form-group.html label,
+.gr-form-group.html_basic label {
   position: absolute;
   top: 12px;
   left: 30px;
@@ -777,14 +786,17 @@
   -o-opacity: 0.8;
   opacity: 0.8;
 }
-.autofields .form-group.html .ta-toolbar {
+.gr-form-group.html .ta-toolbar,
+.gr-form-group.html_basic .ta-toolbar {
   margin: -10px -5px 0;
   padding: 5px 0;
 }
-.autofields .form-group.html .ta-toolbar .btn-group {
+.gr-form-group.html .ta-toolbar .btn-group,
+.gr-form-group.html_basic .ta-toolbar .btn-group {
   margin: 5px;
 }
-.autofields .form-group.html .ta-root {
+.gr-form-group.html .ta-root,
+.gr-form-group.html_basic .ta-root {
   position: relative;
   display: block;
   width: 100%;
@@ -793,16 +805,17 @@
   border: solid 3px #e0e0e0;
   border-radius: 6px;
 }
-.autofields .form-group.html .ta-root.focussed .ta-editor {
+.gr-form-group.html .ta-root.focussed .ta-editor,
+.gr-form-group.html_basic .ta-root.focussed .ta-editor {
   background: #fff !important;
   border-color: #b9b9b9;
   box-shadow: none;
   outline: 0;
 }
-.autofields .form-group.html .ta-root .ta-editor {
+.gr-form-group.html .ta-root .ta-editor,
+.gr-form-group.html_basic .ta-root .ta-editor {
   position: relative;
   width: 100%;
-  height: 300px !important;
   padding: 0;
   overflow: auto;
   font-family: inherit;
@@ -811,72 +824,98 @@
   border-radius: 6px;
   background: #fcfcfc !important;
 }
-.autofields .form-group.html .ta-root .ta-editor:focus {
+.gr-form-group.html .ta-root .ta-editor:focus,
+.gr-form-group.html_basic .ta-root .ta-editor:focus {
   user-select: text;
 }
-.autofields .form-group.html .ta-root .ta-editor .ta-bind {
+.gr-form-group.html .ta-root .ta-editor .ta-bind,
+.gr-form-group.html_basic .ta-root .ta-editor .ta-bind {
   height: 100%;
   min-height: 0;
   padding: 12px;
 }
-.autofields .form-group.html .ta-root .ta-editor .ta-bind:focus,
-.autofields .form-group.html .ta-root .ta-editor .ta-bind :focus {
+.gr-form-group.html .ta-root .ta-editor .ta-bind:focus,
+.gr-form-group.html_basic .ta-root .ta-editor .ta-bind:focus,
+.gr-form-group.html .ta-root .ta-editor .ta-bind :focus,
+.gr-form-group.html_basic .ta-root .ta-editor .ta-bind :focus {
   outline: none;
 }
-.autofields .form-group.html .ta-root .ta-editor.ta-html {
+.gr-form-group.html .ta-root .ta-editor.ta-html,
+.gr-form-group.html_basic .ta-root .ta-editor.ta-html {
   padding: 0;
 }
-.autofields .form-group.html .ta-root .ta-editor.ta-html .CodeMirror {
+.gr-form-group.html .ta-root .ta-editor.ta-html .CodeMirror,
+.gr-form-group.html_basic .ta-root .ta-editor.ta-html .CodeMirror {
   height: 294px;
 }
-.autofields .form-group.html .ta-root .ta-editor.ta-html:focus,
-.autofields .form-group.html .ta-root .ta-editor.ta-html :focus {
+.gr-form-group.html .ta-root .ta-editor.ta-html:focus,
+.gr-form-group.html_basic .ta-root .ta-editor.ta-html:focus,
+.gr-form-group.html .ta-root .ta-editor.ta-html :focus,
+.gr-form-group.html_basic .ta-root .ta-editor.ta-html :focus {
   outline: none;
 }
-.autofields .form-group.html .ta-root .ta-editor .ta-scroll-window {
+.gr-form-group.html .ta-root .ta-editor .ta-scroll-window,
+.gr-form-group.html_basic .ta-root .ta-editor .ta-scroll-window {
   overflow: auto;
   padding: 0 !important;
 }
-.autofields .form-group.html.required .ta-root {
+.gr-form-group.html.required .ta-root,
+.gr-form-group.html_basic.required .ta-root {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.html.has-success label {
+.gr-form-group.html.has-success label,
+.gr-form-group.html_basic.has-success label {
   color: #999;
 }
-.autofields .form-group.html.has-success .success-icon {
+.gr-form-group.html.has-success .success-icon,
+.gr-form-group.html_basic.has-success .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.html.has-success .ta-root {
+.gr-form-group.html.has-success .ta-root,
+.gr-form-group.html_basic.has-success .ta-root {
   border-color: #83f098;
 }
-.autofields .form-group.html.has-success .ta-root.focussed .ta-editor {
+.gr-form-group.html.has-success .ta-root.focussed .ta-editor,
+.gr-form-group.html_basic.has-success .ta-root.focussed .ta-editor {
   border-color: #83f098;
 }
-.autofields .form-group.html.has-error label {
+.gr-form-group.html.has-error label,
+.gr-form-group.html_basic.has-error label {
   color: #999;
 }
-.autofields .form-group.html.has-error .error-icon {
+.gr-form-group.html.has-error .error-icon,
+.gr-form-group.html_basic.has-error .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.html.has-error .ta-root {
+.gr-form-group.html.has-error .ta-root,
+.gr-form-group.html_basic.has-error .ta-root {
   border-color: #f59090;
 }
-.autofields .form-group.html.has-error .ta-root.focussed .ta-editor {
+.gr-form-group.html.has-error .ta-root.focussed .ta-editor,
+.gr-form-group.html_basic.has-error .ta-root.focussed .ta-editor {
   border-color: #f59090;
 }
-.autofields .form-group.number {
+.gr-form-group.html .ta-root .ta-editor {
+  height: 300px !important;
+  min-height: 300px !important;
+}
+.gr-form-group.html_basic .ta-root .ta-editor {
+  height: 150px !important;
+  min-height: 150px !important;
+}
+.gr-form-group.number {
   margin-bottom: 15px;
 }
-.autofields .form-group.number .success-icon,
-.autofields .form-group.number .error-icon {
+.gr-form-group.number .success-icon,
+.gr-form-group.number .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -896,13 +935,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.number .success-icon {
+.gr-form-group.number .success-icon {
   color: #83f098;
 }
-.autofields .form-group.number .error-icon {
+.gr-form-group.number .error-icon {
   color: #f59090;
 }
-.autofields .form-group.number label {
+.gr-form-group.number label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -920,24 +959,24 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.number .input-container-addon {
+.gr-form-group.number .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.number.has-focus .input-container {
+.gr-form-group.number.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.number.has-focus .input-container .form-control {
+.gr-form-group.number.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.number.has-focus .input-wrapper {
+.gr-form-group.number.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
 }
-.autofields .form-group.number.has-focus .input-wrapper .form-control {
+.gr-form-group.number.has-focus .gr-input-wrapper .form-control {
   box-shadow: none;
 }
-.autofields .form-group.number.has-value label,
-.autofields .form-group.number.has-focus label {
+.gr-form-group.number.has-value label,
+.gr-form-group.number.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -948,72 +987,72 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.number.has-value .input-container label,
-.autofields .form-group.number.has-focus .input-container label {
+.gr-form-group.number.has-value .gr-input-container label,
+.gr-form-group.number.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.number.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.number.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.number.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.number.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.number.has-value .form-control::-moz-placeholder,
-.autofields .form-group.number.has-focus .form-control::-moz-placeholder {
+.gr-form-group.number.has-value .form-control::-moz-placeholder,
+.gr-form-group.number.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.number.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.number.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.number.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.number.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.number.has-value .form-control:-moz-placeholder,
-.autofields .form-group.number.has-focus .form-control:-moz-placeholder {
+.gr-form-group.number.has-value .form-control:-moz-placeholder,
+.gr-form-group.number.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.number.required .input-container,
-.autofields .form-group.number.required .input-wrapper {
+.gr-form-group.number.required .gr-input-container,
+.gr-form-group.number.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.number.has-success .form-control,
-.autofields .form-group.number.has-error .form-control {
+.gr-form-group.number.has-success .form-control,
+.gr-form-group.number.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.number.has-success .input-container,
-.autofields .form-group.number.has-success .input-wrapper {
+.gr-form-group.number.has-success .gr-input-container,
+.gr-form-group.number.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.number.has-success .input-container .success-icon,
-.autofields .form-group.number.has-success .input-wrapper .success-icon {
+.gr-form-group.number.has-success .gr-input-container .success-icon,
+.gr-form-group.number.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.number.has-success.has-focus .input-container,
-.autofields .form-group.number.has-success.has-focus .input-wrapper {
+.gr-form-group.number.has-success.has-focus .gr-input-container,
+.gr-form-group.number.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.number.has-error .input-container,
-.autofields .form-group.number.has-error .input-wrapper {
+.gr-form-group.number.has-error .gr-input-container,
+.gr-form-group.number.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.number.has-error .input-container .error-icon,
-.autofields .form-group.number.has-error .input-wrapper .error-icon {
+.gr-form-group.number.has-error .gr-input-container .error-icon,
+.gr-form-group.number.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.number.has-error.has-focus .input-container,
-.autofields .form-group.number.has-error.has-focus .input-wrapper {
+.gr-form-group.number.has-error.has-focus .gr-input-container,
+.gr-form-group.number.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.password {
+.gr-form-group.password {
   margin-bottom: 15px;
 }
-.autofields .form-group.password .success-icon,
-.autofields .form-group.password .error-icon {
+.gr-form-group.password .success-icon,
+.gr-form-group.password .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -1033,13 +1072,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.password .success-icon {
+.gr-form-group.password .success-icon {
   color: #83f098;
 }
-.autofields .form-group.password .error-icon {
+.gr-form-group.password .error-icon {
   color: #f59090;
 }
-.autofields .form-group.password label {
+.gr-form-group.password label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -1057,24 +1096,24 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.password .input-container-addon {
+.gr-form-group.password .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.password.has-focus .input-container {
+.gr-form-group.password.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.password.has-focus .input-container .form-control {
+.gr-form-group.password.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.password.has-focus .input-wrapper {
+.gr-form-group.password.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
 }
-.autofields .form-group.password.has-focus .input-wrapper .form-control {
+.gr-form-group.password.has-focus .gr-input-wrapper .form-control {
   box-shadow: none;
 }
-.autofields .form-group.password.has-value label,
-.autofields .form-group.password.has-focus label {
+.gr-form-group.password.has-value label,
+.gr-form-group.password.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -1085,72 +1124,72 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.password.has-value .input-container label,
-.autofields .form-group.password.has-focus .input-container label {
+.gr-form-group.password.has-value .gr-input-container label,
+.gr-form-group.password.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.password.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.password.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.password.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.password.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.password.has-value .form-control::-moz-placeholder,
-.autofields .form-group.password.has-focus .form-control::-moz-placeholder {
+.gr-form-group.password.has-value .form-control::-moz-placeholder,
+.gr-form-group.password.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.password.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.password.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.password.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.password.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.password.has-value .form-control:-moz-placeholder,
-.autofields .form-group.password.has-focus .form-control:-moz-placeholder {
+.gr-form-group.password.has-value .form-control:-moz-placeholder,
+.gr-form-group.password.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.password.required .input-container,
-.autofields .form-group.password.required .input-wrapper {
+.gr-form-group.password.required .gr-input-container,
+.gr-form-group.password.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.password.has-success .form-control,
-.autofields .form-group.password.has-error .form-control {
+.gr-form-group.password.has-success .form-control,
+.gr-form-group.password.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.password.has-success .input-container,
-.autofields .form-group.password.has-success .input-wrapper {
+.gr-form-group.password.has-success .gr-input-container,
+.gr-form-group.password.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.password.has-success .input-container .success-icon,
-.autofields .form-group.password.has-success .input-wrapper .success-icon {
+.gr-form-group.password.has-success .gr-input-container .success-icon,
+.gr-form-group.password.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.password.has-success.has-focus .input-container,
-.autofields .form-group.password.has-success.has-focus .input-wrapper {
+.gr-form-group.password.has-success.has-focus .gr-input-container,
+.gr-form-group.password.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.password.has-error .input-container,
-.autofields .form-group.password.has-error .input-wrapper {
+.gr-form-group.password.has-error .gr-input-container,
+.gr-form-group.password.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.password.has-error .input-container .error-icon,
-.autofields .form-group.password.has-error .input-wrapper .error-icon {
+.gr-form-group.password.has-error .gr-input-container .error-icon,
+.gr-form-group.password.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.password.has-error.has-focus .input-container,
-.autofields .form-group.password.has-error.has-focus .input-wrapper {
+.gr-form-group.password.has-error.has-focus .gr-input-container,
+.gr-form-group.password.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.select {
+.gr-form-group.select {
   margin-bottom: 15px;
 }
-.autofields .form-group.select .success-icon,
-.autofields .form-group.select .error-icon {
+.gr-form-group.select .success-icon,
+.gr-form-group.select .error-icon {
   position: absolute;
   top: 50%;
   right: 15px;
@@ -1170,13 +1209,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.select .success-icon {
+.gr-form-group.select .success-icon {
   color: #83f098;
 }
-.autofields .form-group.select .error-icon {
+.gr-form-group.select .error-icon {
   color: #f59090;
 }
-.autofields .form-group.select label {
+.gr-form-group.select label {
   position: absolute;
   top: 6px;
   left: 9px;
@@ -1184,85 +1223,92 @@
   color: #999;
   font-size: 0.6rem;
 }
-.autofields .form-group.select .input-container label {
+.gr-form-group.select .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.select .form-control::-webkit-input-placeholder {
+.gr-form-group.select .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.select .form-control::-moz-placeholder {
+.gr-form-group.select .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.select .form-control:-ms-input-placeholder {
+.gr-form-group.select .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.select .form-control:-moz-placeholder {
+.gr-form-group.select .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.select.has-focus .input-container {
+.gr-form-group.select.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.select.has-focus .input-container .form-control {
+.gr-form-group.select.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.select.has-focus .input-wrapper {
+.gr-form-group.select.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
   box-shadow: none;
 }
-.autofields .form-group.select.required .input-container,
-.autofields .form-group.select.required .input-wrapper {
+.gr-form-group.select.required .gr-input-container,
+.gr-form-group.select.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.select.has-success .form-control,
-.autofields .form-group.select.has-error .form-control {
+.gr-form-group.select.has-success .form-control,
+.gr-form-group.select.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.select.has-success .input-container,
-.autofields .form-group.select.has-success .input-wrapper {
+.gr-form-group.select.has-success .gr-input-container,
+.gr-form-group.select.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.select.has-success .input-container .success-icon,
-.autofields .form-group.select.has-success .input-wrapper .success-icon {
+.gr-form-group.select.has-success .gr-input-container .success-icon,
+.gr-form-group.select.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.select.has-success.has-focus .input-container,
-.autofields .form-group.select.has-success.has-focus .input-wrapper {
+.gr-form-group.select.has-success.has-focus .gr-input-container,
+.gr-form-group.select.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.select.has-error .input-container,
-.autofields .form-group.select.has-error .input-wrapper {
+.gr-form-group.select.has-error .gr-input-container,
+.gr-form-group.select.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.select.has-error .input-container .error-icon,
-.autofields .form-group.select.has-error .input-wrapper .error-icon {
+.gr-form-group.select.has-error .gr-input-container .error-icon,
+.gr-form-group.select.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.select.has-error.has-focus .input-container,
-.autofields .form-group.select.has-error.has-focus .input-wrapper {
+.gr-form-group.select.has-error.has-focus .gr-input-container,
+.gr-form-group.select.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.ui-select-container {
+.gr-form-group.select2 {
+  margin-bottom: 15px;
+  overflow: visible;
+}
+.gr-form-group.select2 .ui-select-container {
   padding: 0;
   border: none;
   outline: none;
 }
-.autofields .form-group.text {
-  margin-bottom: 15px;
+.gr-form-group.select2 .ui-select-container .btn-default-focus {
+  background: none;
+  box-shadow: none;
+  border: none;
+  outline: none;
 }
-.autofields .form-group.text .success-icon,
-.autofields .form-group.text .error-icon {
+.gr-form-group.select2 .success-icon,
+.gr-form-group.select2 .error-icon {
   position: absolute;
   top: 50%;
-  right: 7.5px;
+  right: 15px;
   -webkit-transform: translateY(-50%);
   -moz-transform: translateY(-50%);
   -ie-transform: translateY(-50%);
@@ -1279,13 +1325,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.text .success-icon {
+.gr-form-group.select2 .success-icon {
   color: #83f098;
 }
-.autofields .form-group.text .error-icon {
+.gr-form-group.select2 .error-icon {
   color: #f59090;
 }
-.autofields .form-group.text label {
+.gr-form-group.select2 label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -1303,20 +1349,7 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.text.has-focus .input-container {
-  border-color: #b9b9b9;
-}
-.autofields .form-group.text.has-focus .input-container .form-control {
-  box-shadow: none;
-}
-.autofields .form-group.text.has-focus .input-wrapper {
-  border-color: #b9b9b9;
-}
-.autofields .form-group.text.has-focus .input-wrapper .form-control {
-  box-shadow: none;
-}
-.autofields .form-group.text.has-value label,
-.autofields .form-group.text.has-focus label {
+.gr-form-group.select2.has-value label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -1327,77 +1360,224 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.text.has-value .input-container label,
-.autofields .form-group.text.has-focus .input-container label {
+.gr-form-group.select2.has-value .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.text.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.text.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.select2 .form-control {
+  background: none;
+  outline: none;
+}
+.gr-form-group.select2 .form-control:hover,
+.gr-form-group.select2 .form-control:active {
+  background: none;
+  outline: none;
+}
+.gr-form-group.select2 .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.text.has-value .form-control::-moz-placeholder,
-.autofields .form-group.text.has-focus .form-control::-moz-placeholder {
+.gr-form-group.select2 .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.text.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.text.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.select2 .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.text.has-value .form-control:-moz-placeholder,
-.autofields .form-group.text.has-focus .form-control:-moz-placeholder {
+.gr-form-group.select2 .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.text.required .input-container,
-.autofields .form-group.text.required .input-wrapper {
+.gr-form-group.select2.has-focus .gr-input-container {
+  border-color: #b9b9b9;
+}
+.gr-form-group.select2.has-focus .form-control {
+  box-shadow: none;
+}
+.gr-form-group.select2.has-focus .gr-input-wrapper {
+  border-color: #b9b9b9;
+  box-shadow: none;
+}
+.gr-form-group.select2.required .gr-input-container,
+.gr-form-group.select2.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.text.has-success .input-container-addon,
-.autofields .form-group.text.has-error .input-container-addon {
+.gr-form-group.select2.has-success .form-control,
+.gr-form-group.select2.has-error .form-control {
+  padding-right: 40px;
+}
+.gr-form-group.select2.has-success .gr-input-container,
+.gr-form-group.select2.has-success .gr-input-wrapper {
+  border-color: #83f098;
+}
+.gr-form-group.select2.has-success .gr-input-container .success-icon,
+.gr-form-group.select2.has-success .gr-input-wrapper .success-icon {
+  -webkit-opacity: 1;
+  -moz-opacity: 1;
+  -ie-opacity: 1;
+  -o-opacity: 1;
+  opacity: 1;
+}
+.gr-form-group.select2.has-success.has-focus .gr-input-container,
+.gr-form-group.select2.has-success.has-focus .gr-input-wrapper {
+  border-color: #5aeb76;
+}
+.gr-form-group.select2.has-success.has-error .gr-input-container,
+.gr-form-group.select2.has-success.has-error .gr-input-wrapper {
+  border-color: #f59090;
+}
+.gr-form-group.select2.has-success.has-error .gr-input-container .error-icon,
+.gr-form-group.select2.has-success.has-error .gr-input-wrapper .error-icon {
+  -webkit-opacity: 1;
+  -moz-opacity: 1;
+  -ie-opacity: 1;
+  -o-opacity: 1;
+  opacity: 1;
+}
+.gr-form-group.select2.has-success.has-focus .gr-input-container,
+.gr-form-group.select2.has-success.has-focus .gr-input-wrapper {
+  border-color: #f16363;
+}
+.gr-form-group.text {
+  margin-bottom: 15px;
+}
+.gr-form-group.text .success-icon,
+.gr-form-group.text .error-icon {
+  position: absolute;
+  top: 50%;
+  right: 7.5px;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ie-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  -webkit-opacity: 0;
+  -moz-opacity: 0;
+  -ie-opacity: 0;
+  -o-opacity: 0;
+  opacity: 0;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group.text .success-icon {
+  color: #83f098;
+}
+.gr-form-group.text .error-icon {
+  color: #f59090;
+}
+.gr-form-group.text label {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  margin: 0;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  -ie-transform: translateY(-50%);
+  -o-transform: translateY(-50%);
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 0.875rem;
+  -webkit-transition: all 0.1s;
+  -moz-transition: all 0.1s;
+  -ie-transition: all 0.1s;
+  -o-transition: all 0.1s;
+  transition: all 0.1s;
+}
+.gr-form-group.text.has-focus .gr-input-container {
+  border-color: #b9b9b9;
+}
+.gr-form-group.text.has-focus .gr-input-container .form-control {
+  box-shadow: none;
+}
+.gr-form-group.text.has-focus .gr-input-wrapper {
+  border-color: #b9b9b9;
+}
+.gr-form-group.text.has-focus .gr-input-wrapper .form-control {
+  box-shadow: none;
+}
+.gr-form-group.text.has-value label,
+.gr-form-group.text.has-focus label {
+  top: 6px;
+  left: 9px;
+  font-size: 0.6rem;
+  color: #999;
+  -webkit-transform: translateY(0);
+  -moz-transform: translateY(0);
+  -ie-transform: translateY(0);
+  -o-transform: translateY(0);
+  transform: translateY(0);
+}
+.gr-form-group.text.has-value .gr-input-container label,
+.gr-form-group.text.has-focus .gr-input-container label {
+  top: 3px;
+  left: 6px;
+}
+.gr-form-group.text.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.text.has-focus .form-control::-webkit-input-placeholder {
+  color: #ccc;
+}
+.gr-form-group.text.has-value .form-control::-moz-placeholder,
+.gr-form-group.text.has-focus .form-control::-moz-placeholder {
+  color: #ccc;
+}
+.gr-form-group.text.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.text.has-focus .form-control:-ms-input-placeholder {
+  color: #ccc;
+}
+.gr-form-group.text.has-value .form-control:-moz-placeholder,
+.gr-form-group.text.has-focus .form-control:-moz-placeholder {
+  color: #ccc;
+}
+.gr-form-group.text.required .gr-input-container,
+.gr-form-group.text.required .gr-input-wrapper {
+  border-left-color: #f37a7a;
+}
+.gr-form-group.text.has-success .gr-input-container-addon,
+.gr-form-group.text.has-error .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.text.has-success .form-control,
-.autofields .form-group.text.has-error .form-control {
+.gr-form-group.text.has-success .form-control,
+.gr-form-group.text.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.text.has-success .input-container,
-.autofields .form-group.text.has-success .input-wrapper {
+.gr-form-group.text.has-success .gr-input-container,
+.gr-form-group.text.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.text.has-success .input-container .success-icon,
-.autofields .form-group.text.has-success .input-wrapper .success-icon {
+.gr-form-group.text.has-success .gr-input-container .success-icon,
+.gr-form-group.text.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.text.has-success.has-focus .input-container,
-.autofields .form-group.text.has-success.has-focus .input-wrapper {
+.gr-form-group.text.has-success.has-focus .gr-input-container,
+.gr-form-group.text.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.text.has-error .input-container,
-.autofields .form-group.text.has-error .input-wrapper {
+.gr-form-group.text.has-error .gr-input-container,
+.gr-form-group.text.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.text.has-error .input-container .error-icon,
-.autofields .form-group.text.has-error .input-wrapper .error-icon {
+.gr-form-group.text.has-error .gr-input-container .error-icon,
+.gr-form-group.text.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.text.has-error.has-focus .input-container,
-.autofields .form-group.text.has-error.has-focus .input-wrapper {
+.gr-form-group.text.has-error.has-focus .gr-input-container,
+.gr-form-group.text.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.textarea {
+.gr-form-group.textarea {
   margin-bottom: 15px;
 }
-.autofields .form-group.textarea .success-icon,
-.autofields .form-group.textarea .error-icon {
+.gr-form-group.textarea .success-icon,
+.gr-form-group.textarea .error-icon {
   position: absolute;
   top: 15px;
   right: 7.5px;
@@ -1412,13 +1592,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.textarea .success-icon {
+.gr-form-group.textarea .success-icon {
   color: #83f098;
 }
-.autofields .form-group.textarea .error-icon {
+.gr-form-group.textarea .error-icon {
   color: #f59090;
 }
-.autofields .form-group.textarea label {
+.gr-form-group.textarea label {
   position: absolute;
   top: 15px;
   left: 18px;
@@ -1431,24 +1611,24 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.textarea .form-control {
+.gr-form-group.textarea .form-control {
   height: 112px;
   resize: vertical;
 }
-.autofields .form-group.textarea.has-focus .input-container {
+.gr-form-group.textarea.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.textarea.has-focus .input-container .form-control {
+.gr-form-group.textarea.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.textarea.has-focus .input-wrapper {
+.gr-form-group.textarea.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
 }
-.autofields .form-group.textarea.has-focus .input-wrapper .form-control {
+.gr-form-group.textarea.has-focus .gr-input-wrapper .form-control {
   box-shadow: none;
 }
-.autofields .form-group.textarea.has-value label,
-.autofields .form-group.textarea.has-focus label {
+.gr-form-group.textarea.has-value label,
+.gr-form-group.textarea.has-focus label {
   top: 3px;
   left: 6px;
   font-size: 0.6rem;
@@ -1459,77 +1639,77 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.textarea.has-value .input-container label,
-.autofields .form-group.textarea.has-focus .input-container label {
+.gr-form-group.textarea.has-value .gr-input-container label,
+.gr-form-group.textarea.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.textarea.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.textarea.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.textarea.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.textarea.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.textarea.has-value .form-control::-moz-placeholder,
-.autofields .form-group.textarea.has-focus .form-control::-moz-placeholder {
+.gr-form-group.textarea.has-value .form-control::-moz-placeholder,
+.gr-form-group.textarea.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.textarea.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.textarea.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.textarea.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.textarea.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.textarea.has-value .form-control:-moz-placeholder,
-.autofields .form-group.textarea.has-focus .form-control:-moz-placeholder {
+.gr-form-group.textarea.has-value .form-control:-moz-placeholder,
+.gr-form-group.textarea.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.textarea.required .input-container,
-.autofields .form-group.textarea.required .input-wrapper {
+.gr-form-group.textarea.required .gr-input-container,
+.gr-form-group.textarea.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.textarea.has-success .input-container-addon,
-.autofields .form-group.textarea.has-error .input-container-addon {
+.gr-form-group.textarea.has-success .gr-input-container-addon,
+.gr-form-group.textarea.has-error .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.textarea.has-success .form-control,
-.autofields .form-group.textarea.has-error .form-control {
+.gr-form-group.textarea.has-success .form-control,
+.gr-form-group.textarea.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.textarea.has-success .input-container,
-.autofields .form-group.textarea.has-success .input-wrapper {
+.gr-form-group.textarea.has-success .gr-input-container,
+.gr-form-group.textarea.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.textarea.has-success .input-container .success-icon,
-.autofields .form-group.textarea.has-success .input-wrapper .success-icon {
+.gr-form-group.textarea.has-success .gr-input-container .success-icon,
+.gr-form-group.textarea.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.textarea.has-success.has-focus .input-container,
-.autofields .form-group.textarea.has-success.has-focus .input-wrapper {
+.gr-form-group.textarea.has-success.has-focus .gr-input-container,
+.gr-form-group.textarea.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.textarea.has-error .input-container,
-.autofields .form-group.textarea.has-error .input-wrapper {
+.gr-form-group.textarea.has-error .gr-input-container,
+.gr-form-group.textarea.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.textarea.has-error .input-container .error-icon,
-.autofields .form-group.textarea.has-error .input-wrapper .error-icon {
+.gr-form-group.textarea.has-error .gr-input-container .error-icon,
+.gr-form-group.textarea.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.textarea.has-error.has-focus .input-container,
-.autofields .form-group.textarea.has-error.has-focus .input-wrapper {
+.gr-form-group.textarea.has-error.has-focus .gr-input-container,
+.gr-form-group.textarea.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
-.autofields .form-group.url {
+.gr-form-group.url {
   margin-bottom: 15px;
 }
-.autofields .form-group.url .success-icon,
-.autofields .form-group.url .error-icon {
+.gr-form-group.url .success-icon,
+.gr-form-group.url .error-icon {
   position: absolute;
   top: 50%;
   right: 7.5px;
@@ -1549,13 +1729,13 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.url .success-icon {
+.gr-form-group.url .success-icon {
   color: #83f098;
 }
-.autofields .form-group.url .error-icon {
+.gr-form-group.url .error-icon {
   color: #f59090;
 }
-.autofields .form-group.url label {
+.gr-form-group.url label {
   position: absolute;
   top: 50%;
   left: 18px;
@@ -1573,20 +1753,20 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.autofields .form-group.url.has-focus .input-container {
+.gr-form-group.url.has-focus .gr-input-container {
   border-color: #b9b9b9;
 }
-.autofields .form-group.url.has-focus .input-container .form-control {
+.gr-form-group.url.has-focus .gr-input-container .form-control {
   box-shadow: none;
 }
-.autofields .form-group.url.has-focus .input-wrapper {
+.gr-form-group.url.has-focus .gr-input-wrapper {
   border-color: #b9b9b9;
 }
-.autofields .form-group.url.has-focus .input-wrapper .form-control {
+.gr-form-group.url.has-focus .gr-input-wrapper .form-control {
   box-shadow: none;
 }
-.autofields .form-group.url.has-value label,
-.autofields .form-group.url.has-focus label {
+.gr-form-group.url.has-value label,
+.gr-form-group.url.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -1597,70 +1777,70 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.autofields .form-group.url.has-value .input-container label,
-.autofields .form-group.url.has-focus .input-container label {
+.gr-form-group.url.has-value .gr-input-container label,
+.gr-form-group.url.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }
-.autofields .form-group.url.has-value .form-control::-webkit-input-placeholder,
-.autofields .form-group.url.has-focus .form-control::-webkit-input-placeholder {
+.gr-form-group.url.has-value .form-control::-webkit-input-placeholder,
+.gr-form-group.url.has-focus .form-control::-webkit-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.url.has-value .form-control::-moz-placeholder,
-.autofields .form-group.url.has-focus .form-control::-moz-placeholder {
+.gr-form-group.url.has-value .form-control::-moz-placeholder,
+.gr-form-group.url.has-focus .form-control::-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.url.has-value .form-control:-ms-input-placeholder,
-.autofields .form-group.url.has-focus .form-control:-ms-input-placeholder {
+.gr-form-group.url.has-value .form-control:-ms-input-placeholder,
+.gr-form-group.url.has-focus .form-control:-ms-input-placeholder {
   color: #ccc;
 }
-.autofields .form-group.url.has-value .form-control:-moz-placeholder,
-.autofields .form-group.url.has-focus .form-control:-moz-placeholder {
+.gr-form-group.url.has-value .form-control:-moz-placeholder,
+.gr-form-group.url.has-focus .form-control:-moz-placeholder {
   color: #ccc;
 }
-.autofields .form-group.url.required .input-container,
-.autofields .form-group.url.required .input-wrapper {
+.gr-form-group.url.required .gr-input-container,
+.gr-form-group.url.required .gr-input-wrapper {
   border-left-color: #f37a7a;
 }
-.autofields .form-group.url.has-success .input-container-addon,
-.autofields .form-group.url.has-error .input-container-addon {
+.gr-form-group.url.has-success .gr-input-container-addon,
+.gr-form-group.url.has-error .gr-input-container-addon {
   background: #e0e0e0;
   color: #666;
 }
-.autofields .form-group.url.has-success .form-control,
-.autofields .form-group.url.has-error .form-control {
+.gr-form-group.url.has-success .form-control,
+.gr-form-group.url.has-error .form-control {
   padding-right: 40px;
 }
-.autofields .form-group.url.has-success .input-container,
-.autofields .form-group.url.has-success .input-wrapper {
+.gr-form-group.url.has-success .gr-input-container,
+.gr-form-group.url.has-success .gr-input-wrapper {
   border-color: #83f098;
 }
-.autofields .form-group.url.has-success .input-container .success-icon,
-.autofields .form-group.url.has-success .input-wrapper .success-icon {
+.gr-form-group.url.has-success .gr-input-container .success-icon,
+.gr-form-group.url.has-success .gr-input-wrapper .success-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.url.has-success.has-focus .input-container,
-.autofields .form-group.url.has-success.has-focus .input-wrapper {
+.gr-form-group.url.has-success.has-focus .gr-input-container,
+.gr-form-group.url.has-success.has-focus .gr-input-wrapper {
   border-color: #5aeb76;
 }
-.autofields .form-group.url.has-error .input-container,
-.autofields .form-group.url.has-error .input-wrapper {
+.gr-form-group.url.has-error .gr-input-container,
+.gr-form-group.url.has-error .gr-input-wrapper {
   border-color: #f59090;
 }
-.autofields .form-group.url.has-error .input-container .error-icon,
-.autofields .form-group.url.has-error .input-wrapper .error-icon {
+.gr-form-group.url.has-error .gr-input-container .error-icon,
+.gr-form-group.url.has-error .gr-input-wrapper .error-icon {
   -webkit-opacity: 1;
   -moz-opacity: 1;
   -ie-opacity: 1;
   -o-opacity: 1;
   opacity: 1;
 }
-.autofields .form-group.url.has-error.has-focus .input-container,
-.autofields .form-group.url.has-error.has-focus .input-wrapper {
+.gr-form-group.url.has-error.has-focus .gr-input-container,
+.gr-form-group.url.has-error.has-focus .gr-input-wrapper {
   border-color: #f16363;
 }
 .gr-carousel {
