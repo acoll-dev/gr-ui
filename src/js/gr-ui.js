@@ -436,72 +436,102 @@
                 }
             }
         }])
-        .directive('grField', ['$compile', function($compile){
-            var $content = '';
+        .directive('grField', ['$grAutofields', '$compile', function($grAutofields, $compile){
             return {
                 restrict: 'E',
-                template: function($element, $attrs){
-                    if(!$attrs.class){
-                        $attrs.$set('class', '');
-                    }
-                    $attrs.class += ($attrs.type || 'text');
-                    $content = angular.element('<div>' + $element.html() + '</div>');
-                    return '<div class="gr-form-group"></div>';
-                },
+                template: '<div></div>',
                 replace: true,
-                compile: function($element, $attrs){
-                    var template = {
-                        container: '<div class="gr-input-container"></div>',
-                        wrapper: [
-                                '<div class="gr-input-wrapper gr-input-item">',
-                                    '<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>',
-                                    '<i class="fa fa-fw fa-lg fa-times-circle success-icon"></i>',
-                                    ($attrs.label ? '<label class="control-label">' + $attrs.label + '</label>' : ''),
-                                '</div>'
-                            ].join(''),
-                        btn: '<div class="gr-input-item gr-input-item-btn"></div>',
-                        addon: '<div class="gr-input-item gr-input-item-addon"></div>'
-                    },
-                    field = {
-                        input: angular.element('<input type="' + ($attrs.type || 'text') + '" name="' + ($attrs.name || '') + '" class="form-control" ng-model="' + ($attrs.ngModel || '') + '" gr-bind-parent-events />'),
-                        wrapper: angular.element(template.wrapper),
-                        container: angular.element(template.container),
-                        btn: {
-                            before: $content.find('button[before]'),
-                            after: $content.find('button:not([before])')
-                        },
-                        addon: {
-                            before: $content.find('addon[before]'),
-                            after: $content.find('addon').not('[before]')
-                        }
-                    };
-                    if(field.btn.before.length > 0 || field.btn.after.length > 0 || field.addon.before.length > 0 || field.addon.after.length > 0){
-                        if(field.btn.before.length > 0){
-                            field.container.append(field.wrapper).prepend(
-                                angular.element(template.btn).append(field.btn.before)
-                            );
-                        }
-                        if(field.btn.after.length > 0){
-                            field.container.append(field.wrapper).append(
-                                angular.element(template.btn).append(field.btn.after)
-                            );
-                        }
-                        if(field.addon.before.length > 0){
-                            field.container.append(field.wrapper).prepend(
-                                angular.element(template.addon).append(field.addon.before)
-                            );
-                        }
-                        if(field.addon.after.length > 0){
-                            field.container.append(field.wrapper).append(
-                                angular.element(template.addon).append(field.addon.after)
-                            );
-                        }
-                        field.wrapper.append(field.input);
-                        $element.append(field.container);
-                    }else{
-                        field.wrapper.append(field.input);
-                        $element.append(field.wrapper);
+                link: function($scope, $element, $attr){
+                    // var template = {
+                    //     container: '<div class="gr-input-container"></div>',
+                    //     wrapper: [
+                    //             '<div class="gr-input-wrapper gr-input-item">',
+                    //                 '<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>',
+                    //                 '<i class="fa fa-fw fa-lg fa-times-circle success-icon"></i>',
+                    //                 ($attrs.label ? '<label class="control-label">' + $attrs.label + '</label>' : ''),
+                    //             '</div>'
+                    //         ].join(''),
+                    //     btn: '<div class="gr-input-item gr-input-item-btn"></div>',
+                    //     addon: '<div class="gr-input-item gr-input-item-addon"></div>'
+                    // },
+                    // field = {
+                    //     input: angular.element('<input type="' + ($attrs.type || 'text') + '" name="' + ($attrs.name || '') + '" class="form-control" ng-model="' + ($attrs.ngModel || '') + '" gr-bind-parent-events />'),
+                    //     wrapper: angular.element(template.wrapper),
+                    //     container: angular.element(template.container),
+                    //     btn: {
+                    //         before: $content.find('button[before]'),
+                    //         after: $content.find('button:not([before])')
+                    //     },
+                    //     addon: {
+                    //         before: $content.find('addon[before]'),
+                    //         after: $content.find('addon').not('[before]')
+                    //     }
+                    // };
+                    // if(field.btn.before.length > 0 || field.btn.after.length > 0 || field.addon.before.length > 0 || field.addon.after.length > 0){
+                    //     if(field.btn.before.length > 0){
+                    //         field.container.append(field.wrapper).prepend(
+                    //             angular.element(template.btn).append(field.btn.before)
+                    //         );
+                    //     }
+                    //     if(field.btn.after.length > 0){
+                    //         field.container.append(field.wrapper).append(
+                    //             angular.element(template.btn).append(field.btn.after)
+                    //         );
+                    //     }
+                    //     if(field.addon.before.length > 0){
+                    //         field.container.append(field.wrapper).prepend(
+                    //             angular.element(template.addon).append(field.addon.before)
+                    //         );
+                    //     }
+                    //     if(field.addon.after.length > 0){
+                    //         field.container.append(field.wrapper).append(
+                    //             angular.element(template.addon).append(field.addon.after)
+                    //         );
+                    //     }
+                    //     field.wrapper.append(field.input);
+                    //     $element.append(field.container);
+                    // }else{
+                    //     field.wrapper.append(field.input);
+                    //     $element.append(field.wrapper);
+                    // }
+
+                    var directive = {
+                        options: {},
+                        container: null,
+                        dataStr: 'grField'
                     }
+
+                    // Build fields from schema using handlers
+                    var build = function(field){
+
+                        $element.html('');
+
+                        if(field.modelPrefix){
+                            directive.dataStr = field.modelPrefix;
+                        }
+
+                        delete $grAutofields.settings.attributes.container.ngClass;
+                        delete $grAutofields.settings.attributes.input.popover;
+
+                        // Import Directive-wide Handler Default Settings Import
+                        directive.options = angular.copy($grAutofields.settings);
+
+                        if(!field.type){
+                            field.type = 'text';
+                        }
+
+                        var fieldEl = $grAutofields.createField(directive, field, 0);
+                        $element.append(fieldEl);
+
+                        // Compile Element with Scope
+                        $compile(fieldEl)($scope);
+                    };
+
+                    $scope.$watch($attr.settings, function(settings){
+                        if(settings){
+                            build(settings);
+                        }
+                    });
                 }
             }
         }])
