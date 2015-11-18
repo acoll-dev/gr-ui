@@ -10,18 +10,34 @@
             &.modal-xs
                 width 300px
                 max-width 300px
-                margin 10px auto
+                margin 30px auto
+                @media (max-width 310px)
+                    width auto !important
+                    max-width none
+                    margin 10px
             &.modal-sm
+                width 500px
+                max-width 500px
+                margin 30px auto
+                @media (max-width 520px)
+                    width auto !important
+                    max-width none
+                    margin 10px
+            &.modal-md
                 width 768px
                 max-width 768px
-                margin 10px auto
-                @media (max-width 991px)
+                margin 30px auto
+                @media (max-width 787px)
                     width auto !important
                     max-width none
                     margin 10px
             &.modal-lg
-                @media (max-width 1199px)
+                width 900px
+                max-width 900px
+                margin 30px auto
+                @media (max-width 920px)
                     width auto !important
+                    max-width none
                     margin 10px
             &.modal-responsive
                 width auto

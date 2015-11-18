@@ -670,23 +670,48 @@ height auto {
 .modal-open .modal .modal-dialog.modal-xs {
   width: 300px;
   max-width: 300px;
-  margin: 10px auto;
+  margin: 30px auto;
+}
+@media (max-width: 310px) {
+  .modal-open .modal .modal-dialog.modal-xs {
+    width: auto !important;
+    max-width: none;
+    margin: 10px;
+  }
 }
 .modal-open .modal .modal-dialog.modal-sm {
-  width: 768px;
-  max-width: 768px;
-  margin: 10px auto;
+  width: 500px;
+  max-width: 500px;
+  margin: 30px auto;
 }
-@media (max-width: 991px) {
+@media (max-width: 520px) {
   .modal-open .modal .modal-dialog.modal-sm {
     width: auto !important;
     max-width: none;
     margin: 10px;
   }
 }
-@media (max-width: 1199px) {
+.modal-open .modal .modal-dialog.modal-md {
+  width: 768px;
+  max-width: 768px;
+  margin: 30px auto;
+}
+@media (max-width: 787px) {
+  .modal-open .modal .modal-dialog.modal-md {
+    width: auto !important;
+    max-width: none;
+    margin: 10px;
+  }
+}
+.modal-open .modal .modal-dialog.modal-lg {
+  width: 900px;
+  max-width: 900px;
+  margin: 30px auto;
+}
+@media (max-width: 920px) {
   .modal-open .modal .modal-dialog.modal-lg {
     width: auto !important;
+    max-width: none;
     margin: 10px;
   }
 }
@@ -1071,4 +1096,4 @@ body .gr-table-pager .pagination li {
   float: left;
 }
 
-/*# sourceMappingURL=../../../../../../server/libraries/client/gr-ui/src/css/gr-ui.css.map */
+/*# sourceMappingURL=../../src/css/gr-ui.css.map */
