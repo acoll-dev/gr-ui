@@ -442,58 +442,6 @@
                 template: '<div></div>',
                 replace: true,
                 link: function($scope, $element, $attr){
-                    // var template = {
-                    //     container: '<div class="gr-input-container"></div>',
-                    //     wrapper: [
-                    //             '<div class="gr-input-wrapper gr-input-item">',
-                    //                 '<i class="fa fa-fw fa-lg fa-times-circle error-icon"></i>',
-                    //                 '<i class="fa fa-fw fa-lg fa-times-circle success-icon"></i>',
-                    //                 ($attrs.label ? '<label class="control-label">' + $attrs.label + '</label>' : ''),
-                    //             '</div>'
-                    //         ].join(''),
-                    //     btn: '<div class="gr-input-item gr-input-item-btn"></div>',
-                    //     addon: '<div class="gr-input-item gr-input-item-addon"></div>'
-                    // },
-                    // field = {
-                    //     input: angular.element('<input type="' + ($attrs.type || 'text') + '" name="' + ($attrs.name || '') + '" class="form-control" ng-model="' + ($attrs.ngModel || '') + '" gr-bind-parent-events />'),
-                    //     wrapper: angular.element(template.wrapper),
-                    //     container: angular.element(template.container),
-                    //     btn: {
-                    //         before: $content.find('button[before]'),
-                    //         after: $content.find('button:not([before])')
-                    //     },
-                    //     addon: {
-                    //         before: $content.find('addon[before]'),
-                    //         after: $content.find('addon').not('[before]')
-                    //     }
-                    // };
-                    // if(field.btn.before.length > 0 || field.btn.after.length > 0 || field.addon.before.length > 0 || field.addon.after.length > 0){
-                    //     if(field.btn.before.length > 0){
-                    //         field.container.append(field.wrapper).prepend(
-                    //             angular.element(template.btn).append(field.btn.before)
-                    //         );
-                    //     }
-                    //     if(field.btn.after.length > 0){
-                    //         field.container.append(field.wrapper).append(
-                    //             angular.element(template.btn).append(field.btn.after)
-                    //         );
-                    //     }
-                    //     if(field.addon.before.length > 0){
-                    //         field.container.append(field.wrapper).prepend(
-                    //             angular.element(template.addon).append(field.addon.before)
-                    //         );
-                    //     }
-                    //     if(field.addon.after.length > 0){
-                    //         field.container.append(field.wrapper).append(
-                    //             angular.element(template.addon).append(field.addon.after)
-                    //         );
-                    //     }
-                    //     field.wrapper.append(field.input);
-                    //     $element.append(field.container);
-                    // }else{
-                    //     field.wrapper.append(field.input);
-                    //     $element.append(field.wrapper);
-                    // }
 
                     var directive = {
                         options: {},
@@ -521,6 +469,7 @@
                         }
 
                         var fieldEl = $grAutofields.createField(directive, field, 0);
+
                         $element.append(fieldEl);
 
                         // Compile Element with Scope
@@ -552,14 +501,25 @@
                                 }
                             });
                         }
-                        $element.on({
-                            focus: function(){
-                                $element.parents('.gr-form-group').eq(0).addClass('has-focus');
-                            },
-                            blur: function(){
-                                $element.parents('.gr-form-group').eq(0).removeClass('has-focus');
-                            }
-                        });
+                        if($element.find('input').length > 0){
+                            $element.find('input').eq(0).on({
+                                focus: function(){
+                                    $element.parents('.gr-form-group').eq(0).addClass('has-focus');
+                                },
+                                blur: function(){
+                                    $element.parents('.gr-form-group').eq(0).removeClass('has-focus');
+                                }
+                            });
+                        }else{
+                            $element.on({
+                                focus: function(){
+                                    $element.parents('.gr-form-group').eq(0).addClass('has-focus');
+                                },
+                                blur: function(){
+                                    $element.parents('.gr-form-group').eq(0).removeClass('has-focus');
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -780,10 +740,6 @@
                                 $alert = $grAlert.new(modalScope.modal.element);
                             }
                         }, true);
-
-                        // $scope.$watch(grSettings + '.data', function(schema){
-                        //     console.debug(schema);
-                        // }, true);
 
                         $scope.$watch(grSettings + '.schema', function(schema){
                             if(schema){
@@ -3094,8 +3050,8 @@
                          if(angular.isString(src)){
                              $http.get(src).then(function(r){
                                  if(r.status === 200 && r.data.response){
-                                     $scope.grTable.dataSet = r.data.response;
-                                     $scope.grTable.reload();
+                                     $scope[$name].dataSet = r.data.response;
+                                     $scope[$name].reload();
                                      if(!reload){
                                          alert.hide();
                                      }else{
@@ -3115,8 +3071,8 @@
                              if(injector.has('$grRestful')){
                                  injector.get('$grRestful').find(src).then(function(r){
                                      if(r.response){
-                                         $scope.grTable.dataSet = r.response;
-                                         $scope.grTable.reload();
+                                         $scope[$name].dataSet = r.response;
+                                         $scope[$name].reload();
                                          if(!reload){
                                              alert.hide();
                                          }else{

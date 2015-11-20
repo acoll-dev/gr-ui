@@ -1305,6 +1305,12 @@
   border: none;
   outline: none;
 }
+.gr-form-group.select2 .ui-select-toggle {
+  background: none !important;
+}
+.gr-form-group.select2 .ui-select-match-text {
+  line-height: 30px;
+}
 .gr-form-group.select2 .success-icon,
 .gr-form-group.select2 .error-icon {
   position: absolute;
@@ -1350,7 +1356,8 @@
   -o-transition: all 0.1s;
   transition: all 0.1s;
 }
-.gr-form-group.select2.has-value label {
+.gr-form-group.select2.has-value label,
+.gr-form-group.select2.has-focus label {
   top: 6px;
   left: 9px;
   font-size: 0.6rem;
@@ -1361,7 +1368,8 @@
   -o-transform: translateY(0);
   transform: translateY(0);
 }
-.gr-form-group.select2.has-value .gr-input-container label {
+.gr-form-group.select2.has-value .gr-input-container label,
+.gr-form-group.select2.has-focus .gr-input-container label {
   top: 3px;
   left: 6px;
 }

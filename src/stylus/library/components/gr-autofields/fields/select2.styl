@@ -11,6 +11,10 @@
 				box-shadow none
 				border none
 				outline none
+		.ui-select-toggle
+			background none !important
+		.ui-select-match-text
+			line-height 30px
 		.success-icon
 		.error-icon
 			position absolute
@@ -33,6 +37,7 @@
 			font-size $size-label-large
 			kits(transition, all .1s)
 		&.has-value
+		&.has-focus
 			label
 				top ($size-input-border*2)
 				left ($size-input-border*3)
