@@ -7,7 +7,7 @@
 }(window));
 
 (function(){
-    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.autoscale', 'gr.ui.affix', 'gr.ui.carousel', 'gr.ui.modal', 'gr.ui.pager', 'gr.ui.table', 'gr.ui.translate']);
+    angular.module('gr.ui', ['gr.ui.alert', 'gr.ui.autofields', 'gr.ui.autoheight', 'gr.ui.autoscale', 'gr.ui.affix', 'gr.ui.carousel', 'gr.ui.dropdown', 'gr.ui.modal', 'gr.ui.pager', 'gr.ui.table', 'gr.ui.translate']);
 }());
 
 /*
@@ -2169,6 +2169,72 @@
 
 /*
  *
+ * GR-DROPDOWN
+ *
+ */
+(function(){
+    angular.module('gr.ui.dropdown', [])
+        .controller('grDropdownCtrl', ['$scope', function($scope){
+            $scope.dropdownOpen = false;
+        }])
+        .directive('grDropdown', ['$document', function($document){
+            return {
+                restrict: 'A',
+                scope: false,
+                controller: 'grDropdownCtrl',
+                link: function($scope, $element, $attrs){
+                    $element.addClass('gr-dropdown');
+                    var clickEvent = function(e){
+                        if($element.find(e.target).length === 0){
+                            $scope.dropdownOpen = false;
+                            $scope.$apply();
+                        }
+                    };
+                    $document.bind({
+                        'click': clickEvent,
+                        'touch': clickEvent
+                    });
+                    $scope.$watch('dropdownOpen', function(open){
+                        if(open){
+                            $attrs.$addClass('open');
+                        }else{
+                            $attrs.$removeClass('open');
+                        }
+                    });
+                }
+            }
+        }])
+        .directive('grDropdownToggle', ['$document', function($document){
+            return {
+                restrict: 'A',
+                require: '^grDropdown',
+                link: function($scope, $element, $attrs){
+                    var clickEvent = function(){
+                        $scope.$parent.dropdownOpen = !$scope.$parent.dropdownOpen;
+                        $scope.$parent.$apply();
+                    };
+                    $element.addClass('gr-dropdown-toggle').append('<i class="caret"></i>').bind({
+                        'click': clickEvent,
+                        'touch': clickEvent
+                    });
+                }
+            }
+        }])
+        .directive('grDropdownTarget', ['$document', '$compile', function($document, $compile){
+            return {
+                restrict: 'A',
+                require: '^grDropdown',
+                transclude: true,
+                replace: true,
+                template: function($element){
+                    return '<' + $element[0].tagName.toLowerCase() + ' class="gr-dropdown-target" ng-show="dropdownOpen" ng-transclude></' + $element[0].tagName.toLowerCase() + '>';
+                }
+            }
+        }]);
+}());
+
+/*
+ *
  * GR-MODAL
  *
  */
@@ -3043,7 +3109,7 @@
                      dataSource = '',
                      getData = function(src, reload){
                          if(!reload){
-                             alert.show('loading', $grTable.translate('ALERT.LOADING.TABLE.DATA'), 0);
+                            //  alert.show('loading', $grTable.translate('ALERT.LOADING.TABLE.DATA'), 0);
                          }else{
                              alert.show('loading', $grTable.translate('ALERT.RELOADING.TABLE.DATA'), 0);
                          }

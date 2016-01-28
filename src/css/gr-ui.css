@@ -1924,6 +1924,9 @@
 .gr-carousel-indicator .gr-carousel-indicator-item:hover:not(.active) {
   background-color: #ccc;
 }
+.gr-dropdown > .gr-dropdown-target {
+  display: block;
+}
 .modal-open {
   min-width: 320px;
   overflow-x: auto;
@@ -2366,4 +2369,4 @@ body .gr-table-pager .pagination li {
   float: left;
 }
 
-/*# sourceMappingURL=../../src/css/gr-ui.css.map */
+/*# sourceMappingURL=../../../../../../server/libraries/client/gr-ui/src/css/gr-ui.css.map */
