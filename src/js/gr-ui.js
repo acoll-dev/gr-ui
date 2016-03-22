@@ -3053,7 +3053,7 @@
     }]).run(['$templateCache', function($templateCache){
         $templateCache.put('gr-pager/pager.html', [
             '<div class="pagination-inner" ng-show="src.length > perPage">',
-                '<pagination total-items="src.length" num-pages="total" items-per-page="perPage || 6" max-size="3" ng-model="current" boundary-links="boundary()" rotate="false" first-text="<<" last-text=">>" next-text=">" previous-text="<"></pagination>',
+                '<uib-pagination total-items="src.length" num-pages="total" items-per-page="perPage || 6" max-size="3" ng-model="current" boundary-links="boundary()" rotate="false" first-text="<<" last-text=">>" next-text=">" previous-text="<"></uib-pagination>',
             '</div>'
         ].join(''));
     }]);
