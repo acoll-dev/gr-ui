@@ -501,8 +501,9 @@
                                 }
                             });
                         }
-                        if($element.find('input').length > 0){
-                            $element.find('input').eq(0).on({
+                        var $input = $element.find('input')
+                        if($input.length > 0){
+                            $input.eq(0).on({
                                 focus: function(){
                                     $element.parents('.gr-form-group').eq(0).addClass('has-focus');
                                 },
@@ -899,7 +900,7 @@
             // Text Field Handler
             $grAutofieldsProvider.settings.fixUrl = true;
             $grAutofieldsProvider.registerHandler(['text','email','url','date','number','password'], function(directive, field, index){
-                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input gr-bind-parent-events/>');
+                var fieldElements = $grAutofieldsProvider.field(directive, field, '<input gr-bind-parent-events ng-model-options="{allowInvalid: true}"/>');
 
                 var fixUrl = (field.fixUrl ? field.fixUrl : directive.options.fixUrl);
                 if(field.type == 'url' && fixUrl) fieldElements.input.attr('fix-url','');
@@ -1394,7 +1395,14 @@
         }])
         .config(['$grAutofieldsProvider', function($grAutofieldsProvider){
             // Add Validation Attributes
-            $grAutofieldsProvider.settings.attributes.container.ngClass = '{\'has-error\':$form.$property_clean.$invalid && $form.$submitted, \'has-success\':$form.$property_clean.$valid && $form.$submitted, \'required\': $required, \'has-value\': ($form.$property_clean.$modelValue !== \'\' && $form.$property_clean.$modelValue !== undefined && $form.$property_clean.$modelValue !== null)}';
+            $grAutofieldsProvider.settings.attributes.container.ngClass = [
+                '{',
+                    '\'has-error\':$form.$property_clean.$invalid && $form.$submitted, ',
+                    '\'has-success\':$form.$property_clean.$valid && $form.$submitted, ',
+                    '\'required\': $required, ',
+                    '\'has-value\': ($form.$property_clean.$modelValue !== \'\' && $form.$property_clean.$modelValue !== undefined && $form.$property_clean.$modelValue !== null)',
+                '}'
+            ].join('');
             $grAutofieldsProvider.settings.attributes.input.popover = '{{("+$grAutofieldsProvider.settings.validation.valid+") ? \'$validMsg\' : ($errorMsgs)}}';
 
             // Dont show popovers on these types
