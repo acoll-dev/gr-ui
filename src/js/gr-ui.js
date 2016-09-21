@@ -494,10 +494,14 @@
                             $scope.$watch(function(){
                                 return $ctrl.$modelValue;
                             }, function(value){
-                                if(value !== '' && value !== undefined && value !== null){
+                                if($element.hasClass('ui-select-container')){
                                     $element.parents('.gr-form-group').eq(0).addClass('has-value');
                                 }else{
-                                    $element.parents('.gr-form-group').eq(0).removeClass('has-value');
+                                    if(value !== '' && value !== undefined && value !== null){
+                                        $element.parents('.gr-form-group').eq(0).addClass('has-value');
+                                    }else{
+                                        $element.parents('.gr-form-group').eq(0).removeClass('has-value');
+                                    }
                                 }
                             });
                         }
